@@ -184,34 +184,6 @@ class SearchPage extends Page {
 	}
 
 	/**
-	 * Ensures that there is always a search page
-	 * by checking if there's an instance of
-	 * a base SearchPage. If there
-	 * is not, one is created when the DB is built.
-	 */
-	function requireDefaultRecords() {
-		parent::requireDefaultRecords();
-
-		if(SiteTree::get_create_default_pages()){
-			$page = DataObject::get_one('SearchPage');
-
-			// Make sure that the search page hasn't been inherited.
-
-			if(!($page && $page->exists()) && (count(ClassInfo::subclassesFor('SearchPage')) === 1)) {
-				$page = SearchPage::create();
-				$page->Title = _t('SearchPage.DEFAULT_PAGE_TITLE', 'Search');
-				$page->Content = '';
-				$page->ResultsPerPage = 10;
-				$page->Status = 'New page';
-				$page->write();
-
-				DB::alteration_message('Search page created', 'created');
-			}
-		}
-
-	}
-
-	/**
 	 * Return the fields that can be selected for sorting operations.
 	 *
 	 * @param String $listType
@@ -256,6 +228,72 @@ class SearchPage extends Page {
 	}
 
 	/**
+	 * Ensures that there is always a search page
+	 * by checking if there's an instance of
+	 * a base SearchPage. If there
+	 * is not, one is created when the DB is built.
+	 */
+	function requireDefaultRecords() {
+		parent::requireDefaultRecords();
+
+		if(SiteTree::get_create_default_pages()){
+			$page = DataObject::get_one('SearchPage');
+
+			// Make sure that the search page hasn't been inherited.
+
+			if(!($page && $page->exists()) && (count(ClassInfo::subclassesFor('SearchPage')) === 1)) {
+				$page = SearchPage::create();
+				$page->Title = _t('SearchPage.DEFAULT_PAGE_TITLE', 'Search');
+				$page->Content = '';
+				$page->ResultsPerPage = 10;
+				$page->Status = 'New page';
+				$page->write();
+
+				DB::alteration_message('Search page created', 'created');
+			}
+		}
+
+	}
+
+	/**
+	 * Get the list of field -> query items to be used for faceting by query
+	 */
+	public function queryFacets() {
+		$fields = array();
+		if ($this->FacetQueries && $fq = $this->FacetQueries->getValues()) {
+			$fields = array_flip($fq);
+		}
+		return $fields;
+	}
+
+	/**
+	 * Returns a url parameter string that was just used to execute the current query.
+	 *
+	 * This is useful for ensuring the parameters used in the search can be passed on again
+	 * for subsequent queries.
+	 *
+	 * @param array $exclusions
+	 *			A list of elements that should be excluded from the final query string
+	 *
+	 * @return String
+	 */
+	function SearchQuery() {
+		$parts = parse_url($_SERVER['REQUEST_URI']);
+		if(!$parts) {
+			throw new InvalidArgumentException("Can't parse URL: " . $uri);
+		}
+
+		// Parse params and add new variable
+		$params = array();
+		if(isset($parts['query'])) {
+			parse_str($parts['query'], $params);
+			if (count($params)) {
+				return http_build_query($params);
+			}
+		}
+	}
+
+	/**
 	 * get the list of types that we've selected to search on
 	 */
 	public function searchableTypes($default = null) {
@@ -269,4 +307,72 @@ class SearchPage extends Page {
 }
 
 class SearchPage_Controller extends Page_Controller {
+
+	private static $allowed_actions = array(
+		'Form',
+		'results',
+	);
+
+	public function index() {
+		if ($this->StartWithListing) {
+			$_GET['SortBy'] = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
+			$_GET['SortDir'] = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
+			$_GET['Search'] = '*:*';
+			$this->DefaultListing = true;
+
+			return $this->results();
+		}
+		return array();
+	}
+
+	public function Form() {
+		$fields = new FieldList(
+			new TextField('Search', _t('SearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
+		);
+
+		$objFields = $this->data()->getSelectableFields();
+
+		// Remove content and groups from being sortable (as they are not relevant).
+
+		unset($objFields['Content']);
+		unset($objFields['Groups']);
+
+		// Remove any custom field types and display the sortable options nicely to the user.
+
+		foreach($objFields as &$field) {
+			if($customType = strpos($field, ':')) {
+				$field = substr($field, 0, $customType);
+			}
+			$field = ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $field));
+		}
+		$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
+		$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
+		$fields->push(new DropdownField('SortBy', _t('SearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
+		$fields->push(new DropdownField('SortDir', _t('SearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
+
+		$actions = new FieldList(new FormAction('results', _t('SearchPage.DO_SEARCH', 'Search')));
+
+		$form = new SearchForm($this, 'Form', $fields, $actions);
+		$form->addExtraClass('searchPageForm');
+		$form->setFormMethod('GET');
+		$form->disableSecurityToken();
+		return $form;
+	}
+
+	/**
+	 * Process and render search results (taken from @Link ContentControllerSearchExtension with slightly altered parameters).
+	 *
+	 * @param array $data The raw request data submitted by user
+	 * @param SearchForm $form The form instance that was submitted
+	 * @param SS_HTTPRequest $request Request generated for this action
+	 */
+	public function results($data = null, $form = null) {
+		$data = array(
+			'Results' => $form->getResults(),
+			'Query' => $form->getSearchQuery(),
+			'Title' => _t('SearchPage.SearchResults', 'Search Results')
+		);
+		return $this->owner->customise($data)->renderWith(array('SearchPage_results', 'Page_results', 'Page'));
+	}
+
 }
