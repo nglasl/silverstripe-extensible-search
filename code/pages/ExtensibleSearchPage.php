@@ -326,6 +326,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	public function Form() {
+		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(!is_array($searchable) || (count($searchable) === 0)) {
+			return null;
+		}
 		$fields = new FieldList(
 			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
@@ -353,6 +357,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$actions = new FieldList(new FormAction('results', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
 
 		$form = new SearchForm($this, 'Form', $fields, $actions);
+		$form->classesToSearch($searchable);
 		$form->addExtraClass('searchPageForm');
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
