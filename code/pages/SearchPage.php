@@ -5,14 +5,14 @@
  *
  * This is an alternative encapsulation of search logic as it comprises much more than the out of the
  * box example. To use this instead of the default implementation, your search form call in Page should first
- * retrieve the SearchPage to use as its context.
+ * retrieve the ExtensibleSearchPage to use as its context.
  *
  * @author Nathan Glasl <nathan@silverstripe.com.au>
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license http://silverstripe.org/bsd-license/
  */
 
-class SearchPage extends Page {
+class ExtensibleSearchPage extends Page {
 
 	public static $db = array(
 		'ResultsPerPage'					=> 'Int',
@@ -52,7 +52,7 @@ class SearchPage extends Page {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$fields->addFieldToTab('Root.Main', new CheckboxField('StartWithListing', _t('SearchPage.START_LISTING', 'Display initial listing - useful for filterable "data type" lists')), 'Content');
+		$fields->addFieldToTab('Root.Main', new CheckboxField('StartWithListing', _t('ExtensibleSearchPage.START_LISTING', 'Display initial listing - useful for filterable "data type" lists')), 'Content');
 
 		if (class_exists('ListingTemplate')) {
 			$templates = DataObject::get('ListingTemplate');
@@ -62,13 +62,13 @@ class SearchPage extends Page {
 				$templates = array();
 			}
 
-			$label = _t('SearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
+			$label = _t('ExtensibleSearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
 			$fields->addFieldToTab('Root.Main', $template = new DropdownField('ListingTemplateID', $label, $templates, '', null), 'Content');
 			$template->setEmptyString('(results template)');
 		}
 
 		$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
-		$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('SearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
+		$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
 
 		$fields->addFieldToTab('Root.Main', new TreeMultiselectField('SearchTrees', 'Restrict results to these subtrees', 'Page'), 'Content');
 
@@ -83,8 +83,8 @@ class SearchPage extends Page {
 		$sortFields = $objFields;
 		unset($sortFields['Content']);
 		unset($sortFields['Groups']);
-		$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('SearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
-		$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('SearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
+		$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
+		$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
 
 		$types = SiteTree::page_type_classes();
 		$source = array_combine($types, $types);
@@ -99,10 +99,10 @@ class SearchPage extends Page {
 
 		$source = array_merge($source, self::$additional_search_types);
 
-		$types = new MultiValueDropdownField('SearchType', _t('SearchPage.SEARCH_ITEM_TYPE', 'Search items of type'), $source);
+		$types = new MultiValueDropdownField('SearchType', _t('ExtensibleSearchPage.SEARCH_ITEM_TYPE', 'Search items of type'), $source);
 		$fields->addFieldToTab('Root.Main', $types, 'Content');
 
-		$fields->addFieldToTab('Root.Main', new MultiValueDropdownField('SearchOnFields', _t('SearchPage.INCLUDE_FIELDS', 'Search On Fields'), $objFields), 'Content');
+		$fields->addFieldToTab('Root.Main', new MultiValueDropdownField('SearchOnFields', _t('ExtensibleSearchPage.INCLUDE_FIELDS', 'Search On Fields'), $objFields), 'Content');
 
 		if($this->hasMethod('getQueryBuilders')) {
 			$parsers = $this->getQueryBuilders();
@@ -112,7 +112,7 @@ class SearchPage extends Page {
 				$options[$key] = $obj->title;
 			}
 
-			$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('SearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
+			$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
 		}
 
 		$boostVals = array();
@@ -122,13 +122,13 @@ class SearchPage extends Page {
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			new KeyValueField('BoostFields', _t('SearchPage.BOOST_FIELDS', 'Boost values'), $objFields, $boostVals),
+			new KeyValueField('BoostFields', _t('ExtensibleSearchPage.BOOST_FIELDS', 'Boost values'), $objFields, $boostVals),
 			'Content'
 		);
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			$f = new KeyValueField('BoostMatchFields', _t('SearchPage.BOOST_MATCH_FIELDS', 'Boost fields with field/value matches'), array(), $boostVals),
+			$f = new KeyValueField('BoostMatchFields', _t('ExtensibleSearchPage.BOOST_MATCH_FIELDS', 'Boost fields with field/value matches'), array(), $boostVals),
 			'Content'
 		);
 
@@ -136,21 +136,21 @@ class SearchPage extends Page {
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			$kv = new KeyValueField('FilterFields', _t('SearchPage.FILTER_FIELDS', 'Fields to filter by')),
+			$kv = new KeyValueField('FilterFields', _t('ExtensibleSearchPage.FILTER_FIELDS', 'Fields to filter by')),
 			'Content'
 		);
 
-		$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('SearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
+		$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('ExtensibleSearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			new MultiValueDropdownField('FacetFields', _t('SearchPage.FACET_FIELDS', 'Fields to create facets for'), $objFields),
+			new MultiValueDropdownField('FacetFields', _t('ExtensibleSearchPage.FACET_FIELDS', 'Fields to create facets for'), $objFields),
 			'Content'
 		);
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			new MultiValueTextField('CustomFacetFields', _t('SearchPage.CUSTOM_FACET_FIELDS', 'Additional fields to create facets for')),
+			new MultiValueTextField('CustomFacetFields', _t('ExtensibleSearchPage.CUSTOM_FACET_FIELDS', 'Additional fields to create facets for')),
 			'Content'
 		);
 
@@ -163,18 +163,18 @@ class SearchPage extends Page {
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			new KeyValueField('FacetMapping', _t('SearchPage.FACET_MAPPING', 'Mapping of facet title to nice title'), $facetMappingFields),
+			new KeyValueField('FacetMapping', _t('ExtensibleSearchPage.FACET_MAPPING', 'Mapping of facet title to nice title'), $facetMappingFields),
 			'Content'
 		);
 
 		$fields->addFieldToTab(
 			'Root.Main',
-			new KeyValueField('FacetQueries', _t('SearchPage.FACET_QUERIES', 'Fields to create query facets for')),
+			new KeyValueField('FacetQueries', _t('ExtensibleSearchPage.FACET_QUERIES', 'Fields to create query facets for')),
 			'Content'
 		);
 
 		$fields->addFieldToTab('Root.Main',
-			new NumericField('MinFacetCount', _t('SearchPage.MIN_FACET_COUNT', 'Minimum facet count for inclusion in facet results'), 2),
+			new NumericField('MinFacetCount', _t('ExtensibleSearchPage.MIN_FACET_COUNT', 'Minimum facet count for inclusion in facet results'), 2),
 			'Content'
 		);
 
@@ -230,20 +230,20 @@ class SearchPage extends Page {
 	/**
 	 * Ensures that there is always a search page
 	 * by checking if there's an instance of
-	 * a base SearchPage. If there
+	 * a base ExtensibleSearchPage. If there
 	 * is not, one is created when the DB is built.
 	 */
 	function requireDefaultRecords() {
 		parent::requireDefaultRecords();
 
 		if(SiteTree::get_create_default_pages()){
-			$page = DataObject::get_one('SearchPage');
+			$page = DataObject::get_one('ExtensibleSearchPage');
 
 			// Make sure that the search page hasn't been inherited.
 
-			if(!($page && $page->exists()) && (count(ClassInfo::subclassesFor('SearchPage')) === 1)) {
-				$page = SearchPage::create();
-				$page->Title = _t('SearchPage.DEFAULT_PAGE_TITLE', 'Search');
+			if(!($page && $page->exists()) && (count(ClassInfo::subclassesFor('ExtensibleSearchPage')) === 1)) {
+				$page = ExtensibleSearchPage::create();
+				$page->Title = _t('ExtensibleSearchPage.DEFAULT_PAGE_TITLE', 'Search');
 				$page->Content = '';
 				$page->ResultsPerPage = 10;
 				$page->Status = 'New page';
@@ -306,7 +306,7 @@ class SearchPage extends Page {
 
 }
 
-class SearchPage_Controller extends Page_Controller {
+class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
 		'Form',
@@ -327,7 +327,7 @@ class SearchPage_Controller extends Page_Controller {
 
 	public function Form() {
 		$fields = new FieldList(
-			new TextField('Search', _t('SearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
+			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
 
 		$objFields = $this->data()->getSelectableFields();
@@ -347,10 +347,10 @@ class SearchPage_Controller extends Page_Controller {
 		}
 		$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
 		$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
-		$fields->push(new DropdownField('SortBy', _t('SearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
-		$fields->push(new DropdownField('SortDir', _t('SearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
+		$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
+		$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
 
-		$actions = new FieldList(new FormAction('results', _t('SearchPage.DO_SEARCH', 'Search')));
+		$actions = new FieldList(new FormAction('results', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
 
 		$form = new SearchForm($this, 'Form', $fields, $actions);
 		$form->addExtraClass('searchPageForm');
@@ -370,7 +370,7 @@ class SearchPage_Controller extends Page_Controller {
 		$data = array(
 			'Results' => $form->getResults(),
 			'Query' => $form->getSearchQuery(),
-			'Title' => _t('SearchPage.SearchResults', 'Search Results')
+			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
 		return $this->owner->customise($data)->renderWith(array('SearchPage_results', 'Page_results', 'Page'));
 	}
