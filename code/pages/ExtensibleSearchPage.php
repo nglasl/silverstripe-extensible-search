@@ -15,6 +15,7 @@
 class ExtensibleSearchPage extends Page {
 
 	public static $db = array(
+		'SearchEngine'						=> 'Varchar(255)',
 		'ResultsPerPage'					=> 'Int',
 		'SortBy'							=> "Varchar(64)",
 		'SortDir'							=> "Enum('Ascending,Descending')",
@@ -52,131 +53,167 @@ class ExtensibleSearchPage extends Page {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$fields->addFieldToTab('Root.Main', new CheckboxField('StartWithListing', _t('ExtensibleSearchPage.START_LISTING', 'Display initial listing - useful for filterable "data type" lists')), 'Content');
+		// Retrieve a list of search engine extensions currently applied that end with 'SearchPage'.
 
-		if (class_exists('ListingTemplate')) {
-			$templates = DataObject::get('ListingTemplate');
-			if ($templates) {
-				$templates = $templates->map();
-			} else {
-				$templates = array();
+		$extensions = $this->get_extensions(get_class());
+		foreach($extensions as $key => &$extension) {
+			$reversed = strrev($extension);
+			if(strpos($reversed, strrev('SearchPage')) === 0) {
+				$extension = strrev(substr($reversed, 10));
 			}
-
-			$label = _t('ExtensibleSearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
-			$fields->addFieldToTab('Root.Main', $template = new DropdownField('ListingTemplateID', $label, $templates, '', null), 'Content');
-			$template->setEmptyString('(results template)');
-		}
-
-		$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
-		$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
-
-		$fields->addFieldToTab('Root.Main', new TreeMultiselectField('SearchTrees', 'Restrict results to these subtrees', 'Page'), 'Content');
-
-		if (!$this->SortBy) {
-			$this->SortBy = 'Created';
-		}
-
-		$objFields = $this->getSelectableFields();
-
-		// Remove content and groups from being sortable (as they are not relevant).
-
-		$sortFields = $objFields;
-		unset($sortFields['Content']);
-		unset($sortFields['Groups']);
-		$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
-		$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
-
-		$types = SiteTree::page_type_classes();
-		$source = array_combine($types, $types);
-		asort($source);
-
-		// add in any explicitly configured
-		if($this->hasMethod('updateSource')) {
-			$this->updateSource($source);
-		}
-
-		ksort($source);
-
-		$source = array_merge($source, self::$additional_search_types);
-
-		$types = new MultiValueDropdownField('SearchType', _t('ExtensibleSearchPage.SEARCH_ITEM_TYPE', 'Search items of type'), $source);
-		$fields->addFieldToTab('Root.Main', $types, 'Content');
-
-		$fields->addFieldToTab('Root.Main', new MultiValueDropdownField('SearchOnFields', _t('ExtensibleSearchPage.INCLUDE_FIELDS', 'Search On Fields'), $objFields), 'Content');
-
-		if($this->hasMethod('getQueryBuilders')) {
-			$parsers = $this->getQueryBuilders();
-			$options = array();
-			foreach ($parsers as $key => $objCls) {
-				$obj = new $objCls;
-				$options[$key] = $obj->title;
-			}
-
-			$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
-		}
-
-		$boostVals = array();
-		for ($i = 1; $i <= 5; $i++) {
-			$boostVals[$i] = $i;
-		}
-
-		$fields->addFieldToTab(
-			'Root.Main',
-			new KeyValueField('BoostFields', _t('ExtensibleSearchPage.BOOST_FIELDS', 'Boost values'), $objFields, $boostVals),
-			'Content'
-		);
-
-		$fields->addFieldToTab(
-			'Root.Main',
-			$f = new KeyValueField('BoostMatchFields', _t('ExtensibleSearchPage.BOOST_MATCH_FIELDS', 'Boost fields with field/value matches'), array(), $boostVals),
-			'Content'
-		);
-
-		$f->setRightTitle('Enter a field name, followed by the value to boost if found in the result set, eg "title:Home" ');
-
-		$fields->addFieldToTab(
-			'Root.Main',
-			$kv = new KeyValueField('FilterFields', _t('ExtensibleSearchPage.FILTER_FIELDS', 'Fields to filter by')),
-			'Content'
-		);
-
-		$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('ExtensibleSearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
-
-		$fields->addFieldToTab(
-			'Root.Main',
-			new MultiValueDropdownField('FacetFields', _t('ExtensibleSearchPage.FACET_FIELDS', 'Fields to create facets for'), $objFields),
-			'Content'
-		);
-
-		$fields->addFieldToTab(
-			'Root.Main',
-			new MultiValueTextField('CustomFacetFields', _t('ExtensibleSearchPage.CUSTOM_FACET_FIELDS', 'Additional fields to create facets for')),
-			'Content'
-		);
-
-		$facetMappingFields = $objFields;
-		if ($this->CustomFacetFields && ($cff = $this->CustomFacetFields->getValues())) {
-			foreach ($cff as $facetField) {
-				$facetMappingFields[$facetField] = $facetField;
+			else {
+				unset($extensions[$key]);
 			}
 		}
+		$additional = array('');
 
-		$fields->addFieldToTab(
-			'Root.Main',
-			new KeyValueField('FacetMapping', _t('ExtensibleSearchPage.FACET_MAPPING', 'Mapping of facet title to nice title'), $facetMappingFields),
-			'Content'
-		);
+		// Determine if full text search is enabled.
 
-		$fields->addFieldToTab(
-			'Root.Main',
-			new KeyValueField('FacetQueries', _t('ExtensibleSearchPage.FACET_QUERIES', 'Fields to create query facets for')),
-			'Content'
-		);
+		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_array($searchable) && (count($searchable) > 0)) {
+			$additional['Full-Text'] = 'Full-Text';
+		}
 
-		$fields->addFieldToTab('Root.Main',
-			new NumericField('MinFacetCount', _t('ExtensibleSearchPage.MIN_FACET_COUNT', 'Minimum facet count for inclusion in facet results'), 2),
-			'Content'
-		);
+		// Allow selection of the search engine extension to use.
+
+		$fields->addFieldToTab('Root.Main', new DropdownField('SearchEngine', 'Search Engine', array_merge($additional, $extensions)), 'Content');
+
+		// Make sure a search engine is being used before allowing customisation.
+
+		if($this->SearchEngine) {
+			$fields->addFieldToTab('Root.Main', new CheckboxField('StartWithListing', _t('ExtensibleSearchPage.START_LISTING', 'Display initial listing - useful for filterable "data type" lists')), 'Content');
+
+			if (class_exists('ListingTemplate')) {
+				$templates = DataObject::get('ListingTemplate');
+				if ($templates) {
+					$templates = $templates->map();
+				} else {
+					$templates = array();
+				}
+
+				$label = _t('ExtensibleSearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
+				$fields->addFieldToTab('Root.Main', $template = new DropdownField('ListingTemplateID', $label, $templates, '', null), 'Content');
+				$template->setEmptyString('(results template)');
+			}
+
+			$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
+			$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
+
+			$fields->addFieldToTab('Root.Main', new TreeMultiselectField('SearchTrees', 'Restrict results to these subtrees', 'Page'), 'Content');
+
+			if (!$this->SortBy) {
+				$this->SortBy = 'Created';
+			}
+
+			$objFields = $this->getSelectableFields();
+
+			// Remove content and groups from being sortable (as they are not relevant).
+
+			$sortFields = $objFields;
+			unset($sortFields['Content']);
+			unset($sortFields['Groups']);
+			$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
+			$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
+
+			$types = SiteTree::page_type_classes();
+			$source = array_combine($types, $types);
+			asort($source);
+
+			// add in any explicitly configured
+			if($this->hasMethod('updateSource')) {
+				$this->updateSource($source);
+			}
+
+			ksort($source);
+
+			$source = array_merge($source, self::$additional_search_types);
+
+			$types = new MultiValueDropdownField('SearchType', _t('ExtensibleSearchPage.SEARCH_ITEM_TYPE', 'Search items of type'), $source);
+			$fields->addFieldToTab('Root.Main', $types, 'Content');
+
+			$fields->addFieldToTab('Root.Main', new MultiValueDropdownField('SearchOnFields', _t('ExtensibleSearchPage.INCLUDE_FIELDS', 'Search On Fields'), $objFields), 'Content');
+
+			if($this->hasMethod('getQueryBuilders')) {
+				$parsers = $this->getQueryBuilders();
+				$options = array();
+				foreach ($parsers as $key => $objCls) {
+					$obj = new $objCls;
+					$options[$key] = $obj->title;
+				}
+
+				$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
+			}
+
+			$boostVals = array();
+			for ($i = 1; $i <= 5; $i++) {
+				$boostVals[$i] = $i;
+			}
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				new KeyValueField('BoostFields', _t('ExtensibleSearchPage.BOOST_FIELDS', 'Boost values'), $objFields, $boostVals),
+				'Content'
+			);
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				$f = new KeyValueField('BoostMatchFields', _t('ExtensibleSearchPage.BOOST_MATCH_FIELDS', 'Boost fields with field/value matches'), array(), $boostVals),
+				'Content'
+			);
+
+			$f->setRightTitle('Enter a field name, followed by the value to boost if found in the result set, eg "title:Home" ');
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				$kv = new KeyValueField('FilterFields', _t('ExtensibleSearchPage.FILTER_FIELDS', 'Fields to filter by')),
+				'Content'
+			);
+
+			$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('ExtensibleSearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				new MultiValueDropdownField('FacetFields', _t('ExtensibleSearchPage.FACET_FIELDS', 'Fields to create facets for'), $objFields),
+				'Content'
+			);
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				new MultiValueTextField('CustomFacetFields', _t('ExtensibleSearchPage.CUSTOM_FACET_FIELDS', 'Additional fields to create facets for')),
+				'Content'
+			);
+
+			$facetMappingFields = $objFields;
+			if ($this->CustomFacetFields && ($cff = $this->CustomFacetFields->getValues())) {
+				foreach ($cff as $facetField) {
+					$facetMappingFields[$facetField] = $facetField;
+				}
+			}
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				new KeyValueField('FacetMapping', _t('ExtensibleSearchPage.FACET_MAPPING', 'Mapping of facet title to nice title'), $facetMappingFields),
+				'Content'
+			);
+
+			$fields->addFieldToTab(
+				'Root.Main',
+				new KeyValueField('FacetQueries', _t('ExtensibleSearchPage.FACET_QUERIES', 'Fields to create query facets for')),
+				'Content'
+			);
+
+			$fields->addFieldToTab('Root.Main',
+				new NumericField('MinFacetCount', _t('ExtensibleSearchPage.MIN_FACET_COUNT', 'Minimum facet count for inclusion in facet results'), 2),
+				'Content'
+			);
+		}
+		else {
+			Requirements::css(EXTENSIBLE_SEARCH_PAGE_PATH . '/css/extensible-search-page.css');
+			$fields->addFieldToTab('Root.Main', LiteralField::create(
+				'SearchEngineNotification',
+				"<p class='extensible-search-page notification'><strong>Select a Search Engine</strong></p>"
+			), 'Title');
+		}
 
 		$this->extend('updateCMSFields', $fields);
 

@@ -17,7 +17,7 @@
 
 ### Enabling Full Text
 
-The extensible search page will try to use the MySQL full text search by default, however will require some YAML configuration around the data objects you wish to search against.
+The extensible search page will work with the MySQL/SQLite full text search by default, however will require some YAML configuration around the data objects you wish to search against.
 
 ```yaml
 FulltextSearchable:
@@ -30,3 +30,7 @@ SiteTree:
   extensions:
     - FulltextSearchable('Title, MenuTitle, Content, MetaDescription')
 ```
+
+### Custom Search Wrappers
+
+These will need to be created as an extension of `ExtensibleSearchPage`, having their class name end with `SearchPage`.
