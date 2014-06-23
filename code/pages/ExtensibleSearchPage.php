@@ -53,30 +53,30 @@ class ExtensibleSearchPage extends Page {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
+		// Determine if full text search is enabled.
+
+		$engines = array(
+			'' => ''
+		);
+		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_array($searchable) && (count($searchable) > 0)) {
+			$engines['Full-Text'] = 'Full-Text';
+		}
+
 		// Retrieve a list of search engine extensions currently applied that end with 'SearchPage'.
 
 		$extensions = $this->get_extensions(get_class());
-		foreach($extensions as $key => &$extension) {
+		foreach($extensions as $extension) {
 			$reversed = strrev($extension);
 			if(strpos($reversed, strrev('SearchPage')) === 0) {
-				$extension = strrev(substr($reversed, 10));
+				$engine = strrev(substr($reversed, 10));
+				$engines[$engine] = $engine;
 			}
-			else {
-				unset($extensions[$key]);
-			}
-		}
-		$additional = array('');
-
-		// Determine if full text search is enabled.
-
-		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_array($searchable) && (count($searchable) > 0)) {
-			$additional['Full-Text'] = 'Full-Text';
 		}
 
 		// Allow selection of the search engine extension to use.
 
-		$fields->addFieldToTab('Root.Main', new DropdownField('SearchEngine', 'Search Engine', array_merge($additional, $extensions)), 'Content');
+		$fields->addFieldToTab('Root.Main', new DropdownField('SearchEngine', 'Search Engine', $engines), 'Content');
 
 		// Make sure a search engine is being used before allowing customisation.
 
@@ -119,9 +119,31 @@ class ExtensibleSearchPage extends Page {
 			$source = array_combine($types, $types);
 			asort($source);
 
-			// add in any explicitly configured
-			if($this->hasMethod('updateSource')) {
-				$this->updateSource($source);
+			if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
+				$engine = "{$this->SearchEngine}SearchPage";
+				foreach($this->extension_instances as $instance) {
+					if((get_class($instance) === $engine)) {
+						$instance->setOwner($this);
+
+						// Trigger the following methods on the current search engine extension.
+
+						if(method_exists($instance, 'updateSource')) {
+							// add in any explicitly configured
+							$instance->updateSource($source);
+						}
+						if(method_exists($instance, 'getQueryBuilders')) {
+							$parsers = $instance->getQueryBuilders();
+							$options = array();
+							foreach ($parsers as $key => $objCls) {
+								$obj = new $objCls;
+								$options[$key] = $obj->title;
+							}
+
+							$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
+						}
+						$instance->clearOwner();
+					}
+				}
 			}
 
 			ksort($source);
@@ -132,17 +154,6 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.Main', $types, 'Content');
 
 			$fields->addFieldToTab('Root.Main', new MultiValueDropdownField('SearchOnFields', _t('ExtensibleSearchPage.INCLUDE_FIELDS', 'Search On Fields'), $objFields), 'Content');
-
-			if($this->hasMethod('getQueryBuilders')) {
-				$parsers = $this->getQueryBuilders();
-				$options = array();
-				foreach ($parsers as $key => $objCls) {
-					$obj = new $objCls;
-					$options[$key] = $obj->title;
-				}
-
-				$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
-			}
 
 			$boostVals = array();
 			for ($i = 1; $i <= 5; $i++) {
@@ -275,10 +286,7 @@ class ExtensibleSearchPage extends Page {
 
 		if(SiteTree::get_create_default_pages()){
 			$page = DataObject::get_one('ExtensibleSearchPage');
-
-			// Make sure that the search page hasn't been inherited.
-
-			if(!($page && $page->exists()) && (count(ClassInfo::subclassesFor('ExtensibleSearchPage')) === 1)) {
+			if(!($page && $page->exists())) {
 				$page = ExtensibleSearchPage::create();
 				$page->Title = _t('ExtensibleSearchPage.DEFAULT_PAGE_TITLE', 'Search');
 				$page->Content = '';
