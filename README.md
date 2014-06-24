@@ -33,4 +33,4 @@ SiteTree:
 
 ### Custom Search Wrappers
 
-These will need to be created as an extension of `ExtensibleSearchPage`, having their class name end with `SearchPage`.
+These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `SearchPage`.

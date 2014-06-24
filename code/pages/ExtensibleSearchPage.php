@@ -14,7 +14,7 @@
 
 class ExtensibleSearchPage extends Page {
 
-	public static $db = array(
+	private static $db = array(
 		'SearchEngine'						=> 'Varchar(255)',
 		'ResultsPerPage'					=> 'Int',
 		'SortBy'							=> "Varchar(64)",
@@ -40,8 +40,12 @@ class ExtensibleSearchPage extends Page {
 		'ListingTemplateID'					=> 'Int',
 	);
 
-	public static $many_many = array(
+	private static $many_many = array(
 		'SearchTrees'			=> 'Page',
+	);
+
+	private static $defaults = array(
+		'ShowInMenus'			=> 0
 	);
 
 	/**
@@ -142,6 +146,7 @@ class ExtensibleSearchPage extends Page {
 							$fields->addFieldToTab('Root.Main', new DropdownField('QueryType', _t('ExtensibleSearchPage.QUERY_TYPE', 'Query Type'), $options), 'Content');
 						}
 						$instance->clearOwner();
+						break;
 					}
 				}
 			}
@@ -288,7 +293,7 @@ class ExtensibleSearchPage extends Page {
 			$page = DataObject::get_one('ExtensibleSearchPage');
 			if(!($page && $page->exists())) {
 				$page = ExtensibleSearchPage::create();
-				$page->Title = _t('ExtensibleSearchPage.DEFAULT_PAGE_TITLE', 'Search');
+				$page->Title = _t('ExtensibleSearchPage.DEFAULT_PAGE_TITLE', 'Search Page');
 				$page->Content = '';
 				$page->ResultsPerPage = 10;
 				$page->Status = 'New page';
@@ -359,6 +364,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	);
 
 	public function index() {
+
+		// Don't allow searching without a valid search engine.
+
+		$engine = $this->data()->SearchEngine;
+		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+			return $this->httpError(404);
+		}
 		if ($this->StartWithListing) {
 			$_GET['SortBy'] = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
 			$_GET['SortDir'] = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
@@ -370,11 +383,26 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		return array();
 	}
 
-	public function Form() {
-		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(!is_array($searchable) || (count($searchable) === 0)) {
-			return null;
+	/**
+	 *	Display an error page on invalid request.
+	 *
+	 *	@parameter <{ERROR_CODE}> integer
+	 *	@parameter <{ERROR_MESSAGE}> string
+	 */
+
+	public function httpError($code, $message = null) {
+
+		// Display the error page for the given status code.
+
+		if($response = ErrorPage::response_for($code)) {
+			throw new SS_HTTPResponse_Exception($response, $code);
 		}
+		else {
+			return parent::httpError($code, $message);
+		}
+	}
+
+	public function Form() {
 		$fields = new FieldList(
 			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
@@ -402,7 +430,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$actions = new FieldList(new FormAction('results', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
 
 		$form = new SearchForm($this, 'Form', $fields, $actions);
-		$form->classesToSearch($searchable);
+		$form->classesToSearch(Config::inst()->get('FulltextSearchable', 'searchable_classes'));
 		$form->addExtraClass('searchPageForm');
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
