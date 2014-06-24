@@ -222,6 +222,8 @@ class ExtensibleSearchPage extends Page {
 				new NumericField('MinFacetCount', _t('ExtensibleSearchPage.MIN_FACET_COUNT', 'Minimum facet count for inclusion in facet results'), 2),
 				'Content'
 			);
+
+			$this->extend('updateCMSFields', $fields);
 		}
 		else {
 			Requirements::css(EXTENSIBLE_SEARCH_PAGE_PATH . '/css/extensible-search-page.css');
@@ -230,8 +232,6 @@ class ExtensibleSearchPage extends Page {
 				"<p class='extensible-search-page notification'><strong>Select a Search Engine</strong></p>"
 			), 'Title');
 		}
-
-		$this->extend('updateCMSFields', $fields);
 
 		return $fields;
 	}
@@ -242,7 +242,26 @@ class ExtensibleSearchPage extends Page {
 	 * @param String $listType
 	 * @return array
 	 */
-	public function getSelectableFields($listType = null) {
+	public function getSelectableFields($listType = null, $excludeGeo = true) {
+
+		// Attempt to trigger this method on the current search engine extension instead.
+
+		if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
+			$engine = "{$this->SearchEngine}SearchPage";
+			foreach($this->extension_instances as $instance) {
+				if((get_class($instance) === $engine)) {
+					$instance->setOwner($this);
+					if(method_exists($instance, 'getSelectableFields')) {
+						return $instance->getSelectableFields($listType, $excludeGeo);
+					}
+					$instance->clearOwner();
+					break;
+				}
+			}
+		}
+
+		// Complete this method as normal.
+
 		if (!$listType) {
 			$listType = $this->searchableTypes('Page');
 		}
@@ -442,15 +461,33 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 *
 	 * @param array $data The raw request data submitted by user
 	 * @param SearchForm $form The form instance that was submitted
-	 * @param SS_HTTPRequest $request Request generated for this action
 	 */
 	public function results($data = null, $form = null) {
+
+		// Attempt to retrieve the results for the current search engine extension.
+
+		if(($this->data()->SearchEngine !== 'Full-Text') && $this->extension_instances) {
+			$engine = "{$this->data()->SearchEngine}SearchPage_Controller";
+			foreach($this->extension_instances as $instance) {
+				if((get_class($instance) === $engine)) {
+					$instance->setOwner($this);
+					if(method_exists($instance, 'results')) {
+						return $instance->results($data, $form);
+					}
+					$instance->clearOwner();
+					break;
+				}
+			}
+		}
+
+		// Fall back to displaying the full-text results.
+
 		$data = array(
 			'Results' => $form->getResults(),
 			'Query' => $form->getSearchQuery(),
 			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
-		return $this->owner->customise($data)->renderWith(array('SearchPage_results', 'Page_results', 'Page'));
+		return $this->customise($data)->renderWith(array('ExtensibleSearchPage_results', 'Page_results', 'Page'));
 	}
 
 }
