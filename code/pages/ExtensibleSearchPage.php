@@ -378,8 +378,8 @@ class ExtensibleSearchPage extends Page {
 class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
-		'Form',
-		'results',
+		'getForm',
+		'getSearchResults',
 	);
 
 	public function index() {
@@ -397,7 +397,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$_GET['Search'] = '*:*';
 			$this->DefaultListing = true;
 
-			return $this->results();
+			return $this->getSearchResults();
 		}
 		return array();
 	}
@@ -421,7 +421,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 	}
 
-	public function Form() {
+	public function getForm() {
 		$fields = new FieldList(
 			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
@@ -446,10 +446,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
 		$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
 
-		$actions = new FieldList(new FormAction('results', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
+		$actions = new FieldList(new FormAction('getSearchResults', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
 
-		$form = new SearchForm($this, 'Form', $fields, $actions);
-		$form->classesToSearch(Config::inst()->get('FulltextSearchable', 'searchable_classes'));
+		$form = new SearchForm($this, 'getForm', $fields, $actions);
+		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_array($searchable) && (count($searchable) > 0)) {
+			$form->classesToSearch($searchable);
+		}
 		$form->addExtraClass('searchPageForm');
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
@@ -462,7 +465,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 * @param array $data The raw request data submitted by user
 	 * @param SearchForm $form The form instance that was submitted
 	 */
-	public function results($data = null, $form = null) {
+	public function getSearchResults($data = null, $form = null) {
 
 		// Attempt to retrieve the results for the current search engine extension.
 
@@ -482,8 +485,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Fall back to displaying the full-text results.
 
+		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		$results = (is_array($searchable) && (count($searchable) > 0)) ? $form->getResults() : false;
 		$data = array(
-			'Results' => $form->getResults(),
+			'Results' => $results,
 			'Query' => $form->getSearchQuery(),
 			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
