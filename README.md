@@ -1,5 +1,7 @@
 # extensible-search
 
+_**NOTE:** This is currently in development and may not function correctly._
+
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
 
 ## Requirement
