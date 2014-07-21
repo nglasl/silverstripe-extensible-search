@@ -33,6 +33,16 @@ SiteTree:
     - FulltextSearchable('Title, MenuTitle, Content, MetaDescription')
 ```
 
+To allow search functionality through template hooks, make sure the appropriate extension has also been applied.
+
+```yaml
+Page_Controller:
+  extensions:
+    - 'ExtensibleSearchExtension'
+```
+
+The search form may now be retrieved from a template using `$SearchForm`.
+
 ### Custom Search Wrappers
 
 These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `SearchPage`.

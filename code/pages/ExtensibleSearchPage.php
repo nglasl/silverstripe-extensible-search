@@ -422,6 +422,17 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	public function getForm() {
+
+		// Don't allow searching without a valid search engine.
+
+		$engine = $this->data()->SearchEngine;
+		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+			return $this->httpError(404);
+		}
+
+		// Construct the search form.
+
 		$fields = new FieldList(
 			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
@@ -467,6 +478,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 */
 	public function getSearchResults($data = null, $form = null) {
 
+		// Don't allow searching without a valid search engine.
+
+		$engine = $this->data()->SearchEngine;
+		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+			return $this->httpError(404);
+		}
+
 		// Attempt to retrieve the results for the current search engine extension.
 
 		if(($this->data()->SearchEngine !== 'Full-Text') && $this->extension_instances) {
@@ -474,8 +493,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			foreach($this->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
 					$instance->setOwner($this);
-					if(method_exists($instance, 'results')) {
-						return $instance->results($data, $form);
+					if(method_exists($instance, 'getSearchResults')) {
+						return $instance->getSearchResults($data, $form);
 					}
 					$instance->clearOwner();
 					break;
@@ -486,10 +505,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Fall back to displaying the full-text results.
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		$results = (is_array($searchable) && (count($searchable) > 0)) ? $form->getResults() : false;
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getResults() : false;
 		$data = array(
 			'Results' => $results,
-			'Query' => $form->getSearchQuery(),
+			'Query' => $form ? $form->getSearchQuery() : null,
 			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
 		return $this->customise($data)->renderWith(array('ExtensibleSearchPage_results', 'Page_results', 'Page'));
