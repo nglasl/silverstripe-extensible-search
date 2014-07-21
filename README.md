@@ -24,13 +24,13 @@ The extensible search page will work with the MySQL/SQLite full text search by d
 ```yaml
 FulltextSearchable:
   searchable_classes:
-    - SiteTree
+    - 'SiteTree'
 SiteTree:
   create_table_options:
     MySQLDatabase:
-      ENGINE=MyISAM
+      'ENGINE=MyISAM'
   extensions:
-    - FulltextSearchable('Title, MenuTitle, Content, MetaDescription')
+    - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
 To allow search functionality through template hooks, make sure the appropriate extension has also been applied.
