@@ -17,6 +17,11 @@ _**NOTE:** This is currently in development and may not function correctly._
 
 ## Overview
 
+### Configuring the Search Page
+
+A new page type `ExtensibleSearchPage` should automatically be created for you in the site root.
+This should be published before you are able to perform searches using a search engine selection.
+
 ### Enabling Full Text
 
 The extensible search page will work with the MySQL/SQLite full text search by default, however will require some YAML configuration around the data objects you wish to search against.
