@@ -40,6 +40,27 @@ class ExtensibleSearchPage extends Page {
 		'ListingTemplateID'					=> 'Int',
 	);
 
+	// Define the DB fields that are supported by full-text search customisation.
+
+	private static $support = array(
+		'ResultsPerPage'					=> 1,
+		'SortBy'							=> 1,
+		'SortDir'							=> 1,
+		'QueryType'							=> 0,
+		'StartWithListing'					=> 1,
+		'SearchType'						=> 1,
+		'SearchOnFields'					=> 1,
+		'BoostFields'						=> 0,
+		'BoostMatchFields'					=> 0,
+		'FacetFields'						=> 1,
+		'CustomFacetFields'					=> 1,
+		'FacetMapping'						=> 1,
+		'FacetQueries'						=> 1,
+		'MinFacetCount'						=> 1,
+		'FilterFields'						=> 1,
+		'ListingTemplateID'					=> 1
+	);
+
 	private static $many_many = array(
 		'SearchTrees'			=> 'Page',
 	);
