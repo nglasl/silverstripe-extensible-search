@@ -4,9 +4,12 @@ _**NOTE:** This is currently in development and may not function correctly._
 
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
 
+	This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
+
 ## Requirement
 
 * SilverStripe 3.1.X
+* The multivaluefield module from https://github.com/nyeholt/silverstripe-multivaluefield
 
 ## Getting Started
 
@@ -61,3 +64,7 @@ To process the result set using your new search wrapper, the `getSearchResults` 
 DB field support may be defined using the `$support` class variable on your extension, an example being that your search wrapper does not support faceting.
 
 To allow full customisation of your custom search wrapper from the CMS, the `updateSource`, `getQueryBuilders` and `getSelectableFields` methods may need be implemented. Hopefully these will be updated further down the track to remove such a dependency.
+
+### Templating
+
+Custom templating may be defined through your search wrapper, however the default templating for the full-text search is either `ExtensibleSearchPage_results` or `Page_results`.
