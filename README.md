@@ -50,12 +50,14 @@ The search form may now be retrieved from a template using `$SearchForm`.
 
 ### Custom Search Wrappers
 
-These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `SearchPage`. The same will need to be done for the controller, however this will end with `SearchPage_Controller`.
+These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `SearchPage`. The same will need to be done for the controller, however this will be applied to `ExtensibleSearchPage_Controller` and end with `SearchPage_Controller`.
 
 	https://github.com/nyeholt/silverstripe-solr
 
 #### Customisation
 
 To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension.
+
+DB field support may be defined using the `$support` class variable on your extension, an example being that your search wrapper does not support faceting.
 
 To allow full customisation of your custom search wrapper from the CMS, the `updateSource`, `getQueryBuilders` and `getSelectableFields` methods may need be implemented. Hopefully these will be updated further down the track to remove such a dependency.
