@@ -89,13 +89,13 @@ class ExtensibleSearchPage extends Page {
 			$engines['Full-Text'] = 'Full-Text';
 		}
 
-		// Retrieve a list of search engine extensions currently applied that end with 'SearchPage'.
+		// Retrieve a list of search engine extensions currently applied that end with 'Search'.
 
 		$extensions = $this->get_extensions(get_class());
 		foreach($extensions as $extension) {
 			$reversed = strrev($extension);
-			if(strpos($reversed, strrev('SearchPage')) === 0) {
-				$engine = strrev(substr($reversed, 10));
+			if(strpos($reversed, strrev('Search')) === 0) {
+				$engine = strrev(substr($reversed, 6));
 				$engines[$engine] = $engine;
 			}
 		}
@@ -112,7 +112,7 @@ class ExtensibleSearchPage extends Page {
 
 			$support = self::$support;
 			if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-				$engine = "{$this->SearchEngine}SearchPage";
+				$engine = "{$this->SearchEngine}Search";
 				foreach($this->extension_instances as $instance) {
 					if((get_class($instance) === $engine)) {
 						$instance->setOwner($this);
@@ -175,7 +175,7 @@ class ExtensibleSearchPage extends Page {
 			$source = array_combine($types, $types);
 
 			if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-				$engine = "{$this->SearchEngine}SearchPage";
+				$engine = "{$this->SearchEngine}Search";
 				foreach($this->extension_instances as $instance) {
 					if((get_class($instance) === $engine)) {
 						$instance->setOwner($this);
@@ -315,7 +315,7 @@ class ExtensibleSearchPage extends Page {
 		// Attempt to trigger this method on the current search engine extension instead.
 
 		if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-			$engine = "{$this->SearchEngine}SearchPage";
+			$engine = "{$this->SearchEngine}Search";
 			foreach($this->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
 					$instance->setOwner($this);
@@ -557,7 +557,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Attempt to retrieve the results for the current search engine extension.
 
 		if(($this->data()->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-			$engine = "{$this->data()->SearchEngine}SearchPage_Controller";
+			$engine = "{$this->data()->SearchEngine}Search_Controller";
 			foreach($this->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
 					$instance->setOwner($this);
