@@ -573,7 +573,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Fall back to displaying the full-text results.
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getResults() : false;
+		$sort = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
+		$filter = '';
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter) : false;
 		$data = array(
 			'Results' => $results,
 			'Query' => $form ? $form->getSearchQuery() : null,
