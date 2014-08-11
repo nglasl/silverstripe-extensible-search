@@ -596,6 +596,22 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$sort = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
 		$filter = '';
 		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter, $data) : false;
+
+		// Render the full-text results using a listing template where defined.
+
+		if($this->data()->ListingTemplateID && $results) {
+			$template = DataObject::get_by_id('ListingTemplate', $this->data()->ListingTemplateID);
+			if($template && $template->exists()) {
+				$render = $this->data()->customise(array(
+					'Items' => $results
+				));
+				$viewer = SSViewer::fromString($template->ItemTemplate);
+				$results = $viewer->process($render);
+			}
+		}
+
+		// Render everything into the search page template.
+
 		$data = array(
 			'Results' => $results,
 			'Query' => $form ? $form->getSearchQuery() : null,

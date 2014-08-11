@@ -68,3 +68,19 @@ To allow full customisation of your custom search wrapper from the CMS, the `upd
 ### Templating
 
 Custom templating may be defined through your search wrapper, however the default templating for the full-text search is either `ExtensibleSearchPage_results` or `Page_results`.
+
+#### Listing Template
+
+If you have created a custom listing template for your results, you will need something like the following in your search page template.
+
+```
+<% if $ListingTemplateID %>
+	$Results
+<% else %>
+	<% loop $Results %>
+		...
+	<% end_loop %>
+<% end_if %>
+```
+
+This listing template will require looping through the `$Items` variable.
