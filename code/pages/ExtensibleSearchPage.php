@@ -62,6 +62,10 @@ class ExtensibleSearchPage extends Page {
 		'SearchTrees'						=> 1
 	);
 
+	// The default full-text search string that will be used to return all "start with listing" results.
+
+	public $default_search = '';
+
 	private static $many_many = array(
 		'SearchTrees'			=> 'Page',
 	);
@@ -69,11 +73,6 @@ class ExtensibleSearchPage extends Page {
 	private static $defaults = array(
 		'ShowInMenus'			=> 0
 	);
-
-	/**
-	 *
-	 * @var array
-	 */
 	public static $additional_search_types = array();
 
 	public function getCMSFields() {
@@ -459,13 +458,34 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
 			return $this->httpError(404);
 		}
+
+		// This default search listing will be displayed when the search page has loaded.
+
 		if ($this->StartWithListing) {
 			$_GET['SortBy'] = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
 			$_GET['SortDir'] = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
-			$_GET['Search'] = '*:*';
-			$this->DefaultListing = true;
 
-			return $this->getSearchResults();
+			// The default full-text search string to return all results.
+
+			$_GET['Search'] = $this->data()->default_search;
+
+			// Construct the default search string used for the current engine/wrapper.
+
+			if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+				$engine = "{$this->SearchEngine}Search";
+				foreach($this->data()->extension_instances as $instance) {
+					if((get_class($instance) === $engine)) {
+						$instance->setOwner($this);
+						if(isset($instance->default_search)) {
+							$_GET['Search'] = $instance->default_search;
+						}
+						$instance->clearOwner();
+						break;
+					}
+				}
+			}
+			$this->DefaultListing = true;
+			return $this->getSearchResults($_GET, $this->getForm());
 		}
 		return array();
 	}
@@ -575,7 +595,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		$sort = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
 		$filter = '';
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter) : false;
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter, $data) : false;
 		$data = array(
 			'Results' => $results,
 			'Query' => $form ? $form->getSearchQuery() : null,

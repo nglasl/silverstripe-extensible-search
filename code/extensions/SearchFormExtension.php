@@ -71,7 +71,7 @@ class SearchFormExtension extends Extension {
 		return $results;
 	}
 
-	protected function addStarsToKeywords($keywords) {
+	public function addStarsToKeywords($keywords) {
 		if(!trim($keywords)) return "";
 		// Add * to each keyword
 		$splitWords = preg_split("/ +/" , trim($keywords));
