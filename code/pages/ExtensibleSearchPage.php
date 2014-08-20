@@ -48,16 +48,16 @@ class ExtensibleSearchPage extends Page {
 		'SortDir'							=> 1,
 		'QueryType'							=> 0,
 		'StartWithListing'					=> 1,
-		'SearchType'						=> 1,
-		'SearchOnFields'					=> 1,
+		'SearchType'						=> 0,
+		'SearchOnFields'					=> 0,
 		'BoostFields'						=> 0,
 		'BoostMatchFields'					=> 0,
-		'FacetFields'						=> 1,
-		'CustomFacetFields'					=> 1,
-		'FacetMapping'						=> 1,
-		'FacetQueries'						=> 1,
-		'MinFacetCount'						=> 1,
-		'FilterFields'						=> 1,
+		'FacetFields'						=> 0,
+		'CustomFacetFields'					=> 0,
+		'FacetMapping'						=> 0,
+		'FacetQueries'						=> 0,
+		'MinFacetCount'						=> 0,
+		'FilterFields'						=> 0,
 		'ListingTemplateID'					=> 1,
 		'SearchTrees'						=> 1
 	);
@@ -243,7 +243,9 @@ class ExtensibleSearchPage extends Page {
 				);
 			}
 
-			$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('ExtensibleSearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
+			if($this->SearchEngine !== 'Full-Text') {
+				$fields->addFieldToTab('Root.Main', new HeaderField('FacetHeader', _t('ExtensibleSearchPage.FACET_HEADER', 'Facet Settings')), 'Content');
+			}
 
 			if($support['FacetFields']) {
 				$fields->addFieldToTab(
@@ -594,7 +596,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		$sort = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
-		$filter = '';
+
+		// Apply any site tree restrictions.
+
+		$filter = implode(', ', $this->SearchTrees()->map('ID', 'ID')->toArray());
+		if($filter) {
+			$filter = "ParentID IN({$filter})";
+		}
 		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter, $data) : false;
 
 		// Render the full-text results using a listing template where defined.
