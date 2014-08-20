@@ -1,8 +1,6 @@
-:bust_in_silhouette:
-
 # [extensible-search](https://github.com/nglasl)
 
-_**NOTE:** This repository has been pulled together using re-factored code from an existing module._
+_**NOTE:** This repository has been pulled together using re-factored code from an existing module :bust_in_silhouette:_
 
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
 
