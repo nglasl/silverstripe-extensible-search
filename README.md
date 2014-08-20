@@ -1,4 +1,4 @@
-# extensible-search
+# [extensible-search](https://github.com/nglasl)
 
 _**NOTE:** This repository has been pulled together using re-factored code from another module._
 
