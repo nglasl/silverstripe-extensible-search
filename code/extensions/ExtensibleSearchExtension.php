@@ -2,13 +2,13 @@
 
 /**
  * A controller extension that provides additional methods on page controllers
- * to allow for better searching using Solr
+ * to allow for better searching using an extensible search page
  *
  * @author marcus@silverstripe.com.au
  * @license http://silverstripe.org/bsd-license/
  */
 class ExtensibleSearchExtension extends Extension {
-	
+
 	private static $allowed_actions = array(
 		'SearchForm',
 		'results'
