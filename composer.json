@@ -5,7 +5,7 @@
 	"keywords": [
 		"silverstripe",
 		"search",
-		"engine"
+		"full-text"
 	],
 	"homepage": "https://github.com/nglasl/silverstripe-extensible-search",
 	"license": "BSD-3-Clause",
