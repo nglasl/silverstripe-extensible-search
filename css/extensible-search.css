@@ -1,5 +1,10 @@
+
+/**
+ *	The extensible search specific styling.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ */
+
 p.extensible-search.notification {
-	padding: 5px;
 	background: #FFA84C;
 	background: -o-linear-gradient(top, #FFA84C, #FF7B0D);
 	filter: progid:DXImageTransform.Microsoft.Gradient(startColorStr = '#FFA84C', endColorStr = '#FF7B0D');
@@ -7,6 +12,7 @@ p.extensible-search.notification {
 	background: -moz-linear-gradient(top, #FFA84C, #FF7B0D);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFA84C), color-stop(100%, #FF7B0D));
 	background: -webkit-linear-gradient(top, #FFA84C, #FF7B0D);
+	padding: 5px;
 	border: 1px solid #FF7400;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
