@@ -6,7 +6,7 @@
  *	@author Nathan Glasl, <nathan@silverstripe.com.au>
  */
 
-class SearchFormExtension extends Extension {
+class SearchFormResultsExtension extends Extension {
 
 	// These functions have been copied from the base search form class, updated to support both sort and filter functionality.
 

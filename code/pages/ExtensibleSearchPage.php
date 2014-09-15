@@ -295,10 +295,10 @@ class ExtensibleSearchPage extends Page {
 			$this->extend('updateCMSFields', $fields);
 		}
 		else {
-			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search-page.css');
+			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
-				"<p class='extensible-search-page notification'><strong>Select a Search Engine</strong></p>"
+				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"
 			), 'Title');
 		}
 
