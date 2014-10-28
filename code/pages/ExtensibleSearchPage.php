@@ -292,7 +292,7 @@ class ExtensibleSearchPage extends Page {
 				);
 			}
 
-			$this->extend('updateCMSFields', $fields);
+			$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		}
 		else {
 			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
