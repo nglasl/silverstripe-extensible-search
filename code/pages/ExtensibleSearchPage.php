@@ -453,8 +453,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function index() {
 
-		parent::index();
-
 		// Don't allow searching without a valid search engine.
 
 		$engine = $this->data()->SearchEngine;
