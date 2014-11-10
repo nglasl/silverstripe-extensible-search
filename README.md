@@ -15,7 +15,7 @@ https://github.com/nyeholt/silverstripe-solr
 ## Requirement
 
 * SilverStripe 3.1.X
-* The multivaluefield module from https://github.com/nyeholt/silverstripe-multivaluefield
+* The multivaluefield module from https://github.com/nyeholt/silverstripe-multivaluefield.
 
 ## Getting Started
 
