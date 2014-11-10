@@ -139,7 +139,7 @@ class ExtensibleSearchPage extends Page {
 				}
 
 				$label = _t('ExtensibleSearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
-				$fields->addFieldToTab('Root.Main', $template = new DropdownField('ListingTemplateID', $label, $templates, '', null), 'Content');
+				$fields->addFieldToTab('Root.Main', $template = DropdownField::create('ListingTemplateID', $label, $templates, '', null)->setEmptyString('(results template)'), 'Content');
 				$template->setEmptyString('(results template)');
 			}
 
@@ -449,6 +449,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getForm',
 		'getSearchResults',
+		'results',
 	);
 
 	public function index() {
@@ -627,5 +628,15 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		);
 		return $this->customise($data)->renderWith(array('ExtensibleSearchPage_results', 'Page_results', 'Page'));
 	}
-
+	
+	/**
+	 * Allow calling by /search/results for displaying a results page. 
+	 * 
+	 * @param type $data
+	 * @param type $form
+	 * @return string
+	 */
+	public function results($data = null, $form = null) {
+		return $this->getSearchResults($data, $form);
+	}
 }
