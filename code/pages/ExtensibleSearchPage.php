@@ -449,7 +449,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getForm',
 		'getSearchResults',
-		'results',
+		'results'
 	);
 
 	public function index() {
@@ -637,6 +637,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 * @return string
 	 */
 	public function results($data = null, $form = null) {
+
 		return $this->getSearchResults($data, $form);
 	}
+
 }
