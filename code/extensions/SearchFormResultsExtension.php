@@ -46,11 +46,15 @@ class SearchFormResultsExtension extends Extension {
 		if(!$pageLength) $pageLength = $this->owner->pageLength;
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 
+		$starttime = microtime(true);
 		if(strpos($keywords, '"') !== false || strpos($keywords, '+') !== false || strpos($keywords, '-') !== false || strpos($keywords, '*') !== false) {
 			$results = DB::getConn()->searchEngine($this->owner->classesToSearch, $keywords, $start, $pageLength, $sort, $filter, true);
 		} else {
 			$results = DB::getConn()->searchEngine($this->owner->classesToSearch, $keywords, $start, $pageLength);
 		}
+		$totalTime = microtime(true) - $starttime;
+
+		SearchRecord::record_search($data['Search'], $results->getTotalItems(), $totalTime / 1000);
 
 		// filter by permission
 		if($results) foreach($results as $result) {
