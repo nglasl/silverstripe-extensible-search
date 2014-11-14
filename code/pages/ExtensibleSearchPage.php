@@ -449,6 +449,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getForm',
 		'getSearchResults',
+		'suggest'
 	);
 
 	public function index() {
@@ -490,6 +491,18 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			return $this->getSearchResults($_GET, $this->getForm());
 		}
 		return array();
+	}
+	
+	public function suggest($request) {
+		$term = trim($request->getVar('term'));
+		
+		$filter = array('Title:PartialMatch' => $term);
+		
+		$items = SearchSuggestion::get()->filter($filter)->sort('Frequency DESC')->limit(10); //->toNestedArray();
+		$results = array('results' => $items->column('Title'));
+		
+		$this->response->addHeader('Content-type', 'application/json');
+		return Convert::raw2json($results);
 	}
 
 	/**
