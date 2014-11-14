@@ -57,6 +57,19 @@ Page_Controller:
 
 The search form may now be retrieved from a template using `$SearchForm`.
 
+### Suggestions
+
+To enable autocomplete search suggestions on the frontend, add the following 
+scripts to your page init 
+
+```php 
+	Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.js');
+	Requirements::javascript('framework/thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+	Requirements::javascript('silverstripe-extensible-search/javascript/search-suggest.js');
+	
+	Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
+```
+
 ### Custom Search Wrappers
 
 These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `Search`. The same will need to be done for the controller, however this will be applied to `ExtensibleSearchPage_Controller` and end with `Search_Controller`.
