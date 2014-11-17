@@ -8,8 +8,6 @@
 				$(this).autocomplete({
 					source: function (request, response) {
 						$.get(url, {term: request.term}).success(function (data) {
-							console.log("source got ");
-							console.log(data);
 							response(data.results);
 						})
 					},
