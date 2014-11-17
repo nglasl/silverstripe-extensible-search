@@ -61,8 +61,14 @@ class ExtensibleSearchExtension extends Extension {
 		$actions = new FieldList(
 	      	new FormAction('results', 'Search')
 	  	);
+		
+		$page = $this->owner->getSearchPage();
+		if ($page && $page->SearchEngine) {
+			$controller = ModelAsController::controller_for($page);
+			return $controller->getForm();
+		}
 
-	  	return (($page = $this->owner->getSearchPage()) && $page->SearchEngine) ? new SearchForm($this->owner, "SearchForm", $fields, $actions) : null;
+		return null;
 	}
 
 	/**
