@@ -13,6 +13,7 @@ class ExtensibleSearchService {
 	 *	@parameter <{SEARCH_TERM}> string
 	 *	@parameter <{NUMBER_OF_SEARCH_RESULTS}> integer
 	 *	@parameter <{SEARCH_TIME}> float
+	 *	@parameter <{SEARCH_ENGINE}> string
 	 *	@return extensible search
 	 */
 
