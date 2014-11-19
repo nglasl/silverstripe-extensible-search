@@ -76,7 +76,9 @@ class ExtensibleSearchPage extends Page {
 	public static $additional_search_types = array();
 
 	public function getCMSFields() {
+
 		$fields = parent::getCMSFields();
+		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
 		// Determine if full text search is enabled.
 
@@ -295,7 +297,6 @@ class ExtensibleSearchPage extends Page {
 			$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		}
 		else {
-			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
 				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"

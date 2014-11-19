@@ -18,3 +18,9 @@ p.extensible-search.notification {
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
+
+/* Correcting some core layout issues. */
+
+#Form_EditForm_SearchAnalytics tbody.ss-gridfield-items tr {
+	cursor: default;
+}
