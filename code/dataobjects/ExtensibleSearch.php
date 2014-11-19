@@ -15,7 +15,7 @@ class ExtensibleSearch extends DataObject {
 	);
 
 	/**
-	 *	Allow the ability to disable these search analytics.
+	 *	Allow the ability to disable search analytics.
 	 */
 
 	private static $enable_analytics = true;
