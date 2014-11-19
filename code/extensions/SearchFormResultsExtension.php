@@ -8,6 +8,12 @@
 
 class SearchFormResultsExtension extends Extension {
 
+	public $service;
+
+	private static $dependencies = array(
+		'service' => '%$ExtensibleSearchService'
+	);
+
 	// These functions have been copied from the base search form class, updated to support both sort and filter functionality.
 
 	public function getExtendedResults($pageLength = null, $sort = 'Relevance DESC', $filter = '', $data = null) {
@@ -26,9 +32,7 @@ class SearchFormResultsExtension extends Extension {
 				}
 			}
 		}
-
-		$keywords = $data['Search'];
-
+		$search = $data['Search'];
 	 	$andProcessor = create_function('$matches','
 	 		return " +" . $matches[2] . " +" . $matches[4] . " ";
 	 	');
@@ -36,7 +40,7 @@ class SearchFormResultsExtension extends Extension {
 	 		return " -" . $matches[3];
 	 	');
 
-	 	$keywords = preg_replace_callback('/()("[^()"]+")( and )("[^"()]+")()/i', $andProcessor, $keywords);
+	 	$keywords = preg_replace_callback('/()("[^()"]+")( and )("[^"()]+")()/i', $andProcessor, $search);
 	 	$keywords = preg_replace_callback('/(^| )([^() ]+)( and )([^ ()]+)( |$)/i', $andProcessor, $keywords);
 		$keywords = preg_replace_callback('/(^| )(not )("[^"()]+")/i', $notProcessor, $keywords);
 		$keywords = preg_replace_callback('/(^| )(not )([^() ]+)( |$)/i', $notProcessor, $keywords);
@@ -46,11 +50,14 @@ class SearchFormResultsExtension extends Extension {
 		if(!$pageLength) $pageLength = $this->owner->pageLength;
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 
+		$startTime = microtime(true);
 		if(strpos($keywords, '"') !== false || strpos($keywords, '+') !== false || strpos($keywords, '-') !== false || strpos($keywords, '*') !== false) {
 			$results = DB::getConn()->searchEngine($this->owner->classesToSearch, $keywords, $start, $pageLength, $sort, $filter, true);
 		} else {
 			$results = DB::getConn()->searchEngine($this->owner->classesToSearch, $keywords, $start, $pageLength);
 		}
+		$totalTime = microtime(true) - $startTime;
+		$this->service->logSearch($search, $results->getTotalItems(), $totalTime);
 
 		// filter by permission
 		if($results) foreach($results as $result) {

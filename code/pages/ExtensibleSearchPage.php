@@ -302,6 +302,60 @@ class ExtensibleSearchPage extends Page {
 			), 'Title');
 		}
 
+		// Retrieve the extensible search analytics, when enabled.
+
+		if(Config::inst()->get('ExtensibleSearch', 'enable_analytics')) {
+
+			// Make sure the user search details are correctly sorted for result validation.
+
+			$log = ExtensibleSearch::get()->sort('Results');
+
+			// Determine the unique search terms.
+
+			$log = GroupedList::create($log)->GroupedBy('Term');
+			foreach($log as $search) {
+				$searches = $search->toMap();
+				$searches = $searches['Children'];
+
+				// Determine the number of duplicate search terms, and the average search time.
+
+				$count = 0;
+				$averageTime = 0;
+				foreach($searches as $entry) {
+					$count++;
+					$averageTime += $entry->Time;
+				}
+				$search->setField('Frequency', $count);
+				$search->setField('AverageTime', round($averageTime / $count, 6));
+
+				// Determine the result validation.
+
+				$search->setField('Validation', ($searches[0]->Results > 0) ? 'true' : 'false');
+			}
+
+			// Instantiate the search analytic display.
+
+			$fields->addFieldToTab('Root.SearchAnalytics', $gridfield = GridField::create(
+				'SearchAnalytics',
+				'Search Analytics',
+				$log->sort(array(
+					'Frequency' => 'DESC',
+					'Validation'
+				))
+			)->setModelClass('ExtensibleSearch'));
+			$configuration = $gridfield->getConfig();
+			$configuration->removeComponentsByType('GridFieldFilterHeader');
+
+			// Update the summary fields, since we're not directly feeding a data list in.
+
+			$configuration->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+				'Term' => 'Search Term',
+				'Frequency' => 'Frequency',
+				'AverageTime' => 'Average Time (s)',
+				'Validation' => 'Has Results?'
+			));
+		}
+
 		return $fields;
 	}
 
@@ -512,7 +566,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 	}
 
-	public function getForm() {
+	public function getForm($filters = true) {
 
 		// Don't allow searching without a valid search engine.
 
@@ -525,28 +579,32 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			new TextField('Search', _t('ExtensibleSearchPage.SEARCH','Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
+			new TextField('Search', '', isset($_GET['Search']) ? $_GET['Search'] : '')
 		);
 
-		$objFields = $this->data()->getSelectableFields();
+		// When filters have been enabled, display these in the form.
 
-		// Remove content and groups from being sortable (as they are not relevant).
+		if($filters) {
+			$objFields = $this->data()->getSelectableFields();
 
-		unset($objFields['Content']);
-		unset($objFields['Groups']);
+			// Remove content and groups from being sortable (as they are not relevant).
 
-		// Remove any custom field types and display the sortable options nicely to the user.
+			unset($objFields['Content']);
+			unset($objFields['Groups']);
 
-		foreach($objFields as &$field) {
-			if($customType = strpos($field, ':')) {
-				$field = substr($field, 0, $customType);
+			// Remove any custom field types and display the sortable options nicely to the user.
+
+			foreach($objFields as &$field) {
+				if($customType = strpos($field, ':')) {
+					$field = substr($field, 0, $customType);
+				}
+				$field = ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $field));
 			}
-			$field = ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $field));
+			$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
+			$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
+			$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
+			$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
 		}
-		$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
-		$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
-		$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
-		$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
 
 		$actions = new FieldList(new FormAction('getSearchResults', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
 
@@ -596,7 +654,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Fall back to displaying the full-text results.
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		$sort = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
+		if(is_null($sort = $this->data()->SortBy)) {
+			$sort = 'Relevance';
+		}
+		$direction = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
 
 		// Apply any site tree restrictions.
 
@@ -604,7 +665,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if($filter) {
 			$filter = "ParentID IN({$filter})";
 		}
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$this->data()->SortBy} {$sort}", $filter, $data) : false;
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$sort} {$direction}", $filter, $data) : false;
 
 		// Render the full-text results using a listing template where defined.
 

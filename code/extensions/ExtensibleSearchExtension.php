@@ -52,25 +52,11 @@ class ExtensibleSearchExtension extends Extension {
 	/**
 	 * Site search form
 	 */
-	function SearchForm() {
+	public function SearchForm() {
 
-		$searchText = isset($_REQUEST['Search']) ? $_REQUEST['Search'] : 'Search';
-		$fields = new FieldList(
-	      	new TextField("Search", "", $searchText)
-	  	);
-		$actions = new FieldList(
-	      	new FormAction('results', 'Search')
-	  	);
+		// Retrieve the search form input, excluding any filters.
 
-	  	return (($page = $this->owner->getSearchPage()) && $page->SearchEngine) ? new SearchForm($this->owner, "SearchForm", $fields, $actions) : null;
-	}
-
-	/**
-	 * Always redirect to the search page when doing a site search
-	 */
-	public function results() {
-		$searchText = isset($_REQUEST['Search']) ? $_REQUEST['Search'] : 'Search';
-		$this->owner->redirect($this->owner->getSearchPage()->Link('getForm').'?Search='.rawurlencode($searchText));
+		return (($page = $this->owner->getSearchPage()) && $page->SearchEngine) ? ModelAsController::controller_for($page)->getForm(false) : null;
 	}
 
 }
