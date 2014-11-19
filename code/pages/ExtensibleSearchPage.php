@@ -326,7 +326,7 @@ class ExtensibleSearchPage extends Page {
 					$averageTime += $entry->Time;
 				}
 				$search->setField('Frequency', $count);
-				$search->setField('AverageTime', round($averageTime / $count, 6));
+				$search->setField('AverageTimeTaken', round($averageTime / $count, 6));
 
 				// Determine the result validation.
 
@@ -351,7 +351,7 @@ class ExtensibleSearchPage extends Page {
 			$configuration->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
 				'Term' => 'Search Term',
 				'Frequency' => 'Frequency',
-				'AverageTime' => 'Average Time (s)',
+				'AverageTimeTaken' => 'Average Time Taken (s)',
 				'Validation' => 'Has Results?'
 			));
 		}

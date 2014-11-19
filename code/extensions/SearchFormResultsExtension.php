@@ -57,7 +57,7 @@ class SearchFormResultsExtension extends Extension {
 			$results = DB::getConn()->searchEngine($this->owner->classesToSearch, $keywords, $start, $pageLength);
 		}
 		$totalTime = microtime(true) - $startTime;
-		$this->service->logSearch($search, $results->getTotalItems(), $totalTime);
+		$this->service->logSearch($search, $results->getTotalItems(), $totalTime, 'Full-Text');
 
 		// filter by permission
 		if($results) foreach($results as $result) {

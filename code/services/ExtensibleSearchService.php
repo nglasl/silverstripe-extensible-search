@@ -16,7 +16,7 @@ class ExtensibleSearchService {
 	 *	@return extensible search
 	 */
 
-	public function logSearch($term, $results, $time) {
+	public function logSearch($term, $results, $time, $engine) {
 
 		// Make sure the search analytics are enabled.
 
@@ -29,7 +29,8 @@ class ExtensibleSearchService {
 		$search = ExtensibleSearch::create(array(
 			'Term'	=> trim($term),
 			'Results' => $results,
-			'Time' => $time
+			'Time' => $time,
+			'SearchEngine' => $engine
 		));
 		$search->write();
 		return $search;

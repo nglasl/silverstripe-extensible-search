@@ -11,7 +11,8 @@ class ExtensibleSearch extends DataObject {
 	private static $db = array(
 		'Term' => 'Varchar(255)',
 		'Results' => 'Int',
-		'Time' => 'Float'
+		'Time' => 'Float',
+		'SearchEngine' => 'Varchar(255)'
 	);
 
 	/**
