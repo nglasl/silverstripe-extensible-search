@@ -673,7 +673,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						$startTime = microtime(true);
 						$customisation = $instance->getSearchResults($data, $form);
-						$output = $this->customise($customisation)->renderWith(array("{$engine}Search_results", "{$engine}SearchPage_results", 'Page_results', "{$engine}Search", "{$engine}SearchPage", 'Page'));
+						$output = $this->customise($customisation)->renderWith(array("{$engine}Search_results", "{$engine}SearchPage_results", 'ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', "{$engine}Search", "{$engine}SearchPage", 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
 						$totalTime = microtime(true) - $startTime;
 
 						// Log the details of a user search for analytics.
