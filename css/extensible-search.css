@@ -24,3 +24,7 @@ p.extensible-search.notification {
 #Form_EditForm_SearchAnalytics tbody.ss-gridfield-items tr {
 	cursor: default;
 }
+
+p.grid-csv-button {
+	margin-top: 16px;
+}

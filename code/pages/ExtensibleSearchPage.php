@@ -314,6 +314,7 @@ class ExtensibleSearchPage extends Page {
 			// Determine the unique search terms.
 
 			$log = GroupedList::create($log)->GroupedBy('Term');
+			$output = ArrayList::create();
 			foreach($log as $search) {
 				$searches = $search->toMap();
 				$searches = $searches['Children'];
@@ -332,6 +333,14 @@ class ExtensibleSearchPage extends Page {
 				// Determine the result validation.
 
 				$search->setField('Validation', ($searches[0]->Results > 0) ? 'true' : 'false');
+
+				// Cast the array data to a temporary data object, so we may export.
+
+				$object = DataObject::create();
+				foreach($search->toMap() as $attribute => $value) {
+					$object->$attribute = $value;
+				}
+				$output->push($object);
 			}
 
 			// Instantiate the search analytic display.
@@ -339,22 +348,27 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.SearchAnalytics', $gridfield = GridField::create(
 				'SearchAnalytics',
 				'Search Analytics',
-				$log->sort(array(
+				$output->sort(array(
 					'Frequency' => 'DESC',
 					'Validation'
 				))
 			)->setModelClass('ExtensibleSearch'));
 			$configuration = $gridfield->getConfig();
-			$configuration->removeComponentsByType('GridFieldFilterHeader');
+			$configuration->addComponent($export = new GridFieldExportButton());
 
-			// Update the summary fields, since we're not directly feeding a data list in.
+			// Update the export fields, since we're not using a data list.
 
-			$configuration->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+			$display = array(
 				'Term' => 'Search Term',
 				'Frequency' => 'Frequency',
 				'AverageTimeTaken' => 'Average Time Taken (s)',
 				'Validation' => 'Has Results?'
-			));
+			);
+			$export->setExportColumns($display);
+
+			// Update the summary fields.
+
+			$configuration->getComponentByType('GridFieldDataColumns')->setDisplayFields($display);
 		}
 
 		return $fields;
