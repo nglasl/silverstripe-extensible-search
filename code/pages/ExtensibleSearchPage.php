@@ -309,7 +309,9 @@ class ExtensibleSearchPage extends Page {
 
 			// Make sure the user search details are correctly sorted for result validation.
 
-			$log = ExtensibleSearch::get()->sort('Results');
+			$log = ExtensibleSearch::get()->sort(array(
+				'ID' => 'DESC'
+			));
 
 			// Determine the unique search terms.
 
