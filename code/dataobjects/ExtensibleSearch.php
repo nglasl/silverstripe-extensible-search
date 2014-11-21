@@ -17,6 +17,14 @@ class ExtensibleSearch extends DataObject {
 
 	private static $default_sort = 'ID DESC';
 
+	private static $summary_fields = array(
+		'TimeSummary' => 'Time',
+		'Term' => 'Search Term',
+		'TimeTakenSummary' => 'Time Taken (s)',
+		'Results' => 'Results',
+		'SearchEngine' => 'Search Engine'
+	);
+
 	/**
 	 *	Allow the ability to disable search analytics.
 	 */

@@ -379,24 +379,8 @@ class ExtensibleSearchPage extends Page {
 				$log
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
+			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
 			$historyConfiguration->addComponent($historyExport = new GridFieldExportButton());
-
-			// Update the export fields.
-
-			$historyDisplay = array(
-				'TimeSummary' => 'Time',
-				'Term' => 'Search Term',
-				'Results' => 'Results',
-				'TimeTakenSummary' => 'Time Taken (s)',
-				'SearchEngine' => 'Search Engine'
-			);
-			$historyExport->setExportColumns($historyDisplay);
-
-			// Update the summary fields, as there's a core filter issue that needs to be corrected using a blank entry.
-
-			$historyConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields(array_merge($historyDisplay, array(
-				'Filter' => ''
-			)));
 
 			// Update the custom summary fields to be sortable.
 
