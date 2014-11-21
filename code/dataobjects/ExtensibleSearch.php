@@ -15,10 +15,34 @@ class ExtensibleSearch extends DataObject {
 		'SearchEngine' => 'Varchar(255)'
 	);
 
+	private static $default_sort = 'ID DESC';
+
 	/**
 	 *	Allow the ability to disable search analytics.
 	 */
 
 	private static $enable_analytics = true;
+
+	/**
+	 *	Retrieve the log time for display purposes.
+	 *
+	 *	@return string
+	 */
+
+	public function getTimeSummary() {
+
+		return $this->dbObject('Created')->Format('jS F Y, g:i:sa');
+	}
+
+	/**
+	 *	Retrieve the search time for display purposes.
+	 *
+	 *	@return float
+	 */
+
+	public function getTimeTakenSummary() {
+
+		return round($this->Time, 5);
+	}
 
 }

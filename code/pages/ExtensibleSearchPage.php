@@ -309,15 +309,13 @@ class ExtensibleSearchPage extends Page {
 
 			// Make sure the user search details are correctly sorted for result validation.
 
-			$log = ExtensibleSearch::get()->sort(array(
-				'ID' => 'DESC'
-			));
+			$log = ExtensibleSearch::get();
 
 			// Determine the unique search terms.
 
-			$log = GroupedList::create($log)->GroupedBy('Term');
+			$grouped = GroupedList::create($log)->GroupedBy('Term');
 			$output = ArrayList::create();
-			foreach($log as $search) {
+			foreach($grouped as $search) {
 				$searches = $search->toMap();
 				$searches = $searches['Children'];
 
@@ -345,34 +343,68 @@ class ExtensibleSearchPage extends Page {
 				$output->push($object);
 			}
 
-			// Instantiate the search analytic display.
+			// Instantiate the search analytic summary display.
 
-			$fields->addFieldToTab('Root.SearchAnalytics', $gridfield = GridField::create(
-				'SearchAnalytics',
-				'Search Analytics',
+			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
+				'Summary',
+				'Summary',
 				$output->sort(array(
 					'Frequency' => 'DESC',
 					'Validation'
 				))
 			)->setModelClass('ExtensibleSearch'));
-			$configuration = $gridfield->getConfig();
-			$configuration->addComponent($export = new GridFieldExportButton());
+			$summaryConfiguration = $summary->getConfig();
+			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
+			$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
 
 			// Update the export fields, since we're not using a data list.
 
-			$display = array(
+			$summaryDisplay = array(
 				'Term' => 'Search Term',
 				'Frequency' => 'Frequency',
 				'AverageTimeTaken' => 'Average Time Taken (s)',
 				'Validation' => 'Has Results?'
 			);
-			$export->setExportColumns($display);
+			$summaryExport->setExportColumns($summaryDisplay);
 
 			// Update the summary fields.
 
-			$configuration->getComponentByType('GridFieldDataColumns')->setDisplayFields($display);
-		}
+			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
 
+			// Instantiate the search analytic history display.
+
+			$fields->addFieldToTab('Root.SearchAnalytics', $history = GridField::create(
+				'History',
+				'History',
+				$log
+			)->setModelClass('ExtensibleSearch'));
+			$historyConfiguration = $history->getConfig();
+			$historyConfiguration->addComponent($historyExport = new GridFieldExportButton());
+
+			// Update the export fields.
+
+			$historyDisplay = array(
+				'TimeSummary' => 'Time',
+				'Term' => 'Search Term',
+				'Results' => 'Results',
+				'TimeTakenSummary' => 'Time Taken (s)',
+				'SearchEngine' => 'Search Engine'
+			);
+			$historyExport->setExportColumns($historyDisplay);
+
+			// Update the summary fields, as there's a core filter issue that needs to be corrected using a blank entry.
+
+			$historyConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields(array_merge($historyDisplay, array(
+				'Filter' => ''
+			)));
+
+			// Update the custom summary fields to be sortable.
+
+			$historyConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
+				'TimeSummary' => 'Created',
+				'TimeTakenSummary' => 'Time'
+			));
+		}
 		return $fields;
 	}
 

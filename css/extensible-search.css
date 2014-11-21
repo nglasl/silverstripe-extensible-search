@@ -21,10 +21,12 @@ p.extensible-search.notification {
 
 /* Correcting some core layout issues. */
 
-#Form_EditForm_SearchAnalytics tbody.ss-gridfield-items tr {
-	cursor: default;
+#Root_SearchAnalytics p.grid-csv-button {
+	margin-top: 8px;
+	padding-bottom: 1px;
 }
 
-p.grid-csv-button {
-	margin-top: 16px;
+#Form_EditForm_Summary tbody.ss-gridfield-items tr
+#Form_EditForm_History tbody.ss-gridfield-items tr {
+	cursor: default;
 }
