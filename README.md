@@ -64,7 +64,7 @@ https://github.com/nyeholt/silverstripe-solr
 
 #### Customisation
 
-To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension.
+To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
 
 DB field support may be defined using the `$support` class variable on your extension, an example being that your search wrapper does not support faceting.
 
