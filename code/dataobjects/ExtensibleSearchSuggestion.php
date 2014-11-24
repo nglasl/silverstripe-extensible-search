@@ -17,7 +17,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'Frequency' => 'Int'
 	);
 
-	private static $default_sort = 'Frequency DESC, Term';
+	private static $default_sort = 'Frequency DESC, Term ASC';
 
 	private static $summary_fields = array(
 		'Term' => 'Search Term'

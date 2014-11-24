@@ -74,17 +74,17 @@ To allow full customisation of your custom search wrapper from the CMS, the `upd
 
 These may be disabled by configuring the `enable_analytics` flag.
 
-These include the following:
+These include the following and may be accessed from your extensible page instance:
 
-* Search summary, including the frequency, average time taken, and if the last search made actually contained results.
-* Search history, including search time, time taken, and the search engine.
+* Search **summary**, including the frequency, average time taken, and if the last search made actually contained results.
+* Search **history**, including search date/time, time taken, and the search engine used.
 * Export to CSV.
 
 ### Search Suggestions
 
 These may be disabled by configuring the `enable_suggestions` flag.
 
-To enable autocomplete using the user search generated suggestions, the following will be required.
+To enable autocomplete using these, the following will be required.
 
 ```php
 	Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');

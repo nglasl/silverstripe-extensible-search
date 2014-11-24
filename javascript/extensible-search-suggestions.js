@@ -1,7 +1,7 @@
 ;(function($) {
     $(window).load(function() {
 
-		// Trigger an autocomplete for the most relevant search suggestions.
+		// Trigger an autocomplete with the most relevant search suggestions.
 
 		$('div.extensible-search input[name=Search]').entwine({
 			onmatch: function() {

@@ -350,7 +350,8 @@ class ExtensibleSearchPage extends Page {
 				'Summary',
 				$output->sort(array(
 					'Frequency' => 'DESC',
-					'Validation'
+					'Validation',
+					'Term'
 				))
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
@@ -778,17 +779,17 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Retrieve JSON user search generated suggestions for the autocomplete.
+	 *	Retrieve the most relevant search suggestions.
 	 */
 
 	public function getSuggestions($request) {
 
 		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 			$term = $request->getVar('term');
-
-			// Retrieve the most relevant search suggestions.
-
 			$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
+
+			// Retrieve these search suggestions as JSON.
+
 			$this->getResponse()->addHeader('Content-Type', 'application/json');
 			return Convert::raw2json($suggestions->column('Term'));
 		}
