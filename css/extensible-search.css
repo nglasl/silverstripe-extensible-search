@@ -26,7 +26,7 @@ p.extensible-search.notification {
 	padding-bottom: 1px;
 }
 
-#Form_EditForm_Summary tbody.ss-gridfield-items tr
-#Form_EditForm_History tbody.ss-gridfield-items tr {
+#Form_EditForm_Summary tr.ss-gridfield-item,
+#Form_EditForm_History tr.ss-gridfield-item {
 	cursor: default;
 }

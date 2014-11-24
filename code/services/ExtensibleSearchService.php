@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Handles the search analytics, while providing any additional functionality required by the module.
+ *	Handles the search analytics and suggestions, while providing any additional functionality required by the module.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -27,14 +27,53 @@ class ExtensibleSearchService {
 
 		// Log the details of the user search.
 
+		$term = trim($term);
 		$search = ExtensibleSearch::create(array(
-			'Term'	=> trim($term),
+			'Term'	=> $term,
 			'Results' => $results,
 			'Time' => $time,
 			'SearchEngine' => $engine
 		));
 		$search->write();
+
+		// Log the details of the user search as a suggestion.
+
+		if($results > 0) {
+			$this->logSuggestion($term);
+		}
 		return $search;
+	}
+
+	/**
+	 *	Log a user search generated suggestion.
+	 *
+	 *	@parameter <{SEARCH_TERM}> string
+	 *	@return extensible search suggestion
+	 */
+
+	public function logSuggestion($term) {
+
+		// Make sure the suggestions are enabled, and the search matches the minimum autocomplete length.
+
+		if(!Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') || (strlen($term) < 3)) {
+			return null;
+		}
+
+		// Make sure the suggestion doesn't already exist.
+
+		$existing = ExtensibleSearchSuggestion::get()->filter(array(
+			'Term' => $term
+		))->first();
+		if(!$existing) {
+
+			// Log the suggestion.
+
+			$existing = ExtensibleSearchSuggestion::create(array(
+				'Term' => $term
+			));
+			$existing->write();
+		}
+		return $existing;
 	}
 
 }

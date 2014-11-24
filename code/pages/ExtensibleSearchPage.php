@@ -389,6 +389,20 @@ class ExtensibleSearchPage extends Page {
 				'TimeTakenSummary' => 'Time'
 			));
 		}
+
+		// Retrieve the extensible search suggestions, when enabled.
+
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+
+			// Instantiate the search suggestion display.
+
+			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
+				'Suggestions',
+				'Suggestions',
+				ExtensibleSearchSuggestion::get(),
+				GridFieldConfig_RecordEditor::create()
+			)->setModelClass('ExtensibleSearchSuggestion'));
+		}
 		return $fields;
 	}
 
