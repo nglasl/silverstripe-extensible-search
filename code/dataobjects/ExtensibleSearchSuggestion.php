@@ -20,7 +20,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	private static $default_sort = 'Frequency DESC, Term ASC';
 
 	private static $summary_fields = array(
-		'Term' => 'Search Term'
+		'Term' => 'Search Term',
+		'FrequencySummary' => 'Analytic Frequency'
 	);
 
 	/**
@@ -100,6 +101,17 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		}
 		$fields->removeByName('Frequency');
 		return $fields;
+	}
+
+	/**
+	 *	Retrieve the frequency for display purposes.
+	 *
+	 *	@return string
+	 */
+
+	public function getFrequencySummary() {
+
+		return $this->Frequency ? $this->Frequency : '-';
 	}
 
 }

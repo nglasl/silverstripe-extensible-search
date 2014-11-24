@@ -82,7 +82,7 @@ These include the following and may be accessed from your extensible page instan
 
 ### Search Suggestions
 
-These may be disabled by configuring the `enable_suggestions` flag, though will require the `enable_analytics` flag when enabled.
+These may be disabled by configuring the `enable_suggestions` flag.
 
 To enable autocomplete using these, the following will be required.
 
