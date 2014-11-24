@@ -61,19 +61,19 @@ class ExtensibleSearchService {
 
 		// Make sure the suggestion doesn't already exist.
 
-		$existing = ExtensibleSearchSuggestion::get()->filter(array(
+		$suggestion = ExtensibleSearchSuggestion::get()->filter(array(
 			'Term' => $term
 		))->first();
-		if(!$existing) {
+		if(!$suggestion) {
 
 			// Log the suggestion.
 
-			$existing = ExtensibleSearchSuggestion::create(array(
+			$suggestion = ExtensibleSearchSuggestion::create(array(
 				'Term' => $term
 			));
-			$existing->write();
+			$suggestion->write();
 		}
-		return $existing;
+		return $suggestion;
 	}
 
 }

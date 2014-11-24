@@ -32,7 +32,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		return array(
 			'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
-				'category' => 'Extensible Search',
+				'category' => 'Extensible search',
 				'name' => 'Manage search suggestions',
 				'help' => 'Allow management of user search generated suggestions.'
 			)
@@ -87,7 +87,9 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
-		$fields->makeFieldReadonly('Term');
+		if($this->Term) {
+			$fields->makeFieldReadonly('Term');
+		}
 		return $fields;
 	}
 
