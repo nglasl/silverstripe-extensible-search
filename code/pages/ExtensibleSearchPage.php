@@ -640,7 +640,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			TextField::create('Search', '', isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')
+			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')
 		);
 
 		// When filters have been enabled, display these in the form.
@@ -667,7 +667,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
 		}
 
-		$actions = new FieldList(new FormAction('getSearchResults', _t('ExtensibleSearchPage.DO_SEARCH', 'Search')));
+		$actions = new FieldList(new FormAction('getSearchResults', _t('SearchForm.GO', 'Search')));
 
 		$form = new SearchForm($this, 'getForm', $fields, $actions);
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
