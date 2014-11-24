@@ -27,7 +27,6 @@ class ExtensibleSearchService {
 
 		// Log the details of the user search.
 
-		$term = trim($term);
 		$search = ExtensibleSearch::create(array(
 			'Term'	=> $term,
 			'Results' => $results,
@@ -61,18 +60,24 @@ class ExtensibleSearchService {
 
 		// Make sure the suggestion doesn't already exist.
 
-		$suggestion = ExtensibleSearchSuggestion::get()->filter(array(
-			'Term' => $term
-		))->first();
-		if(!$suggestion) {
+		$suggestion = ExtensibleSearchSuggestion::get()->filter('Term', $term)->first();
+
+		// Store the frequency to make search suggestion relevance more efficient.
+
+		$frequency = ExtensibleSearch::get()->filter('Term', $term)->count();
+		if($suggestion) {
+			$suggestion->Frequency = $frequency;
+		}
+		else {
 
 			// Log the suggestion.
 
 			$suggestion = ExtensibleSearchSuggestion::create(array(
-				'Term' => $term
+				'Term' => $term,
+				'Frequency' => $frequency
 			));
-			$suggestion->write();
 		}
+		$suggestion->write();
 		return $suggestion;
 	}
 

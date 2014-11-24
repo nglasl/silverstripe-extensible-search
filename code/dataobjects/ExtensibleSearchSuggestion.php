@@ -8,11 +8,16 @@
 
 class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {
 
+	/**
+	 *	Store the frequency to make search suggestion relevance more efficient.
+	 */
+
 	private static $db = array(
-		'Term' => 'Varchar(255)'
+		'Term' => 'Varchar(255)',
+		'Frequency' => 'Int'
 	);
 
-	private static $default_sort = 'Term';
+	private static $default_sort = 'Frequency DESC, Term';
 
 	private static $summary_fields = array(
 		'Term' => 'Search Term'
@@ -87,9 +92,13 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
+
+		// Make sure the search suggestions are read only.
+
 		if($this->Term) {
 			$fields->makeFieldReadonly('Term');
 		}
+		$fields->removeByName('Frequency');
 		return $fields;
 	}
 

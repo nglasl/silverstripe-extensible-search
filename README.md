@@ -15,7 +15,6 @@ https://github.com/nyeholt/silverstripe-solr
 ## Requirement
 
 * SilverStripe 3.1.X
-* The multivaluefield module from https://github.com/nyeholt/silverstripe-multivaluefield.
 
 ## Getting Started
 
@@ -70,6 +69,29 @@ To process the result set using your new search wrapper, the `getSearchResults` 
 DB field support may be defined using the `$support` class variable on your extension, an example being that your search wrapper does not support faceting.
 
 To allow full customisation of your custom search wrapper from the CMS, the `updateSource`, `getQueryBuilders` and `getSelectableFields` methods may need be implemented. Hopefully these will be updated further down the track to remove such a dependency.
+
+### Search Analytics
+
+These may be disabled by configuring the `enable_analytics` flag.
+
+These include the following:
+
+* Search summary, including the frequency, average time taken, and if the last search made actually contained results.
+* Search history, including search time, time taken, and the search engine.
+* Export to CSV.
+
+### Search Suggestions
+
+These may be disabled by configuring the `enable_suggestions` flag.
+
+To enable autocomplete using the user search generated suggestions, the following will be required.
+
+```php
+	Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
+	Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
+	Requirements::javascript('framework/thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+	Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
+```
 
 ### Templating
 

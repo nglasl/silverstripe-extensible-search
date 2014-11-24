@@ -550,7 +550,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getForm',
 		'getSearchResults',
-		'results'
+		'results',
+		'getSuggestions'
 	);
 
 	public $service;
@@ -632,7 +633,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			new TextField('Search', '', isset($_GET['Search']) ? $_GET['Search'] : '')
+			TextField::create('Search', '', isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')
 		);
 
 		// When filters have been enabled, display these in the form.
@@ -774,6 +775,26 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	public function results($data = null, $form = null) {
 
 		return $this->getSearchResults($data, $form);
+	}
+
+	/**
+	 *	Retrieve JSON user search generated suggestions for the autocomplete.
+	 */
+
+	public function getSuggestions($request) {
+
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+			$term = $request->getVar('term');
+
+			// Retrieve the most relevant search suggestions.
+
+			$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
+			$this->getResponse()->addHeader('Content-Type', 'application/json');
+			return Convert::raw2json($suggestions->column('Term'));
+		}
+		else {
+			return null;
+		}
 	}
 
 }
