@@ -52,9 +52,9 @@ class ExtensibleSearchService {
 
 	public function logSuggestion($term) {
 
-		// Make sure the suggestions are enabled, and the search matches the minimum autocomplete length.
+		// Make sure the search matches the minimum autocomplete length.
 
-		if(!Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') || (strlen($term) < 3)) {
+		if(strlen($term) < 3) {
 			return null;
 		}
 

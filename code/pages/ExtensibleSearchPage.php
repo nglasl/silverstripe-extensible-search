@@ -389,20 +389,20 @@ class ExtensibleSearchPage extends Page {
 				'TimeSummary' => 'Created',
 				'TimeTakenSummary' => 'Time'
 			));
-		}
 
-		// Retrieve the extensible search suggestions, when enabled.
+			// Retrieve the extensible search suggestions, when enabled.
 
-		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+			if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 
-			// Instantiate the search suggestion display.
+				// Instantiate the search suggestion display.
 
-			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
-				'Suggestions',
-				'Suggestions',
-				ExtensibleSearchSuggestion::get(),
-				GridFieldConfig_RecordEditor::create()
-			)->setModelClass('ExtensibleSearchSuggestion'));
+				$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
+					'Suggestions',
+					'Suggestions',
+					ExtensibleSearchSuggestion::get(),
+					GridFieldConfig_RecordEditor::create()
+				)->setModelClass('ExtensibleSearchSuggestion'));
+			}
 		}
 		return $fields;
 	}
@@ -784,7 +784,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function getSuggestions($request) {
 
-		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+		$configuration = Config::inst();
+		if($configuration->get('ExtensibleSearch', 'enable_analytics') && $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 			$term = $request->getVar('term');
 			$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
 
