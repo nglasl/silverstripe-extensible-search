@@ -408,7 +408,7 @@ class ExtensibleSearchPage extends Page {
 
 			$suggestionsConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
 				'FrequencySummary' => 'Frequency',
-				'ApprovedSummary' => 'Approved'
+				'ApprovedField' => 'Approved'
 			));
 		}
 		return $fields;

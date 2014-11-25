@@ -19,6 +19,14 @@ p.extensible-search.notification {
 	border-radius: 5px;
 }
 
+#Form_EditForm_Suggestions td.col-ApprovedField {
+	width: 1px;
+}
+
+#Form_EditForm_Suggestions input.approved {
+	cursor: pointer;
+}
+
 /* Correcting some core layout issues. */
 
 #Root_SearchAnalytics p.grid-csv-button {
@@ -31,6 +39,6 @@ p.extensible-search.notification {
 	cursor: default;
 }
 
-div.approved div.fieldgroup-field input {
+div.approved input.approved {
 	margin-top: 2px;
 }

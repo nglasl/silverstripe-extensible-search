@@ -23,7 +23,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	private static $summary_fields = array(
 		'Term' => 'Search Term',
 		'FrequencySummary' => 'Analytic Frequency',
-		'ApprovedSummary' => 'Approved?'
+		'ApprovedField' => 'Approved?'
 	);
 
 	/**
@@ -115,10 +115,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		$fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
 			'Approved'
 		)->addExtraClass('approved'));
-		$approved->push(CheckboxField::create(
-			'Approved',
-			''
-		));
+		$approved->push($this->getApprovedField());
 		return $fields;
 	}
 
@@ -134,14 +131,18 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	}
 
 	/**
-	 *	Retrieve the approved flag for display purposes.
+	 *	Retrieve the approved field for update purposes.
 	 *
 	 *	@return string
 	 */
 
-	public function getApprovedSummary() {
+	public function getApprovedField() {
 
-		return $this->Approved ? 'true' : 'false';
+		return CheckboxField::create(
+			'Approved',
+			'',
+			$this->Approved
+		)->addExtraClass('approved');
 	}
 
 }
