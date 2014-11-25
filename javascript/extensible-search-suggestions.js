@@ -15,7 +15,7 @@
 
 			minLength: 3,
 
-			// Retrieve the most relevant search suggestions.
+			// Retrieve the most relevant search suggestions that have been approved.
 
 			source: function(request, response) {
 				$.get(URL, {

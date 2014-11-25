@@ -30,3 +30,7 @@ p.extensible-search.notification {
 #Form_EditForm_History tr.ss-gridfield-item {
 	cursor: default;
 }
+
+div.approved div.fieldgroup-field input {
+	margin-top: 2px;
+}

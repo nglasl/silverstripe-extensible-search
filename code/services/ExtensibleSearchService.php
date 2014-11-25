@@ -74,7 +74,8 @@ class ExtensibleSearchService {
 
 			$suggestion = ExtensibleSearchSuggestion::create(array(
 				'Term' => $term,
-				'Frequency' => $frequency
+				'Frequency' => $frequency,
+				'Approved' => Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval')
 			));
 		}
 		$suggestion->write();

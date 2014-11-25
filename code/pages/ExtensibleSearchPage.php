@@ -407,7 +407,8 @@ class ExtensibleSearchPage extends Page {
 			// Update the custom summary fields to be sortable.
 
 			$suggestionsConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
-				'FrequencySummary' => 'Frequency'
+				'FrequencySummary' => 'Frequency',
+				'ApprovedSummary' => 'Approved'
 			));
 		}
 		return $fields;
@@ -785,13 +786,16 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Retrieve the most relevant search suggestions.
+	 *	Retrieve the most relevant search suggestions that have been approved.
 	 */
 
 	public function getSuggestions($request) {
 
 		$term = $request->getVar('term');
-		$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
+		$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
+			'Term:StartsWith' => $term,
+			'Approved' => 1
+		))->limit(5);
 
 		// Retrieve these search suggestions as JSON.
 

@@ -116,3 +116,4 @@ This listing template will require looping through the `$Items` variable.
 
 * Implement additional support for the default full-text search.
 * Look into creating alternate search wrapper modules.
+* Look into using search wrapper suggestions.
