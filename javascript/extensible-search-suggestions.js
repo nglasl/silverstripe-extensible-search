@@ -1,28 +1,24 @@
 ;(function($) {
-    $(window).load(function() {
+	$(window).load(function() {
 
-		// Trigger an autocomplete with the most relevant search suggestions.
+		// Bind autocomplete to the search form.
 
-		$('div.extensible-search input[name=Search]').entwine({
-			onmatch: function() {
+		var search = $('div.extensible-search input[name=Search]');
+		var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
+		search.autocomplete({
 
-				// Retrieve the most relevant search suggestions.
+			// Enforce a minimum autocomplete length.
 
-				var search = $(this);
-				var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
-				search.autocomplete({
+			minLength: 3,
 
-					// Enforce a minimum autocomplete length.
+			// Retrieve the most relevant search suggestions.
 
-					minLength: 3,
-					source: function(request, response) {
-						$.get(URL, {
-							term: request.term
-						})
-						.success(function(data) {
-							response(data);
-						});
-					}
+			source: function(request, response) {
+				$.get(URL, {
+					term: request.term
+				})
+				.success(function(data) {
+					response(data);
 				});
 			}
 		});
