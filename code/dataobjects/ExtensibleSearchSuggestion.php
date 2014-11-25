@@ -21,6 +21,12 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	private static $default_sort = 'Frequency DESC, Term ASC';
 
 	private static $summary_fields = array(
+		'Term',
+		'FrequencySummary',
+		'ApprovedField'
+	);
+
+	private static $field_labels = array(
 		'Term' => 'Search Term',
 		'FrequencySummary' => 'Analytic Frequency',
 		'ApprovedField' => 'Approved?'
@@ -114,7 +120,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		$fields->removeByName('Approved');
 		$fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
-			'Approved'
+			'Approved?'
 		)->addExtraClass('approved'));
 		$approved->push($this->getApprovedField());
 		return $fields;
