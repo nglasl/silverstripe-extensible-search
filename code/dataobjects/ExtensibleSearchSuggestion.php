@@ -44,6 +44,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	public function providePermissions() {
 
+		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 		return array(
 			'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
 				'category' => 'Extensible search',
