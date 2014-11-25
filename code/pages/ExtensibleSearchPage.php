@@ -640,7 +640,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')
+			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')
 		);
 
 		// When filters have been enabled, display these in the form.
@@ -790,18 +790,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function getSuggestions($request) {
 
-		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
-			$term = $request->getVar('term');
-			$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
+		$term = $request->getVar('term');
+		$suggestions = ExtensibleSearchSuggestion::get()->filter('Term:StartsWith', $term)->limit(5);
 
-			// Retrieve these search suggestions as JSON.
+		// Retrieve these search suggestions as JSON.
 
-			$this->getResponse()->addHeader('Content-Type', 'application/json');
-			return Convert::raw2json($suggestions->column('Term'));
-		}
-		else {
-			return null;
-		}
+		$this->getResponse()->addHeader('Content-Type', 'application/json');
+		return Convert::raw2json($suggestions->column('Term'));
 	}
 
 }

@@ -7,6 +7,10 @@
 		var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
 		search.autocomplete({
 
+			// Determine whether to disable search suggestions, based on configuration.
+
+			disabled: !search.data('suggestions-enabled'),
+
 			// Enforce a minimum autocomplete length.
 
 			minLength: 3,
