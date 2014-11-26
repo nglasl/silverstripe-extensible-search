@@ -79,6 +79,7 @@ class ExtensibleSearchPage extends Page {
 
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
+		Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-approval.js');
 
 		// Determine if full text search is enabled.
 
