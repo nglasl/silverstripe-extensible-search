@@ -84,7 +84,9 @@ These include the following and may be accessed from your extensible page instan
 
 These may be disabled by configuring the `enable_suggestions` flag.
 
-To enable autocomplete using these, the following will be required.
+The user generated search suggestions will require approval by default, however this may be configured using the `automatic_approval` flag.
+
+To enable autocomplete using approved search suggestions, the following will be required.
 
 ```php
 	Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
