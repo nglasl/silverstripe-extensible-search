@@ -830,7 +830,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// Display an appropriate notification to the user.
 
 			$status = $approved ? 'Approved' : 'Disapproved';
-			$this->getResponse()->setStatusDescription("{$status} '{$suggestion->Term}'.");
+			$this->getResponse()->setStatusDescription("{$status} '{$suggestion->Term}'!");
 
 			// Make sure there are no page controller requirement conflicts.
 
