@@ -561,7 +561,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		'getSearchResults',
 		'results',
 		'getSuggestions',
-		'suggestionApproval'
+		'toggleSuggestionApproval'
 	);
 
 	public $service;
@@ -811,25 +811,25 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Update the approval for a search suggestion.
+	 *	Toggle the approval for a search suggestion.
 	 */
 
-	public function suggestionApproval($request) {
+	public function toggleSuggestionApproval($request) {
 
 		// Restrict this functionality to administrators.
 
 		$user = Member::currentUserID();
 		if(Permission::checkMember($user, 'ADMIN') && ($suggestion = ExtensibleSearchSuggestion::get()->byID($request->postVar('suggestion')))) {
-			$approved = (int)$request->postVar('approved');
 
 			// Update the search suggestion.
 
+			$approved = !$suggestion->Approved;
 			$suggestion->Approved = $approved;
 			$suggestion->write();
 
-			// Display an appropriate notification.
+			// Display an appropriate notification to the user.
 
-			$status = $approved ? 'Approved' : 'Unapproved';
+			$status = $approved ? 'Approved' : 'Disapproved';
 			$this->getResponse()->setStatusDescription("{$status} '{$suggestion->Term}'.");
 
 			// Make sure there are no page controller requirement conflicts.

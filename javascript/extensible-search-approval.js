@@ -14,9 +14,8 @@
 
 		// Trigger an update against the extensible search controller.
 
-		$.post($('div.urlsegment a.preview').text() + '/suggestionApproval', {
-			suggestion: input.closest('tr').data('id'),
-			approved: input[0].checked ? 1 : 0
+		$.post($('div.urlsegment a.preview').text() + '/toggleSuggestionApproval', {
+			suggestion: input.closest('tr').data('id')
 		},
 		function() {
 
