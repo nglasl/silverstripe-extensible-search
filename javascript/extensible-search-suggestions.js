@@ -18,10 +18,12 @@
 			// Retrieve the most relevant search suggestions that have been approved.
 
 			source: function(request, response) {
+
 				$.get(URL, {
 					term: request.term
 				})
 				.success(function(data) {
+
 					response(data);
 				});
 			}
