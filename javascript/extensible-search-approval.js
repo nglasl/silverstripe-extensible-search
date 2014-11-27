@@ -4,7 +4,7 @@
 
 	function highlight(input) {
 
-		var colour = input.is(':checked') ? 'green' : 'red';
+		var colour = input[0].checked ? 'green' : 'red';
 		input.css('box-shadow', '0 0 5px 4px #FFFAD6, 0 0 15px 5px ' + colour);
 	}
 
@@ -12,6 +12,18 @@
 
 	function update(input) {
 
+		// Trigger an update against the extensible search controller.
+
+		$.post($('div.urlsegment a.preview').text() + '/suggestionApproval', {
+			suggestion: input.closest('tr').data('id'),
+			approved: input[0].checked ? 1 : 0
+		},
+		function() {
+
+			// Trigger an interface update to represent the current change.
+
+			highlight(input);
+		});
 	}
 
 	// Bind the mouse events dynamically.
@@ -20,17 +32,15 @@
 
 		$('#Form_EditForm_Suggestions td.col-ApprovedField').entwine({
 
-			// Trigger an interface update to highlight the selected search suggestion.
+			// Trigger an interface update to the edit button visibility.
 
 			onmouseenter: function() {
 
-				$(this).next().children().hide();
-				highlight($(this).children('input.approved'));
+				$(this).next().children('a.edit-link').css('visibility', 'hidden')
 			},
 			onmouseleave: function() {
 
-				$(this).next().children().show();
-				$(this).children('input.approved').css('box-shadow', 'none');
+				$(this).next().children('a.edit-link').css('visibility', 'visible')
 			},
 
 			// Trigger an update against the selected search suggestion.
@@ -38,12 +48,11 @@
 			onclick: function() {
 
 				var input = $(this).children('input.approved');
-				input.prop('checked', !input.prop('checked'));
+				input[0].checked = !input[0].checked;
 
 				// Trigger the update.
 
 				update(input);
-				highlight(input);
 				return false;
 			}
 		});
@@ -58,14 +67,13 @@
 
 				event.stopPropagation();
 				var input = $(this);
-				if(!input.is(':checked')) {
+				if(!input[0].checked) {
 					$('#Form_EditForm').removeClass('changed');
 				}
 
 				// Trigger the update.
 
 				update(input);
-				highlight(input);
 			}
 		});
 	});

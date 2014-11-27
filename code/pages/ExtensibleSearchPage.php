@@ -560,7 +560,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		'getForm',
 		'getSearchResults',
 		'results',
-		'getSuggestions'
+		'getSuggestions',
+		'suggestionApproval'
 	);
 
 	public $service;
@@ -793,15 +794,52 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	public function getSuggestions($request) {
 
 		$term = $request->getVar('term');
-		$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
-			'Term:StartsWith' => $term,
-			'Approved' => 1
-		))->limit(5);
+		if($term && (strlen($term) > 2)) {
+			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
+				'Term:StartsWith' => $term,
+				'Approved' => 1
+			))->limit(5);
 
-		// Retrieve these search suggestions as JSON.
+			// Retrieve these search suggestions as JSON.
 
-		$this->getResponse()->addHeader('Content-Type', 'application/json');
-		return Convert::raw2json($suggestions->column('Term'));
+			$this->getResponse()->addHeader('Content-Type', 'application/json');
+			return Convert::raw2json($suggestions->column('Term'));
+		}
+		else {
+			$this->httpError(404);
+		}
+	}
+
+	/**
+	 *	Update the approval for a search suggestion.
+	 */
+
+	public function suggestionApproval($request) {
+
+		// Restrict this functionality to administrators.
+
+		$user = Member::currentUserID();
+		if(Permission::checkMember($user, 'ADMIN') && ($suggestion = ExtensibleSearchSuggestion::get()->byID($request->postVar('suggestion')))) {
+			$approved = (int)$request->postVar('approved');
+
+			// Update the search suggestion.
+
+			$suggestion->Approved = $approved;
+			$suggestion->write();
+
+			// Display an appropriate notification.
+
+			$status = $approved ? 'Approved' : 'Unapproved';
+			$this->getResponse()->setStatusDescription("{$status} '{$suggestion->Term}'.");
+
+			// Make sure there are no page controller requirement conflicts.
+
+			Requirements::clear();
+			return $suggestion;
+		}
+		else {
+			return $this->httpError(404);
+		}
 	}
 
 }
