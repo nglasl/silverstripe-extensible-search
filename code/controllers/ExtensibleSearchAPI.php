@@ -52,10 +52,10 @@ class ExtensibleSearchAPI extends Controller {
 
 	public function toggleSuggestionApproved($request) {
 
-		// Restrict this functionality to administrators.
+		// Restrict this functionality appropriately.
 
 		$user = Member::currentUserID();
-		if(Permission::checkMember($user, 'ADMIN') && ($status = $this->service->toggleSuggestionApproved($request->postVar('suggestion')))) {
+		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS') && ($status = $this->service->toggleSuggestionApproved($request->postVar('suggestion')))) {
 
 			// Display an appropriate CMS notification.
 
