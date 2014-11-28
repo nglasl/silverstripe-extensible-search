@@ -4,30 +4,32 @@
 		// Bind autocomplete to the search form.
 
 		var search = $('div.extensible-search input[name=Search]');
-		var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
-		search.autocomplete({
+		if(search.length) {
+			var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
+			search.autocomplete({
 
-			// Determine whether to disable search suggestions, based on configuration.
+				// Determine whether to disable search suggestions, based on configuration.
 
-			disabled: !search.data('suggestions-enabled'),
+				disabled: !search.data('suggestions-enabled'),
 
-			// Enforce a minimum autocomplete length.
+				// Enforce a minimum autocomplete length.
 
-			minLength: 3,
+				minLength: 3,
 
-			// Retrieve the most relevant search suggestions that have been approved.
+				// Retrieve the most relevant search suggestions that have been approved.
 
-			source: function(request, response) {
+				source: function(request, response) {
 
-				$.get(URL, {
-					term: request.term
-				})
-				.success(function(data) {
+					$.get(URL, {
+						term: request.term
+					})
+					.success(function(data) {
 
-					response(data);
-				});
-			}
-		});
+						response(data);
+					});
+				}
+			});
+		}
 
 	});
 })(jQuery);

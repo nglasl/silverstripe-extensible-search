@@ -561,7 +561,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		'getSearchResults',
 		'results',
 		'getSuggestions',
-		'toggleSuggestionApproval'
+		'toggleSuggestionApproved'
 	);
 
 	public $service;
@@ -811,10 +811,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Toggle the approval for a search suggestion.
+	 *	Toggle the approved for a search suggestion.
 	 */
 
-	public function toggleSuggestionApproval($request) {
+	public function toggleSuggestionApproved($request) {
 
 		// Restrict this functionality to administrators.
 
@@ -830,7 +830,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// Display an appropriate notification to the user.
 
 			$status = $approved ? 'Approved' : 'Disapproved';
-			$this->getResponse()->setStatusDescription("{$status} '{$suggestion->Term}'!");
+			$this->getResponse()->setStatusDescription("{$status} \"{$suggestion->Term}\"!");
 
 			// Make sure there are no page controller requirement conflicts.
 

@@ -21,12 +21,6 @@ p.extensible-search.notification {
 
 #Form_EditForm_Suggestions input.approved {
 	cursor: pointer;
-	padding: 0;
-	margin: 5px;
-	-o-transition: box-shadow 200ms ease-out;
-	-moz-transition: box-shadow 200ms ease-out;
-	-webkit-transition: box-shadow 200ms ease-out;
-	transition: box-shadow 200ms ease-out;
 }
 
 /* Correcting some core layout issues. */
@@ -41,7 +35,7 @@ p.extensible-search.notification {
 	cursor: default;
 }
 
-div.approved input.approved {
+div.approved.wrapper input.approved {
 	margin-top: 2px;
 }
 

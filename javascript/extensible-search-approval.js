@@ -6,23 +6,9 @@
 
 		// Trigger an update against the extensible search controller.
 
-		$.post($('div.urlsegment a.preview').text() + '/toggleSuggestionApproval', {
+		$.post($('div.urlsegment a.preview').text() + '/toggleSuggestionApproved', {
 			suggestion: input.closest('tr').data('id')
-		},
-		function() {
-
-			// Trigger an interface update to represent the current change.
-
-			highlight(input);
 		});
-	}
-
-	// Highlight the search suggestion update.
-
-	function highlight(input) {
-
-		var colour = input[0].checked ? 'green' : 'red';
-		input.css('box-shadow', '0 0 5px 4px #FFFAD6, 0 0 15px 5px ' + colour);
 	}
 
 	// Bind the mouse events dynamically.
@@ -46,7 +32,7 @@
 
 			onclick: function() {
 
-				// Make sure this change is reflected in the respective approved field.
+				// Make sure this change is reflected in the respective field.
 
 				var input = $(this).children('input.approved');
 				input[0].checked = !input[0].checked;
@@ -65,13 +51,10 @@
 
 				event.stopPropagation();
 
-				// Make sure the extensible search page doesn't detect changes.
+				// Make sure the edit form doesn't detect changes.
 
-				var input = $(this);
-				if(!input[0].checked) {
-					$('#Form_EditForm').removeClass('changed');
-				}
-				update(input);
+				$('#Form_EditForm').removeClass('changed');
+				update($(this));
 			}
 		});
 	});

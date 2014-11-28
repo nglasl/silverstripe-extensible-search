@@ -60,9 +60,11 @@ class ExtensibleSearchExtension extends Extension {
 
 		// Update the search input to account for usability.
 
-		$search = $form->Fields()->dataFieldByName('Search');
-		$search->setAttribute('placeholder', $search->Title());
-		$search->setTitle('');
+		if($form) {
+			$search = $form->Fields()->dataFieldByName('Search');
+			$search->setAttribute('placeholder', $search->Title());
+			$search->setTitle('');
+		}
 		return $form;
 	}
 
