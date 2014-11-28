@@ -1,12 +1,10 @@
 ;(function($) {
 
-	// Update the selected search suggestion.
+	// Toggle a search suggestion's approval.
 
 	function update(input) {
 
-		// Trigger an update against the extensible search controller.
-
-		$.post($('div.urlsegment a.preview').text() + '/toggleSuggestionApproved', {
+		$.post('extensible-search-api/toggleSuggestionApproved', {
 			suggestion: input.closest('tr').data('id')
 		});
 	}
@@ -28,7 +26,7 @@
 				$(this).next().children('a.edit-link').css('visibility', 'visible');
 			},
 
-			// Trigger an update against the selected search suggestion.
+			// Toggle the selected search suggestion's approval.
 
 			onclick: function() {
 
@@ -45,7 +43,7 @@
 
 		$('#Form_EditForm_Suggestions input.approved').entwine({
 
-			// Trigger an update against the selected search suggestion.
+			// Toggle the selected search suggestion's approval.
 
 			onclick: function(event) {
 

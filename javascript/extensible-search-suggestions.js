@@ -5,7 +5,6 @@
 
 		var search = $('div.extensible-search input[name=Search]');
 		if(search.length) {
-			var URL = search.parents('form').attr('action').replace('getForm', 'getSuggestions');
 			search.autocomplete({
 
 				// Determine whether to disable search suggestions, based on configuration.
@@ -20,7 +19,7 @@
 
 				source: function(request, response) {
 
-					$.get(URL, {
+					$.get('extensible-search-api/getSuggestions', {
 						term: request.term
 					})
 					.success(function(data) {

@@ -82,4 +82,55 @@ class ExtensibleSearchService {
 		return $suggestion;
 	}
 
+	/**
+	 *	Toggle a search suggestion's approval.
+	 *
+	 *	@parameter <{SUGGESTION_ID}> integer
+	 *	@return string
+	 */
+
+	public function toggleSuggestionApproved($ID) {
+
+		if($suggestion = ExtensibleSearchSuggestion::get()->byID($ID)) {
+
+			// Update the search suggestion.
+
+			$approved = !$suggestion->Approved;
+			$suggestion->Approved = $approved;
+			$suggestion->write();
+
+			// Determine the approval status.
+
+			$status = $approved ? 'Approved' : 'Disapproved';
+			return "{$status} \"{$suggestion->Term}\"!";
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 *	Retrieve the most relevant search suggestions.
+	 *
+	 *	@parameter <{SEARCH_TERM}> string
+	 *	@parameter <{APPROVED_ONLY}> boolean
+	 *	@parameter <{LIMIT}> integer
+	 */
+
+	public function getSuggestions($term, $limit = 5, $approved = 1) {
+
+		// Make sure the search matches the minimum autocomplete length.
+
+		if($term && (strlen($term) > 2)) {
+			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
+				'Term:StartsWith' => $term,
+				'Approved' => $approved
+			))->limit($limit);
+			return $suggestions->column('Term');
+		}
+		else {
+			return null;
+		}
+	}
+
 }

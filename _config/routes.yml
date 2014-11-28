@@ -1,0 +1,6 @@
+---
+name: extensible-search-routes
+---
+Director:
+  rules:
+    extensible-search-api: 'ExtensibleSearchAPI'

@@ -559,9 +559,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getForm',
 		'getSearchResults',
-		'results',
-		'getSuggestions',
-		'toggleSuggestionApproved'
+		'results'
 	);
 
 	public $service;
@@ -785,61 +783,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	public function results($data = null, $form = null) {
 
 		return $this->getSearchResults($data, $form);
-	}
-
-	/**
-	 *	Retrieve the most relevant search suggestions that have been approved.
-	 */
-
-	public function getSuggestions($request) {
-
-		$term = $request->getVar('term');
-		if($term && (strlen($term) > 2)) {
-			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
-				'Term:StartsWith' => $term,
-				'Approved' => 1
-			))->limit(5);
-
-			// Retrieve these search suggestions as JSON.
-
-			$this->getResponse()->addHeader('Content-Type', 'application/json');
-			return Convert::raw2json($suggestions->column('Term'));
-		}
-		else {
-			$this->httpError(404);
-		}
-	}
-
-	/**
-	 *	Toggle the approved for a search suggestion.
-	 */
-
-	public function toggleSuggestionApproved($request) {
-
-		// Restrict this functionality to administrators.
-
-		$user = Member::currentUserID();
-		if(Permission::checkMember($user, 'ADMIN') && ($suggestion = ExtensibleSearchSuggestion::get()->byID($request->postVar('suggestion')))) {
-
-			// Update the search suggestion.
-
-			$approved = !$suggestion->Approved;
-			$suggestion->Approved = $approved;
-			$suggestion->write();
-
-			// Display an appropriate notification to the user.
-
-			$status = $approved ? 'Approved' : 'Disapproved';
-			$this->getResponse()->setStatusDescription("{$status} \"{$suggestion->Term}\"!");
-
-			// Make sure there are no page controller requirement conflicts.
-
-			Requirements::clear();
-			return $suggestion;
-		}
-		else {
-			return $this->httpError(404);
-		}
 	}
 
 }
