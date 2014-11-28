@@ -145,11 +145,19 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	public function getApprovedField() {
 
-		return CheckboxField::create(
+		$approved = CheckboxField::create(
 			'Approved',
 			'',
 			$this->Approved
 		)->addExtraClass('approved');
+
+		// Restrict this field appropriately.
+
+		$user = Member::currentUserID();
+		if(!Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
+			$approved->setAttribute('disabled', 'true');
+		}
+		return $approved;
 	}
 
 }

@@ -39,6 +39,10 @@ div.approved.wrapper input.approved {
 	margin-top: 2px;
 }
 
+div.approved.wrapper span.readonly {
+	padding-top: 0;
+}
+
 li.valEXTENSIBLE_SEARCH_SUGGESTIONS input,
 li.valEXTENSIBLE_SEARCH_SUGGESTIONS label {
 	vertical-align: middle;
