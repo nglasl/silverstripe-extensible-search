@@ -113,18 +113,19 @@ class ExtensibleSearchService {
 	 *	Retrieve the most relevant search suggestions.
 	 *
 	 *	@parameter <{SEARCH_TERM}> string
-	 *	@parameter <{APPROVED_ONLY}> boolean
 	 *	@parameter <{LIMIT}> integer
+	 *	@parameter <{APPROVED_ONLY}> boolean
+	 *	@return array
 	 */
 
-	public function getSuggestions($term, $limit = 5, $approved = 1) {
+	public function getSuggestions($term, $limit = 5, $approved = true) {
 
 		// Make sure the search matches the minimum autocomplete length.
 
 		if($term && (strlen($term) > 2)) {
 			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
 				'Term:StartsWith' => $term,
-				'Approved' => $approved
+				'Approved' => (int)$approved
 			))->limit($limit);
 			return $suggestions->column('Term');
 		}
