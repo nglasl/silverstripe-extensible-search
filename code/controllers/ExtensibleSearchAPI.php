@@ -76,7 +76,7 @@ class ExtensibleSearchAPI extends Controller {
 
 	public function getSuggestions($request) {
 
-		if($suggestions = $this->service->getSuggestions($request->getVar('term'))) {
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') && ($suggestions = $this->service->getSuggestions($request->getVar('term')))) {
 
 			// Return the search suggestions as JSON.
 
