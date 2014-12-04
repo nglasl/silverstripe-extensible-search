@@ -1,6 +1,6 @@
 # [extensible-search](https://github.com/nglasl)
 
-_**NOTE:** This branch is for development only._
+_**NOTE:** The current release is **1.1**._
 
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
 
