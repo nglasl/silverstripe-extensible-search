@@ -19,9 +19,15 @@ class ExtensibleSearchExtension extends Extension {
 	 *
 	 * @return ExtensibleSearchPage
 	 */
-    public function getSearchPage() {
-		// get the search page for this site, if applicable... otherwise use the default
-		return class_exists('ExtensibleSearchPage') ? ExtensibleSearchPage::get()->first() : null;
+	public function getSearchPage() {
+
+		if(class_exists('Multisites')) {
+			$site = Multisites::inst()->getCurrentSiteId();
+			return ExtensibleSearchPage::get()->filter('SiteID', $site)->first();
+		}
+		else {
+			return ExtensibleSearchPage::get()->first();
+		}
 	}
 
 	/**
