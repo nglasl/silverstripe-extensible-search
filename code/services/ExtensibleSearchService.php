@@ -140,7 +140,7 @@ class ExtensibleSearchService {
 			// Make sure the current user has appropriate permission.
 
 			$pageID = (int)$pageID;
-			if(ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)->canView()) {
+			if(($page = ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)) && $page->canView()) {
 
 				// Retrieve the search suggestions.
 
