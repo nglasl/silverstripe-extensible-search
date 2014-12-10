@@ -18,17 +18,23 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'Approved' => 'Boolean'
 	);
 
+	private static $has_one = array(
+		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+	);
+
 	private static $default_sort = 'Frequency DESC, Term ASC';
 
 	private static $summary_fields = array(
 		'Term',
 		'FrequencySummary',
+		'isPermissionRestricted',
 		'ApprovedField'
 	);
 
 	private static $field_labels = array(
 		'Term' => 'Search Term',
 		'FrequencySummary' => 'Analytic Frequency',
+		'isPermissionRestricted' => 'Is Permission Restricted?',
 		'ApprovedField' => 'Approved?'
 	);
 
@@ -108,6 +114,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
+		$fields->removeByName('ExtensibleSearchPageID');
 
 		// Make sure the search suggestions and frequency are read only.
 
@@ -135,6 +142,17 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	public function getFrequencySummary() {
 
 		return $this->Frequency ? $this->Frequency : '-';
+	}
+
+	/**
+	 *	Determine if the search suggestion is permission restricted.
+	 *
+	 *	@return string
+	 */
+
+	public function isPermissionRestricted() {
+
+		return $this->ExtensibleSearchPage()->exists() ? 'true' : 'false';
 	}
 
 	/**

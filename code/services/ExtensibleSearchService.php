@@ -14,10 +14,11 @@ class ExtensibleSearchService {
 	 *	@parameter <{NUMBER_OF_SEARCH_RESULTS}> integer
 	 *	@parameter <{SEARCH_TIME}> float
 	 *	@parameter <{SEARCH_ENGINE}> string
+	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
 	 *	@return extensible search
 	 */
 
-	public function logSearch($term, $results, $time, $engine) {
+	public function logSearch($term, $results, $time, $engine, $pageID = 0) {
 
 		// Make sure the search analytics are enabled.
 
@@ -31,14 +32,15 @@ class ExtensibleSearchService {
 			'Term'	=> $term,
 			'Results' => $results,
 			'Time' => $time,
-			'SearchEngine' => $engine
+			'SearchEngine' => $engine,
+			'ExtensibleSearchPageID' => $pageID
 		));
 		$search->write();
 
 		// Log the details of the user search as a suggestion.
 
 		if($results > 0) {
-			$this->logSuggestion($term);
+			$this->logSuggestion($term, $pageID);
 		}
 		return $search;
 	}
@@ -47,10 +49,11 @@ class ExtensibleSearchService {
 	 *	Log a user search generated suggestion.
 	 *
 	 *	@parameter <{SEARCH_TERM}> string
+	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
 	 *	@return extensible search suggestion
 	 */
 
-	public function logSuggestion($term) {
+	public function logSuggestion($term, $pageID = 0) {
 
 		// Make sure the search matches the minimum autocomplete length.
 
@@ -60,11 +63,17 @@ class ExtensibleSearchService {
 
 		// Make sure the suggestion doesn't already exist.
 
-		$suggestion = ExtensibleSearchSuggestion::get()->filter('Term', $term)->first();
+		$suggestion = ExtensibleSearchSuggestion::get()->filter(array(
+			'Term' => $term,
+			'ExtensibleSearchPageID' => $pageID
+		))->first();
 
 		// Store the frequency to make search suggestion relevance more efficient.
 
-		$frequency = ExtensibleSearch::get()->filter('Term', $term)->count();
+		$frequency = ExtensibleSearch::get()->filter(array(
+			'Term' => $term,
+			'ExtensibleSearchPageID' => $pageID
+		))->count();
 		if($suggestion) {
 			$suggestion->Frequency = $frequency;
 		}
@@ -75,7 +84,8 @@ class ExtensibleSearchService {
 			$suggestion = ExtensibleSearchSuggestion::create(array(
 				'Term' => $term,
 				'Frequency' => $frequency,
-				'Approved' => (int)Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval')
+				'Approved' => (int)Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval'),
+				'ExtensibleSearchPageID' => $pageID
 			));
 		}
 		$suggestion->write();
@@ -113,12 +123,13 @@ class ExtensibleSearchService {
 	 *	Retrieve the most relevant search suggestions.
 	 *
 	 *	@parameter <{SEARCH_TERM}> string
+	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
 	 *	@parameter <{LIMIT}> integer
 	 *	@parameter <{APPROVED_ONLY}> boolean
 	 *	@return array
 	 */
 
-	public function getSuggestions($term, $limit = 5, $approved = true) {
+	public function getSuggestions($term, $pageID = 0, $limit = 5, $approved = true) {
 
 		// Make sure the search matches the minimum autocomplete length.
 
@@ -127,7 +138,26 @@ class ExtensibleSearchService {
 				'Term:StartsWith' => $term,
 				'Approved' => (int)$approved
 			))->limit($limit);
-			return $suggestions->column('Term');
+
+			// Make sure the current user has search permission.
+
+			$pageID = (int)$pageID;
+			if(ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)->canView()) {
+
+				// Retrieve the appropriate search suggestions.
+
+				$suggestions = $suggestions->where("ExtensibleSearchPageID = {$pageID} OR ExtensibleSearchPageID = 0");
+			}
+			else {
+
+				// Retrieve search suggestions with no permission restriction.
+
+				$suggestions = $suggestions->filter('ExtensibleSearchPageID', 0);
+			}
+
+			// Make sure duplicate search suggestions don't appear.
+
+			return array_unique($suggestions->column('Term'));
 		}
 		else {
 			return null;

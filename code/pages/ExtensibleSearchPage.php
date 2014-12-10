@@ -316,7 +316,7 @@ class ExtensibleSearchPage extends Page {
 
 			// Make sure the user search details are correctly sorted for result validation.
 
-			$log = ExtensibleSearch::get();
+			$log = ExtensibleSearch::get()->where("ExtensibleSearchPageID = {$this->ID} OR ExtensibleSearchPageID = 0");
 
 			// Determine the unique search terms.
 
@@ -406,7 +406,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
 				'Suggestions',
-				ExtensibleSearchSuggestion::get(),
+				ExtensibleSearchSuggestion::get()->where("ExtensibleSearchPageID = {$this->ID} OR ExtensibleSearchPageID = 0"),
 				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
 			)->setModelClass('ExtensibleSearchSuggestion'));
 			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');
@@ -647,7 +647,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')
+			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
 		// When filters have been enabled, display these in the form.
@@ -725,7 +725,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						// Log the details of a user search for analytics.
 
-						$this->service->logSearch($data['Search'], (isset($customisation['Results']) && ($results = $customisation['Results'])) ? count($results) : 0, $totalTime, $engine);
+						$this->service->logSearch($data['Search'], (isset($customisation['Results']) && ($results = $customisation['Results'])) ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
 						return $output;
 					}
 					$instance->clearOwner();
@@ -775,7 +775,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Log the details of a user search for analytics.
 
-		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine);
+		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
 		return $output;
 	}
 	

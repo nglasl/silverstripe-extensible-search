@@ -21,13 +21,12 @@ class ExtensibleSearchExtension extends Extension {
 	 */
 	public function getSearchPage() {
 
+		$page = ExtensibleSearchPage::get();
 		if(class_exists('Multisites')) {
-			$site = Multisites::inst()->getCurrentSiteId();
-			return ExtensibleSearchPage::get()->filter('SiteID', $site)->first();
+			$siteID = Multisites::inst()->getCurrentSiteId();
+			$page = $page->filter('SiteID', $siteID);
 		}
-		else {
-			return ExtensibleSearchPage::get()->first();
-		}
+		return $page->first();
 	}
 
 	/**

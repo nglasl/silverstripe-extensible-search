@@ -15,6 +15,10 @@ class ExtensibleSearch extends DataObject {
 		'SearchEngine' => 'Varchar(255)'
 	);
 
+	private static $has_one = array(
+		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+	);
+
 	private static $default_sort = 'ID DESC';
 
 	private static $summary_fields = array(
