@@ -1,6 +1,6 @@
 # [extensible-search](https://github.com/nglasl)
 
-_The current release is **1.1.1**._
+_The current release is **1.1.2**._
 
 _The current stable branch is **1.1**._
 
