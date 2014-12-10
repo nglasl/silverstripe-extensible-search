@@ -63,17 +63,15 @@ class ExtensibleSearchService {
 
 		// Make sure the suggestion doesn't already exist.
 
-		$suggestion = ExtensibleSearchSuggestion::get()->filter(array(
+		$filter = array(
 			'Term' => $term,
 			'ExtensibleSearchPageID' => $pageID
-		))->first();
+		);
+		$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->first();
 
 		// Store the frequency to make search suggestion relevance more efficient.
 
-		$frequency = ExtensibleSearch::get()->filter(array(
-			'Term' => $term,
-			'ExtensibleSearchPageID' => $pageID
-		))->count();
+		$frequency = ExtensibleSearch::get()->filter($filter)->count();
 		if($suggestion) {
 			$suggestion->Frequency = $frequency;
 		}
@@ -139,23 +137,23 @@ class ExtensibleSearchService {
 				'Approved' => (int)$approved
 			))->limit($limit);
 
-			// Make sure the current user has search permission.
+			// Make sure the current user has appropriate permission.
 
 			$pageID = (int)$pageID;
 			if(ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)->canView()) {
 
-				// Retrieve the appropriate search suggestions.
+				// Retrieve the search suggestions.
 
 				$suggestions = $suggestions->where("ExtensibleSearchPageID = {$pageID} OR ExtensibleSearchPageID = 0");
 			}
 			else {
 
-				// Retrieve search suggestions with no permission restriction.
+				// Retrieve the search suggestions that are not permission restricted.
 
 				$suggestions = $suggestions->filter('ExtensibleSearchPageID', 0);
 			}
 
-			// Make sure duplicate search suggestions don't appear.
+			// Make sure the search suggestions are unique.
 
 			return array_unique($suggestions->column('Term'));
 		}
