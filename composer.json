@@ -19,6 +19,9 @@
 		"silverstripe/multivaluefield": "~2.0"
 	},
 	"extra": {
-		"installer-name": "extensible-search"
+		"installer-name": "extensible-search",
+		"branch-alias": {
+			"dev-master": "1.1.x-dev"
+		}
 	}
 }
