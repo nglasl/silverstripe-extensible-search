@@ -2,8 +2,6 @@
 
 _The current release is **1.1.2**._
 
-_The current stable branch is **1.1**._
-
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
 
 	This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
