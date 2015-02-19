@@ -1,4 +1,4 @@
-# [extensible-search](https://github.com/nglasl)
+# [extensible-search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
 _The current release is **1.1.3**_
 
