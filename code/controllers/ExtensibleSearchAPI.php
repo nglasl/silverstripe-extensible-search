@@ -36,9 +36,29 @@ class ExtensibleSearchAPI extends Controller {
 
 	public function httpError($code, $message = null) {
 
-		// Display the error page for the given status code.
+		// Determine the error page for the given status code.
 
-		if($response = ErrorPage::response_for($code)) {
+		$errorPages = ErrorPage::get()->filter('ErrorCode', $code);
+
+		// Allow extension customisation.
+
+		$this->extend('updateErrorPages', $errorPages);
+
+		// Retrieve the error page response.
+
+		if($errorPage = $errorPages->first()) {
+			Requirements::clear();
+			Requirements::clear_combined_files();
+			$response = ModelAsController::controller_for($errorPage)->handleRequest(new SS_HTTPRequest('GET', ''), DataModel::inst());
+			throw new SS_HTTPResponse_Exception($response, $code);
+		}
+
+		// Retrieve the cached error page response.
+
+		else if(file_exists($cachedPage = ErrorPage::get_filepath_for_errorcode($code, class_exists('Translatable') ? Translatable::get_current_locale() : null))) {
+			$response = new SS_HTTPResponse();
+			$response->setStatusCode($code);
+			$response->setBody(file_get_contents($cachedPage));
 			throw new SS_HTTPResponse_Exception($response, $code);
 		}
 		else {
