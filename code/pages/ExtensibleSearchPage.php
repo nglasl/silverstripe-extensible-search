@@ -666,7 +666,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				if($customType = strpos($field, ':')) {
 					$field = substr($field, 0, $customType);
 				}
-				$field = ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $field));
+
+				// Add spaces between words, other characters and numbers.
+
+				$field = ltrim(preg_replace(array(
+					'/([A-Z][a-z]+)/',
+					'/([A-Z]{2,})/',
+					'/([_.0-9]+)/'
+				), ' $0', $field));
 			}
 			$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
 			$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
