@@ -1,6 +1,6 @@
 {
 	"name": "nglasl/silverstripe-extensible-search",
-	"description": "A module for SilverStripe which will allow user customisation and developer extension of a search page instance.",
+	"description": "A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.",
 	"type": "silverstripe-module",
 	"keywords": [
 		"silverstripe",

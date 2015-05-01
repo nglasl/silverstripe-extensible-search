@@ -2,7 +2,7 @@
 
 _The current release is **1.1.4**_
 
-	A module for SilverStripe which will allow user customisation and developer extension of a search page instance.
+	A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
 	This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
 
