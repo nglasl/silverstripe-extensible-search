@@ -63,15 +63,16 @@ class ExtensibleSearchService {
 
 		// Make sure the suggestion doesn't already exist.
 
+		$term = strtolower($term);
 		$filter = array(
-			'Term' => $term,
-			'ExtensibleSearchPageID' => $pageID
+			'Term' => $term
 		);
-		$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->first();
+		$where = "ExtensibleSearchPageID = {$pageID} OR ExtensibleSearchPageID = 0";
+		$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->where($where)->first();
 
 		// Store the frequency to make search suggestion relevance more efficient.
 
-		$frequency = ExtensibleSearch::get()->filter($filter)->count();
+		$frequency = ExtensibleSearch::get()->filter($filter)->where($where)->count();
 		if($suggestion) {
 			$suggestion->Frequency = $frequency;
 		}

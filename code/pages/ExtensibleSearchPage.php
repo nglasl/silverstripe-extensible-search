@@ -317,6 +317,7 @@ class ExtensibleSearchPage extends Page {
 			// Make sure the user search details are correctly sorted for result validation.
 
 			$log = ExtensibleSearch::get()->where("ExtensibleSearchPageID = {$this->ID} OR ExtensibleSearchPageID = 0");
+			$total = $log->count();
 
 			// Determine the unique search terms.
 
@@ -335,6 +336,7 @@ class ExtensibleSearchPage extends Page {
 					$averageTime += $entry->Time;
 				}
 				$search->setField('Frequency', $count);
+				$search->setField('FrequencyPercentage', sprintf('%.2f%%', ($count / $total) * 100));
 				$search->setField('AverageTimeTaken', round($averageTime / $count, 5));
 
 				// Determine the result validation.
@@ -369,6 +371,7 @@ class ExtensibleSearchPage extends Page {
 			$summaryDisplay = array(
 				'Term' => 'Search Term',
 				'Frequency' => 'Frequency',
+				'FrequencyPercentage' => 'Frequency %',
 				'AverageTimeTaken' => 'Average Time Taken (s)',
 				'Validation' => 'Has Results?'
 			);
