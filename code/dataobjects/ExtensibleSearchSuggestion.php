@@ -147,7 +147,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	}
 
 	/**
-	 *	Retrieve the frequency percentage for display purposes.
+	 *	Retrieve the frequency percentage.
 	 *
 	 *	@return string
 	 */
