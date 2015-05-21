@@ -370,6 +370,9 @@ class ExtensibleSearchPage extends Page {
 			$summaryConfiguration = $summary->getConfig();
 			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
 			$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
+			$summaryConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
+				'FrequencyPercentage' => 'Frequency'
+			));
 
 			// Update the export fields, since we're not using a data list.
 
@@ -423,6 +426,7 @@ class ExtensibleSearchPage extends Page {
 
 			$suggestionsConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
 				'FrequencySummary' => 'Frequency',
+				'FrequencyPercentage' => 'Frequency',
 				'ApprovedField' => 'Approved'
 			));
 		}
