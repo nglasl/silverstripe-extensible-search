@@ -28,7 +28,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'Term',
 		'FrequencySummary',
 		'FrequencyPercentage',
-		'isPermissionRestricted',
 		'ApprovedField'
 	);
 
@@ -36,7 +35,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'Term' => 'Search Term',
 		'FrequencySummary' => 'Analytic Frequency',
 		'FrequencyPercentage' => 'Analytic Frequency %',
-		'isPermissionRestricted' => 'Is Permission Restricted?',
 		'ApprovedField' => 'Approved?'
 	);
 
@@ -154,19 +152,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	public function getFrequencyPercentage() {
 
-		$history = ExtensibleSearch::get()->where("ExtensibleSearchPageID = {$this->ExtensibleSearchPageID} OR ExtensibleSearchPageID = 0");
-		return $this->Frequency ? sprintf('%.2f%%', ($this->Frequency / $history->count()) * 100) : '-';
-	}
-
-	/**
-	 *	Determine if the search suggestion is permission restricted.
-	 *
-	 *	@return string
-	 */
-
-	public function isPermissionRestricted() {
-
-		return $this->ExtensibleSearchPage()->exists() ? 'true' : 'false';
+		$history = ExtensibleSearch::get()->filter('ExtensibleSearchPageID', $this->ExtensibleSearchPageID);
+		return $this->Frequency ? sprintf('%.2f %%', ($this->Frequency / $history->count()) * 100) : '-';
 	}
 
 	/**

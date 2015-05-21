@@ -66,6 +66,11 @@ class ExtensibleSearchPage extends Page {
 
 	public $default_search = '';
 
+	private static $has_many = array(
+		'History' => 'ExtensibleSearch',
+		'Suggestions' => 'ExtensibleSearchSuggestion'
+	);
+
 	private static $many_many = array(
 		'SearchTrees'			=> 'Page',
 	);
@@ -316,7 +321,7 @@ class ExtensibleSearchPage extends Page {
 
 			// Make sure the user search details are correctly sorted for result validation.
 
-			$log = ExtensibleSearch::get()->where("ExtensibleSearchPageID = {$this->ID} OR ExtensibleSearchPageID = 0");
+			$log = $this->History();
 			$total = $log->count();
 
 			// Determine the unique search terms.
@@ -336,7 +341,7 @@ class ExtensibleSearchPage extends Page {
 					$averageTime += $entry->Time;
 				}
 				$search->setField('Frequency', $count);
-				$search->setField('FrequencyPercentage', sprintf('%.2f%%', ($count / $total) * 100));
+				$search->setField('FrequencyPercentage', sprintf('%.2f %%', ($count / $total) * 100));
 				$search->setField('AverageTimeTaken', round($averageTime / $count, 5));
 
 				// Determine the result validation.
@@ -409,7 +414,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
 				'Suggestions',
-				ExtensibleSearchSuggestion::get()->where("ExtensibleSearchPageID = {$this->ID} OR ExtensibleSearchPageID = 0"),
+				$this->Suggestions(),
 				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
 			)->setModelClass('ExtensibleSearchSuggestion'));
 			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');

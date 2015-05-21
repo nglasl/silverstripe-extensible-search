@@ -18,7 +18,7 @@ class ExtensibleSearchService {
 	 *	@return extensible search
 	 */
 
-	public function logSearch($term, $results, $time, $engine, $pageID = 0) {
+	public function logSearch($term, $results, $time, $engine, $pageID) {
 
 		// Make sure the search analytics are enabled.
 
@@ -53,7 +53,7 @@ class ExtensibleSearchService {
 	 *	@return extensible search suggestion
 	 */
 
-	public function logSuggestion($term, $pageID = 0) {
+	public function logSuggestion($term, $pageID) {
 
 		// Make sure the search matches the minimum autocomplete length.
 
@@ -65,14 +65,14 @@ class ExtensibleSearchService {
 
 		$term = strtolower($term);
 		$filter = array(
-			'Term' => $term
+			'Term' => $term,
+			'ExtensibleSearchPageID' => $pageID
 		);
-		$where = "ExtensibleSearchPageID = {$pageID} OR ExtensibleSearchPageID = 0";
-		$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->where($where)->first();
+		$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->first();
 
 		// Store the frequency to make search suggestion relevance more efficient.
 
-		$frequency = ExtensibleSearch::get()->filter($filter)->where($where)->count();
+		$frequency = ExtensibleSearch::get()->filter($filter)->count();
 		if($suggestion) {
 			$suggestion->Frequency = $frequency;
 		}
@@ -128,15 +128,11 @@ class ExtensibleSearchService {
 	 *	@return array
 	 */
 
-	public function getSuggestions($term, $pageID = 0, $limit = 5, $approved = true) {
+	public function getSuggestions($term, $pageID, $limit = 5, $approved = true) {
 
 		// Make sure the search matches the minimum autocomplete length.
 
 		if($term && (strlen($term) > 2)) {
-			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
-				'Term:StartsWith' => $term,
-				'Approved' => (int)$approved
-			))->limit($limit);
 
 			// Make sure the current user has appropriate permission.
 
@@ -145,22 +141,18 @@ class ExtensibleSearchService {
 
 				// Retrieve the search suggestions.
 
-				$suggestions = $suggestions->where("ExtensibleSearchPageID = {$pageID} OR ExtensibleSearchPageID = 0");
+				$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
+					'Term:StartsWith' => $term,
+					'Approved' => (int)$approved,
+					'ExtensibleSearchPageID' => $pageID
+				))->sort('Frequency DESC')->limit($limit);
+
+				// Make sure the search suggestions are unique.
+
+				return array_unique($suggestions->column('Term'));
 			}
-			else {
-
-				// Retrieve the search suggestions that are not permission restricted.
-
-				$suggestions = $suggestions->filter('ExtensibleSearchPageID', 0);
-			}
-
-			// Make sure the search suggestions are unique.
-
-			return array_unique($suggestions->column('Term'));
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 }
