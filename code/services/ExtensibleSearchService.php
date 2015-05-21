@@ -145,7 +145,7 @@ class ExtensibleSearchService {
 					'Term:StartsWith' => $term,
 					'Approved' => (int)$approved,
 					'ExtensibleSearchPageID' => $pageID
-				))->sort('Frequency DESC')->limit($limit);
+				))->sort('Frequency', 'DESC')->limit($limit);
 
 				// Make sure the search suggestions are unique.
 

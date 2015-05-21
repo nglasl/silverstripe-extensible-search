@@ -108,6 +108,17 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	}
 
 	/**
+	 *	Retrieve the search suggestion title.
+	 *
+	 *	@return string
+	 */
+
+	public function getTitle() {
+
+		return $this->Term;
+	}
+
+	/**
 	 *	Restrict access for CMS users editing search suggestions.
 	 */
 
@@ -131,6 +142,20 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		)->addExtraClass('approved wrapper'));
 		$approved->push($this->getApprovedField());
 		return $fields;
+	}
+
+	/**
+	 *	Confirm that the current search suggestion is valid.
+	 */
+
+	public function validate() {
+
+		$result = parent::validate();
+
+		// Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
+
+		(strlen($this->Term) < 3) ? $result->error('Minimum autocomplete length required!') : (ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "'") ? $result->error('Search suggestion already exists!') : $result->valid());
+		return $result;
 	}
 
 	/**
