@@ -1,5 +1,7 @@
 # [extensible-search](https://github.com/nglasl)
 
+_The current release is **1.0.0**_
+
 :bust_in_silhouette:
 
 _**NOTE:** This repository has been pulled together using re-factored code from an existing module._
