@@ -68,9 +68,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	/**
 	 *	Allow access for CMS users viewing search suggestions.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canView($member = null) {
@@ -80,9 +77,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	/**
 	 *	Determine access for the current CMS user creating search suggestions.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canEdit($member = null) {
@@ -97,9 +91,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	/**
 	 *	Determine access for the current CMS user deleting search suggestions.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canDelete($member = null) {
@@ -154,7 +145,12 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		// Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
 
-		(strlen($this->Term) < 3) ? $result->error('Minimum autocomplete length required!') : (ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "' AND ExtensibleSearchPageID = " . (int)$this->ExtensibleSearchPageID) ? $result->error('Suggestion already exists!') : $result->valid());
+		if($result->valid() && (strlen($this->Term) < 3)) {
+			$result->error('Minimum autocomplete length required!');
+		}
+		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "' AND ExtensibleSearchPageID = " . (int)$this->ExtensibleSearchPageID)) {
+			$result->error('Suggestion already exists!');
+		}
 		return $result;
 	}
 
