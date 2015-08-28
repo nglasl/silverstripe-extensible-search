@@ -4,3 +4,6 @@ name: extensible-search-extensions
 SearchForm:
   extensions:
     - 'SearchFormResultsExtension'
+ExtensibleSearchPage_Controller:
+  extensions:
+    - 'ExtensibleSearchPageSuggestions'

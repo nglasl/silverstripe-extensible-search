@@ -550,6 +550,13 @@ class ExtensibleSearchPage extends Page {
 		}
 		return $listType;
 	}
+	
+	public function SearchSuggestions() {
+		return ExtensibleSearchSuggestion::get()->filter(array(
+			'Approved' => 1,
+			'ExtensibleSearchPageID' => $this->ID
+		))->sort('Frequency', 'DESC')->limit(5);
+	}
 
 }
 
@@ -660,7 +667,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Construct the search form.
 
 		$fields = new FieldList(
-			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
+			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
+				->addExtraClass('extensible-search search')
+				->setAttribute('data-suggestions-enabled', Config::inst()
+				->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')
+				->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
 		// When filters have been enabled, display these in the form.
@@ -695,7 +706,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 
 		$actions = new FieldList(new FormAction('getSearchResults', _t('SearchForm.GO', 'Search')));
-
+		
+		$this->extend('updateFormFields', $fields);
+		$this->extend('updateFormActions', $actions);
+		
 		$form = new SearchForm($this, 'getForm', $fields, $actions);
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		if(is_array($searchable) && (count($searchable) > 0)) {
@@ -704,6 +718,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$form->addExtraClass('searchPageForm');
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
+		
+		$this->extend('updateForm', $form);
 		return $form;
 	}
 
