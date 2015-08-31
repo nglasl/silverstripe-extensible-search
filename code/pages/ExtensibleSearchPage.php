@@ -550,7 +550,7 @@ class ExtensibleSearchPage extends Page {
 		}
 		return $listType;
 	}
-	
+
 	public function SearchSuggestions() {
 		return ExtensibleSearchSuggestion::get()->filter(array(
 			'Approved' => 1,
@@ -706,10 +706,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 
 		$actions = new FieldList(new FormAction('getSearchResults', _t('SearchForm.GO', 'Search')));
-		
+
 		$this->extend('updateFormFields', $fields);
 		$this->extend('updateFormActions', $actions);
-		
+
 		$form = new SearchForm($this, 'getForm', $fields, $actions);
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		if(is_array($searchable) && (count($searchable) > 0)) {
@@ -718,7 +718,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$form->addExtraClass('searchPageForm');
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
-		
+
 		$this->extend('updateForm', $form);
 		return $form;
 	}
@@ -740,6 +740,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$engine = $this->data()->SearchEngine;
 		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+
 			return $this->httpError(404);
 		}
 
@@ -755,19 +756,40 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 						// Keep track of the search time taken, for the current search engine extension.
 
 						$startTime = microtime(true);
-						$customisation = $instance->getSearchResults($data, $form);
-						$output = $this->customise($customisation)->renderWith(array("{$engine}Search_results", "{$engine}SearchPage_results", 'ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', "{$engine}Search", "{$engine}SearchPage", 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
+						$results = $instance->getSearchResults($data, $form);
 						$totalTime = microtime(true) - $startTime;
 
 						// Log the details of a user search for analytics.
 
-						$this->service->logSearch($data['Search'], (isset($customisation['Results']) && ($results = $customisation['Results'])) ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
-						return $output;
+						$this->service->logSearch(
+							$data['Search'],
+							isset($results['Results']) ? count($results['Results']) : 0,
+							$totalTime,
+							$engine,
+							$this->data()->ID
+						);
 					}
 					$instance->clearOwner();
 					break;
 				}
 			}
+		}
+
+		if($results) {
+
+			return $this->customise($results)
+				->renderWith(array(
+					"{$engine}Search_results",
+					"{$engine}SearchPage_results",
+					'ExtensibleSearch_results',
+					'ExtensibleSearchPage_results',
+					'Page_results',
+					"{$engine}Search",
+					"{$engine}SearchPage",
+					'ExtensibleSearch',
+					'ExtensibleSearchPage',
+					'Page'
+			));
 		}
 
 		// Fall back to displaying the full-text results.
@@ -784,10 +806,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if($filter) {
 			$filter = "ParentID IN({$filter})";
 		}
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$sort} {$direction}", $filter, $data) : null;
+
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form)
+					? $form->getExtendedResults($this->data()->ResultsPerPage, "{$sort} {$direction}", $filter, $data)
+					: null;
 
 		// Render the full-text results using a listing template where defined.
-
 		if($this->data()->ListingTemplateID && $results) {
 			$template = DataObject::get_by_id('ListingTemplate', $this->data()->ListingTemplateID);
 			if($template && $template->exists()) {
@@ -806,18 +830,32 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			'Query' => $form ? $form->getSearchQuery() : null,
 			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
-		$output = $this->customise($customisation)->renderWith(array('ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
+		$output = $this->customise($customisation)->renderWith(array(
+			'ExtensibleSearch_results',
+			'ExtensibleSearchPage_results',
+			'Page_results',
+			'ExtensibleSearch',
+			'ExtensibleSearchPage',
+			'Page'
+		));
 		$totalTime = microtime(true) - $startTime;
 
 		// Log the details of a user search for analytics.
 
-		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
+		$this->service->logSearch(
+			$data['Search'],
+			$results ? count($results) : 0,
+			$totalTime,
+			'FallbackFullText',
+			$this->data()->ID
+		);
+
 		return $output;
 	}
-	
+
 	/**
-	 * Allow calling by /search/results for displaying a results page. 
-	 * 
+	 * Allow calling by /search/results for displaying a results page.
+	 *
 	 * @param type $data
 	 * @param type $form
 	 * @return string
