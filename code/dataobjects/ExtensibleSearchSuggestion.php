@@ -42,7 +42,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Allow the ability to disable search suggestions.
 	 */
 
-	private static $enable_suggestions = true;
+	private static $enable_suggestions = false;
 
 	/**
 	 *	Allow the ability to automatically approve user search generated suggestions.

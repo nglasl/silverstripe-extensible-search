@@ -15,7 +15,8 @@ class ExtensibleSearchAPI extends Controller {
 
 	private static $allowed_actions = array(
 		'toggleSuggestionApproved',
-		'getSuggestions'
+		'getSuggestions',
+		'getTypeahead'
 	);
 
 	/**
@@ -93,22 +94,43 @@ class ExtensibleSearchAPI extends Controller {
 	 *	@URLparameter term <{SEARCH_TERM}> string
 	 *	@return JSON
 	 */
-
 	public function getSuggestions($request) {
 
-		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') && ($suggestions = $this->service->getSuggestions($request->getVar('term'), $request->getVar('page')))) {
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')
+			&& ($suggestions = $this->service->getSuggestions($request->getVar('term'), $request->getVar('page')))
+		) {
 
 			// Return the search suggestions as JSON.
 
 			$this->getResponse()->addHeader('Content-Type', 'application/json');
 
 			// JSON_PRETTY_PRINT.
-
 			return json_encode($suggestions, 128);
-		}
-		else {
+		} else {
+
 			return $this->httpError(404);
 		}
+	}
+
+	/**
+	 *	Retrieve search typeahead suggestions
+	 *
+	 *	@URLparameter term <{SEARCH_TERM}> string
+	 *	@return JSON
+	 */
+	public function getTypeahead($request) {
+
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_typeahead')	) {
+
+			$typeahead = $this->service->getTypeahead($request->getVars(), $request->getVar('page'));
+
+			// Return the search suggestions as JSON.
+			$this->getResponse()->addHeader('Content-Type', 'application/json');
+
+			return json_encode($typeahead, 128);
+		}
+
+		return $this->httpError(404);
 	}
 
 }

@@ -551,13 +551,6 @@ class ExtensibleSearchPage extends Page {
 		return $listType;
 	}
 
-	public function SearchSuggestions() {
-		return ExtensibleSearchSuggestion::get()->filter(array(
-			'Approved' => 1,
-			'ExtensibleSearchPageID' => $this->ID
-		))->sort('Frequency', 'DESC')->limit(5);
-	}
-
 }
 
 class ExtensibleSearchPage_Controller extends Page_Controller {
@@ -669,8 +662,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$fields = new FieldList(
 			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')
 				->addExtraClass('extensible-search search')
-				->setAttribute('data-suggestions-enabled', Config::inst()
-				->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')
+				->setAttribute('data-suggestions-enabled',
+					Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false'
+				)
 				->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 

@@ -155,4 +155,37 @@ class ExtensibleSearchService {
 		return null;
 	}
 
+
+	/**
+	 *	Retrieve the most relevant search suggestions.
+	 *
+	 *	@parameter <{SEARCH_TERM}> string
+	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
+	 *	@return array
+	 */
+
+	public function getTypeahead($request, $pageID) {
+
+		// Make sure the search matches the minimum autocomplete length.
+
+		if($request && (strlen($request['Search']) > 2)) {
+
+			// Make sure the current user has appropriate permission.
+
+			$pageID = (int)$pageID;
+			if(($page = ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)) && $page->canView()) {
+
+				$results = ExtensibleSearchPage_Controller::create($page)->getSearchEngineResults()['Results'];
+				$return = array();
+				//Covert our Array of objects into an array of search terms/titles
+				foreach ($results as $value) {
+					$return[] = $value->Title;
+				}
+
+				return $return;
+			}
+		}
+		return null;
+	}
+
 }

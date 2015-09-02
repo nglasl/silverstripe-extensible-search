@@ -9,7 +9,9 @@ class ExtensibleSearchPageSuggestions extends Extension {
 
 		$search = $fields->fieldByName('Search');
 		$search->setAttribute('data-toggle', 'dropdown')
+				->addExtraClass('typeahead')
 				->setAttribute('aria-haspopup', 'true')
+				->setAttribute('autocomplete', 'off')
 				->setAttribute('aria-expanded', 'true');
 
 		$fields->replaceField('Search', $search);

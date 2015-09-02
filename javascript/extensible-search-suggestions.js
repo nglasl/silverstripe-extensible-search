@@ -5,31 +5,32 @@
 
 		var search = $('input.extensible-search.search');
 		if(search.length) {
-			search.autocomplete({
+			if(search.data('suggestions-enabled')) {
+				search.autocomplete({
 
-				// Determine whether to disable search suggestions, based on configuration.
+					// Determine whether to disable search suggestions, based on configuration.
 
-				disabled: !search.data('suggestions-enabled'),
+					disabled: !search.data('suggestions-enabled'),
 
-				// Enforce a minimum autocomplete length.
+					// Enforce a minimum autocomplete length.
 
-				minLength: 3,
+					minLength: 3,
 
-				// Retrieve the most relevant search suggestions that have been approved.
+					// Retrieve the most relevant search suggestions that have been approved.
 
-				source: function(request, response) {
+					source: function(request, response) {
 
-					$.get('extensible-search-api/getSuggestions', {
-						term: request.term,
-						page: search.data('extensible-search-page')
-					})
-					.success(function(data) {
+						$.get('extensible-search-api/getSuggestions', {
+							term: request.term,
+							page: search.data('extensible-search-page')
+						})
+						.success(function(data) {
 
-						response(data);
-					});
-				}
-			});
+							response(data);
+						});
+					}
+				});
+			}
 		}
-
 	});
 })(jQuery);

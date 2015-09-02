@@ -14,6 +14,18 @@ class ExtensibleSearchExtension extends Extension {
 		'results'
 	);
 
+	public function onAfterInit() {
+
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+			Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
+			Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
+			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
+		}
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_typeahead')) {
+			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-typeahead.js');
+		}
+	}
+
 	/**
 	 * Returns the default search page for this site
 	 *
@@ -31,7 +43,7 @@ class ExtensibleSearchExtension extends Extension {
 
 	/**
 	 * Get the list of facet values for the given term
-	 * 
+	 *
 	 * @param String $term
 	 */
 	public function Facets($term=null) {
@@ -43,7 +55,7 @@ class ExtensibleSearchExtension extends Extension {
 	}
 
 	/**
-	 * The current search query that is being run by the search page. 
+	 * The current search query that is being run by the search page.
 	 *
 	 * @return String
 	 */
@@ -71,6 +83,32 @@ class ExtensibleSearchExtension extends Extension {
 			$search->setTitle('');
 		}
 		return $form;
+	}
+
+	public function SearchSuggestions() {
+		$results = ExtensibleSearchSuggestion::get()->filter(array(
+			'Approved' => 1,
+			'ExtensibleSearchPageID' => $this->getExtensibleSearchPage()
+		))->sort('Frequency', 'DESC')->limit(5);
+
+		return $results;
+	}
+
+	public function getExtensibleSearchPage() {
+
+		$id = class_exists('Multisites') ? $this->owner->SiteID : 0;
+
+		$page = ExtensibleSearchPage::get()->filter('ParentID', $id)->first();
+
+		if (!$page) {
+			if ($id) {
+				$page = ExtensibleSearchPage::get()->filter('SiteID', $id)->first();
+			} else {
+				$page = ExtensibleSearchPage::get()->first();
+			}
+		}
+
+		return $page->ID;
 	}
 
 }
