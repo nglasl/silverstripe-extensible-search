@@ -319,42 +319,22 @@ class ExtensibleSearchPage extends Page {
 
 		if(Config::inst()->get('ExtensibleSearch', 'enable_analytics')) {
 
-			// Make sure the user search details are correctly sorted for result validation.
+			// Retrieve the search analytics.
 
-			$log = $this->History();
-			$total = $log->count();
-
-			// Determine the unique search terms.
-
-			$grouped = GroupedList::create($log)->GroupedBy('Term');
-			$output = ArrayList::create();
-			foreach($grouped as $search) {
-				$searches = $search->toMap();
-				$searches = $searches['Children'];
-
-				// Determine the number of duplicate search terms, and the average search time.
-
-				$count = 0;
-				$averageTime = 0;
-				foreach($searches as $entry) {
-					$count++;
-					$averageTime += $entry->Time;
-				}
-				$search->setField('Frequency', $count);
-				$search->setField('FrequencyPercentage', sprintf('%.2f %%', ($count / $total) * 100));
-				$search->setField('AverageTimeTaken', round($averageTime / $count, 5));
-
-				// Determine the result validation.
-
-				$search->setField('Validation', ($searches[0]->Results > 0) ? 'true' : 'false');
-
-				// Cast the array data to a temporary data object, so we may export.
-
-				$object = DataObject::create();
-				foreach($search->toMap() as $attribute => $value) {
-					$object->$attribute = $value;
-				}
-				$output->push($object);
+			$history = $this->History();
+			$query = new SQLQuery(
+				"Term, COUNT(Term) AS Frequency, CONCAT(ROUND(COUNT(Term) / {$history->count()} * 100, 2), ' %') AS FrequencyPercentage, ROUND(AVG(Time), 5) AS AverageTimeTaken, IF((Results > 0), 'true', 'false') AS Validation",
+				'ExtensibleSearch',
+				"ExtensibleSearchPageID = {$this->ID}",
+				array(
+					'Frequency' => 'DESC',
+					'Term' => 'ASC'
+				),
+				'Term'
+			);
+			$analytics = ArrayList::create();
+			foreach($query->execute() as $result) {
+				$analytics->push(ArrayData::create($result));
 			}
 
 			// Instantiate the search analytic summary display.
@@ -362,10 +342,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
 				'Summary',
 				'Summary',
-				$output->sort(array(
-					'Frequency' => 'DESC',
-					'Term'
-				))
+				$analytics
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
 			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
@@ -394,7 +371,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.SearchAnalytics', $history = GridField::create(
 				'History',
 				'History',
-				$log
+				$history
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
 			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
