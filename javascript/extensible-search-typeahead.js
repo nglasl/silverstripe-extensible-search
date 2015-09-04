@@ -4,6 +4,18 @@
 		// Bind autocomplete to the search form.
 
 		var search = $('input.extensible-search.typeahead');
+		var resentsearch = $('.recentsearch').first().clone();//grab a rescent search list item for cloning
+		$('.recentsearch').remove();//remove any blank ones
+		$('.recent-searches-list').each(function(){
+			var list = $(this);
+			$.each(DpcLocalStore.getType('SearchTerms'), function (i, term) {
+				list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
+			});
+		});
+		$('.recent-searches').show();
+		search.siblings('.esp-search-suggestions').find('.panel > .list-group > .list-group-item > a').each(function(){
+			$(this).attr('href', '//' + window.location.host + $(this).parents('form').attr('action') + '?Search=' + $(this).text() );
+		});
 		if(search.length) {
 			search.keyup(function() {
 				var data = {'page': 12};
