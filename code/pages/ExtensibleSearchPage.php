@@ -336,7 +336,7 @@ class ExtensibleSearchPage extends Page {
 			foreach($query->execute() as $result) {
 				$result = ArrayData::create($result);
 				$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
-				$result->AverageTimeTaken = round($result->AverageTimeTaken, 5);
+				$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
 				$result->Results = $result->Results ? 'true' : 'false';
 				$analytics->push($result);
 			}
