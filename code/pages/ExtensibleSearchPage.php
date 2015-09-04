@@ -323,7 +323,7 @@ class ExtensibleSearchPage extends Page {
 
 			$history = $this->History();
 			$query = new SQLQuery(
-				"Term, COUNT(*) AS Frequency, (COUNT(*) / {$history->count()} * 100) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
+				"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
 				'ExtensibleSearch',
 				"ExtensibleSearchPageID = {$this->ID}",
 				array(
