@@ -323,7 +323,7 @@ class ExtensibleSearchPage extends Page {
 
 			$history = $this->History();
 			$query = new SQLQuery(
-				"Term, COUNT(Term) AS Frequency, CONCAT(ROUND(COUNT(Term) / {$history->count()} * 100, 2), ' %') AS FrequencyPercentage, ROUND(AVG(Time), 5) AS AverageTimeTaken, IF((Results > 0), 'true', 'false') AS Validation",
+				"Term, COUNT(*) AS Frequency, (COUNT(*) / {$history->count()} * 100) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
 				'ExtensibleSearch',
 				"ExtensibleSearchPageID = {$this->ID}",
 				array(
@@ -334,7 +334,11 @@ class ExtensibleSearchPage extends Page {
 			);
 			$analytics = ArrayList::create();
 			foreach($query->execute() as $result) {
-				$analytics->push(ArrayData::create($result));
+				$result = ArrayData::create($result);
+				$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
+				$result->AverageTimeTaken = round($result->AverageTimeTaken, 5);
+				$result->Results = $result->Results ? 'true' : 'false';
+				$analytics->push($result);
 			}
 
 			// Instantiate the search analytic summary display.
@@ -358,7 +362,7 @@ class ExtensibleSearchPage extends Page {
 				'Frequency' => 'Frequency',
 				'FrequencyPercentage' => 'Frequency %',
 				'AverageTimeTaken' => 'Average Time Taken (s)',
-				'Validation' => 'Has Results?'
+				'Results' => 'Has Results?'
 			);
 			$summaryExport->setExportColumns($summaryDisplay);
 
