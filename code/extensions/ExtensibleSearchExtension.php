@@ -17,11 +17,13 @@ class ExtensibleSearchExtension extends Extension {
 	public function onAfterInit() {
 
 		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 			Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
 			Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
 			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
 		}
 		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_typeahead')) {
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-typeahead.js');
 		}
 	}

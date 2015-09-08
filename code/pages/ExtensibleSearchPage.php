@@ -673,7 +673,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				->addExtraClass('typeahead')
 				->setAttribute('aria-haspopup', 'true')
 				->setAttribute('autocomplete', 'off')
-				->setAttribute('aria-expanded', 'true');
+				->setAttribute('aria-expanded', 'true')
+				->setAttribute('data-jq-dropdown', 'esp-dropdown');
 		}
 
 		$fields = new FieldList($search);
