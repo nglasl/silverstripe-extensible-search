@@ -5,7 +5,7 @@ SearchForm:
   extensions:
     - 'SearchFormResultsExtension'
 ExtensibleSearchSuggestion:
-    enable_suggestions: FALSE
+    enable_suggestions: TRUE
     enable_typeahead: TRUE
 Page_Controller:
  extensions:

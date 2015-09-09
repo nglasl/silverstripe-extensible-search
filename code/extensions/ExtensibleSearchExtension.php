@@ -25,6 +25,7 @@ class ExtensibleSearchExtension extends Extension {
 		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_typeahead')) {
 			Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-typeahead.js');
+			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search-typeahead.css');
 		}
 	}
 

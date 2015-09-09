@@ -4,18 +4,31 @@
 
 
 		var search = $('input.extensible-search.typeahead');
-		var resentsearch = $('.recentsearch').first().clone();//grab a rescent search list item for cloning
-		$('.recentsearch').remove();//remove any blank ones
-		$('.recent-searches-list').each(function(){
-			var list = $(this);
-			$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
-				list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
+
+		if (ESPPageStore.getType('SearchTerms').length && $('.recent-searches').length) {
+			//grab a recent search list item for cloning
+			var resentsearch = $('.recentsearch').first().clone();
+			//remove any existing ones
+			$('.recentsearch').remove();
+			$('.recent-searches-list').each(function(){
+				var list = $(this);
+				$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
+					list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
+				});
 			});
-		});
-		$('.recent-searches').show();
-		search.siblings('.esp-search-suggestions').find('.panel > .list-group > .list-group-item > a').each(function(){
-			$(this).attr('href', '//' + window.location.host + $(this).parents('form').attr('action') + '?Search=' + $(this).text() );
-		});
+			$('.recent-searches').show();
+
+			search.siblings('.esp-search-suggestions')
+				.find('.panel > .list-group > .list-group-item > a')
+				.each(function(){
+					$(this).attr('href',
+						'//' + window.location.host
+						+ $(this).parents('form').attr('action')
+						+ '?Search=' + $(this).text()
+					);
+				});
+		}
+
 		if(search.length) {
 
 			search.keyup(function() {
@@ -202,9 +215,6 @@ if (jQuery) (function ($) {
             .data('jq-dropdown-trigger', trigger)
             .show();
 
-        // Position it
-        position();
-
         // Trigger the show callback
         jqDropdown
             .trigger('show', {
@@ -245,35 +255,7 @@ if (jQuery) (function ($) {
 
     }
 
-//    function position() {
-//
-//        var jqDropdown = $('.jq-dropdown:visible').eq(0),
-//            trigger = jqDropdown.data('jq-dropdown-trigger'),
-//            hOffset = trigger ? parseInt(trigger.attr('data-horizontal-offset') || 0, 10) : null,
-//            vOffset = trigger ? parseInt(trigger.attr('data-vertical-offset') || 0, 10) : null;
-//
-//        if (jqDropdown.length === 0 || !trigger) return;
-//
-//        // Position the jq-dropdown relative-to-parent...
-//        if (jqDropdown.hasClass('jq-dropdown-relative')) {
-//            jqDropdown.css({
-//                left: jqDropdown.hasClass('jq-dropdown-anchor-right') ?
-//                    trigger.position().left - (jqDropdown.outerWidth(true) - trigger.outerWidth(true)) - parseInt(trigger.css('margin-right'), 10) + hOffset :
-//                    trigger.position().left + parseInt(trigger.css('margin-left'), 10) + hOffset,
-//                top: trigger.position().top + trigger.outerHeight(true) - parseInt(trigger.css('margin-top'), 10) + vOffset
-//            });
-//        } else {
-//            // ...or relative to document
-//            jqDropdown.css({
-//                left: jqDropdown.hasClass('jq-dropdown-anchor-right') ?
-//                    trigger.offset().left - (jqDropdown.outerWidth() - trigger.outerWidth()) + hOffset : trigger.offset().left + hOffset,
-//                top: trigger.offset().top + trigger.outerHeight() + vOffset
-//            });
-//        }
-//    }
-
     $(document).on('click.jq-dropdown', '[data-jq-dropdown]', show);
     $(document).on('click.jq-dropdown', hide);
-    //$(window).on('resize', position);
 
 })(jQuery);
