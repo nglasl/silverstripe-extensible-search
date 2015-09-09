@@ -2,34 +2,35 @@
 	window.ESPPageStore = new PageStore;
 	$(window).load(function() {
 
-
 		var search = $('input.extensible-search.typeahead');
 
-		if (ESPPageStore.getType('SearchTerms').length && $('.recent-searches').length) {
-			//grab a recent search list item for cloning
-			var resentsearch = $('.recentsearch').first().clone();
-			//remove any existing ones
-			$('.recentsearch').remove();
-			$('.recent-searches-list').each(function(){
-				var list = $(this);
-				$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
-					list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
-				});
-			});
-			$('.recent-searches').show();
-
-			search.siblings('.esp-search-suggestions')
-				.find('.panel > .list-group > .list-group-item > a')
-				.each(function(){
-					$(this).attr('href',
-						'//' + window.location.host
-						+ $(this).parents('form').attr('action')
-						+ '?Search=' + $(this).text()
-					);
-				});
-		}
-
 		if(search.length) {
+
+			bindSearchCapture();
+
+			if (ESPPageStore.getType('SearchTerms').length && $('.recent-searches').length) {
+
+				var resentsearch = $('.recentsearch').first().clone();
+				$('.recentsearch').remove();
+
+				$('.recent-searches-list').each(function(){
+					var list = $(this);
+					$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
+						list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
+					});
+				});
+				$('.recent-searches').show();
+
+				search.siblings('.esp-search-suggestions')
+					.find('.panel > .list-group > .list-group-item > a')
+					.each(function(){
+						$(this).attr('href',
+							'//' + window.location.host
+							+ $(this).parents('form').attr('action')
+							+ '?Search=' + $(this).text()
+						);
+					});
+			}
 
 			search.keyup(function() {
 				var currSearch = $(this);
@@ -81,7 +82,7 @@
 	 * return recent searches the users has made and found useful
 	 */
 	var bindSearchCapture = function () {
-		$(document).on('click', 'div.search-result a', function (e) {
+		$(document).on('click', '#SearchResults a', function (e) {
 			var url = location.pathname + location.search;
 			var searchTerm = $('#SearchForm_getForm_Search').val();
 			var item = {
@@ -90,7 +91,7 @@
 				type: 'SearchTerms',
 				class: ''
 			}
-			DpcLocalStore.recordView(item);
+			ESPPageStore.recordView(item);
 		});
 	};
 

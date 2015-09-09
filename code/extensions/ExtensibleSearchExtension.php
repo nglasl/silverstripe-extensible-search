@@ -89,29 +89,30 @@ class ExtensibleSearchExtension extends Extension {
 	}
 
 	public function SearchSuggestions() {
-		$results = ExtensibleSearchSuggestion::get()->filter(array(
-			'Approved' => 1,
-			'ExtensibleSearchPageID' => $this->getExtensibleSearchPage()
-		))->sort('Frequency', 'DESC')->limit(5);
-
-		return $results;
+		throw new Exception(__CLASS__ .' - '. __METHOD__);
+		//$results = ExtensibleSearchSuggestion::get()->filter(array(
+		//	'Approved' => 1,
+		//	'ExtensibleSearchPageID' => $this->getExtensibleSearchPage()
+		//))->sort('Frequency', 'DESC')->limit(5);
+		//
+		//return $results;
 	}
 
 	public function getExtensibleSearchPage() {
-
-		$id = class_exists('Multisites') ? $this->owner->SiteID : 0;
-
-		$page = ExtensibleSearchPage::get()->filter('ParentID', $id)->first();
-
-		if (!$page) {
-			if ($id) {
-				$page = ExtensibleSearchPage::get()->filter('SiteID', $id)->first();
-			} else {
-				$page = ExtensibleSearchPage::get()->first();
-			}
-		}
-
-		return $page->ID;
+		throw new Exception(__CLASS__ .' - '. __METHOD__);
+		//$id = class_exists('Multisites') ? $this->owner->SiteID : 0;
+		//
+		//$page = ExtensibleSearchPage::get()->filter('ParentID', $id)->first();
+		//
+		//if (!$page) {
+		//	if ($id) {
+		//		$page = ExtensibleSearchPage::get()->filter('SiteID', $id)->first();
+		//	} else {
+		//		$page = ExtensibleSearchPage::get()->first();
+		//	}
+		//}
+		//
+		//return $page->ID;
 	}
 
 }

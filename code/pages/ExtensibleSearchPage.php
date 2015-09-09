@@ -551,6 +551,13 @@ class ExtensibleSearchPage extends Page {
 		return $listType;
 	}
 
+	public function SearchOverlay() {
+		$suggestions = $this->Suggestions()->filter(array(
+			'Approved' => 1,
+		))->sort('Frequency', 'DESC')->limit(5);
+
+		return $suggestions->renderWith(array('ExtensibleSearch_overlay'));
+	}
 }
 
 class ExtensibleSearchPage_Controller extends Page_Controller {
