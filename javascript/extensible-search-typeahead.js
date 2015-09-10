@@ -2,79 +2,110 @@
 	window.ESPPageStore = new PageStore;
 	$(window).load(function() {
 
-		var search = $('input.extensible-search.typeahead');
+		$.fn.extend({
+			nearest: function (pattern) {
 
-		if(search.length) {
+				var found = null;
+				var domobj = null;
+
+				do {
+					domobj = this.parent();
+					found = domobj.find(pattern);
+				} while (found === null && domobj !== null)
+
+				return found;
+			}
+		});
+
+
+		var overlays = $('.esp-overlay');
+
+		if(overlays.length) {
 
 			bindSearchCapture();
 
-			if (ESPPageStore.getType('SearchTerms').length && $('.recent-searches').length) {
+			overlays.each(function (i , overlay) {
+				overlay =  $(overlay);
+				var search = overlay.nearest('input.extensible-search.typeahead');
+				if(search.length) {
 
-				var resentsearch = $('.recentsearch').first().clone();
-				$('.recentsearch').remove();
+					if (ESPPageStore.getType('SearchTerms').length && overlay.children('.recent-searches').length) {
 
-				$('.recent-searches-list').each(function(){
-					var list = $(this);
-					$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
-						list.prepend(resentsearch.clone().children('a').prop('href',term.link).text(term.title).parent());
-					});
-				});
-				$('.recent-searches').show();
+						var resentsearch = overlay.find('.recentsearch').first().clone();
+						overlay.find('.recentsearch').remove();
 
-				search.siblings('.esp-search-suggestions')
-					.find('.panel > .list-group > .list-group-item > a')
-					.each(function(){
-						$(this).attr('href',
-							'//' + window.location.host
-							+ $(this).parents('form').attr('action')
-							+ '?Search=' + $(this).text()
-						);
-					});
-			}
-
-			search.keyup(function() {
-				var currSearch = $(this);
-				var data = {'page': currSearch.data('extensible-search-page')};
-				var suggestions = currSearch.siblings('.esp-search-suggestions');
-				if(currSearch.val().length > 2 && suggestions.length > 0) {
-					jQuery.each( currSearch.parents('form').serializeArray(), function(i, field) {
-						data[field.name] = field.value;
-					});
-					$.get('extensible-search-api/getTypeahead',
-						data
-					)
-					.success(function(data) {
-
-						if(data === null) return;
-
-						suggestions.children('#esp-typeahead').remove();
-						var list = '';
-						$.each(data, function (i, value) {
-							url = currSearch.parents('form').serializeArray();
-							for(var i = 0; i < 100; i++) {
-								if(url[i].name === 'Search') {
-									url[i].value = value;
-									break;
-								}
-							}
-							url = window.location.host + currSearch.parents('form').attr('action') + '?' + $.param(url);
-							list = list + '<li class="list-group-item small"><a href="//' + url + '">' + value + '</a></li>';
+						$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
+							overlay.find('.recent-searches-list').prepend(
+								resentsearch.clone()
+									.children('a')
+									.prop('href',term.link)
+									.text(term.title)
+									.parent()
+							);
 						});
-						suggestions.prepend(
-							'<div id="esp-typeahead" class="">'
-							+ '<ul class="list-group">'
-							+ list
-							+ '</ul>'
-							+ '</div>'
-						);
+
+						$('.recent-searches').show();
+
+						overlay.find('div > ul > li.list-item')
+							.each(function(){
+								$(this).attr('href',
+									'//' + window.location.host
+									+ $(this).parents('form').attr('action')
+									+ '?Search=' + $(this).text()
+								);
+							});
+					}
+
+					search.keyup(function() {
+						var currSearch = $(this);
+						var data = {'page': currSearch.data('extensible-search-page')};
+						if(currSearch.val().length > 2) {
+							var list = overlay.find('.search-typeahead-list');
+							searchAjax(currSearch, data, list, 'extensible-search-api/getTypeahead');
+							var list = overlay.find('.search-suggestions-list');
+							searchAjax(currSearch, data, list, 'extensible-search-api/getSuggestions');
+						}
 					});
-				} else {
-					suggestions.children('#typeahead').remove();
 				}
 			});
+
 		}
 
 	});
+
+	function searchAjax(currSearch, data, list, endpoint) {
+		jQuery.each( currSearch.parents('form').serializeArray(), function(i, field) {
+			data[field.name] = field.value;
+		});
+		$.get(endpoint,
+			data
+		)
+		.success(function(data) {
+
+			if(data === null) return;
+
+			var listitem = list.children('.list-item').first().clone();
+			list.find('.list-item').remove();
+
+			var formArray = currSearch.parents('form').serializeArray();
+			var searchPos = 0;
+			for(searchPos; searchPos < 100; searchPos++) {
+				if(formArray[searchPos].name === 'Search') {
+					break;
+				}
+			}
+			$.each(data, function (i, value) {
+				formArray[searchPos].value = value;
+				url = currSearch.parents('form').attr('action') + '?' + $.param(formArray);
+				list.prepend(listitem.clone()
+					.children('a')
+					.prop('href',url)
+					.text(value)
+					.parent()
+				);
+			});
+		});
+	}
 
 	/*
 	 * Page Store
