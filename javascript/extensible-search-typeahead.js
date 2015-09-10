@@ -28,7 +28,9 @@
 				overlay =  $(overlay);
 				var search = overlay.nearest('input.extensible-search.typeahead');
 				if(search.length) {
-
+					
+					search.after(overlay);
+					
 					if (ESPPageStore.getType('SearchTerms').length && overlay.children('.recent-searches').length) {
 
 						var resentsearch = overlay.find('.recentsearch').first().clone();
@@ -82,9 +84,15 @@
 		)
 		.success(function(data) {
 
-			if(data === null) return;
-
 			var listitem = list.children('.list-item').first().clone();
+			
+			if(!data.length) {
+				list.find('.list-item').remove();
+				//Store a clone of a list item so we can repopulate if data is found from another query
+				list.prepend(listitem.clone().hide());
+				return;
+			}
+
 			list.find('.list-item').remove();
 
 			var formArray = currSearch.parents('form').serializeArray();
@@ -104,6 +112,8 @@
 					.parent()
 				);
 			});
+			
+			list.children('.list-item').show();
 		});
 	}
 
