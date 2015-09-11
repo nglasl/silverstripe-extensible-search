@@ -28,13 +28,22 @@
 				overlay =  $(overlay);
 				var search = overlay.nearest('input.extensible-search.typeahead');
 				if(search.length) {
-					
+
 					search.after(overlay);
-					
+
 					if (ESPPageStore.getType('SearchTerms').length && overlay.children('.recent-searches').length) {
 
 						var resentsearch = overlay.find('.recentsearch').first().clone();
 						overlay.find('.recentsearch').remove();
+
+						overlay.find('.search-suggestions-list > li.list-item > a')
+							.each(function(){
+								$(this).attr('href',
+									'//' + window.location.host
+									+ $(this).parents('form').attr('action')
+									+ '?Search=' + $(this).text()
+								);
+							});
 
 						$.each(ESPPageStore.getType('SearchTerms'), function (i, term) {
 							overlay.find('.recent-searches-list').prepend(
@@ -43,19 +52,12 @@
 									.prop('href',term.link)
 									.text(term.title)
 									.parent()
+									.show()
 							);
 						});
 
 						$('.recent-searches').show();
 
-						overlay.find('div > ul > li.list-item')
-							.each(function(){
-								$(this).attr('href',
-									'//' + window.location.host
-									+ $(this).parents('form').attr('action')
-									+ '?Search=' + $(this).text()
-								);
-							});
 					}
 
 					search.keyup(function() {
@@ -67,6 +69,11 @@
 							var list = overlay.find('.search-suggestions-list');
 							searchAjax(currSearch, data, list, 'extensible-search-api/getSuggestions');
 						}
+					})
+					.on({
+						focus: function () {
+							showOverlay(search, overlay);
+						}
 					});
 				}
 			});
@@ -74,6 +81,30 @@
 		}
 
 	});
+
+	function showOverlay(search, overlay) {
+		overlay.show();
+		search.is();
+		$(document).on("focusin click", function () {
+			// Are we clicking or focused anywhere in the overlay or search
+			if (overlay.has($(event.target)).length && $(event.target).is('a')) {
+				//If the focus is a link don't hide the overlay so we can tab through them
+				return;
+			} else if ($(event.target).is(overlay)
+					|| $(event.target).is(search)
+					|| overlay.has($(event.target)).length
+			) {
+				//else the user has missed the links but hit the overlay return focus to the search input
+				//Prevent event propagation to prevent an endless loop
+				search.focus(function( event ) {
+					event.stopPropagation();
+				});
+				search.focus();
+				return;
+			}
+			overlay.hide();
+		});
+	}
 
 	function searchAjax(currSearch, data, list, endpoint) {
 		jQuery.each( currSearch.parents('form').serializeArray(), function(i, field) {
@@ -85,7 +116,7 @@
 		.success(function(data) {
 
 			var listitem = list.children('.list-item').first().clone();
-			
+
 			if(!data.length) {
 				list.find('.list-item').remove();
 				//Store a clone of a list item so we can repopulate if data is found from another query
@@ -112,7 +143,7 @@
 					.parent()
 				);
 			});
-			
+
 			list.children('.list-item').show();
 		});
 	}
@@ -194,110 +225,5 @@
 			window.localStorage.setItem('pageview', JSON.stringify(this.items));
 		}
 	}
-
-})(jQuery);
-
-/*
- * jQuery Dropdown: A simple dropdown plugin
- *
- * Contribute: https://github.com/claviska/jquery-dropdown
- *
- * @license: MIT license: http://opensource.org/licenses/MIT
- *
- */
-if (jQuery) (function ($) {
-
-    $.extend($.fn, {
-        jqDropdown: function (method, data) {
-
-            switch (method) {
-                case 'show':
-                    show(null, $(this));
-                    return $(this);
-                case 'hide':
-                    hide();
-                    return $(this);
-                case 'attach':
-                    return $(this).attr('data-jq-dropdown', data);
-                case 'detach':
-                    hide();
-                    return $(this).removeAttr('data-jq-dropdown');
-                case 'disable':
-                    return $(this).addClass('jq-dropdown-disabled');
-                case 'enable':
-                    hide();
-                    return $(this).removeClass('jq-dropdown-disabled');
-            }
-
-        }
-    });
-
-    function show(event, object) {
-
-        var trigger = event ? $(this) : object,
-            jqDropdown = trigger.siblings('.esp-dropdown').first(),
-            isOpen = trigger.hasClass('jq-dropdown-open');
-
-        // In some cases we don't want to show it
-        if (event) {
-            if ($(event.target).hasClass('jq-dropdown-ignore')) return;
-
-            event.preventDefault();
-            event.stopPropagation();
-        } else {
-            if (trigger !== object.target && $(object.target).hasClass('jq-dropdown-ignore')) return;
-        }
-        hide();
-
-        if (isOpen || trigger.hasClass('jq-dropdown-disabled')) return;
-
-        // Show it
-        trigger.addClass('jq-dropdown-open');
-        jqDropdown
-            .data('jq-dropdown-trigger', trigger)
-            .show();
-
-        // Trigger the show callback
-        jqDropdown
-            .trigger('show', {
-                jqDropdown: jqDropdown,
-                trigger: trigger
-            });
-
-    }
-
-    function hide(event) {
-
-        // In some cases we don't hide them
-        var targetGroup = event ? $(event.target).parents() : null;
-
-        // Are we clicking anywhere in a jq-dropdown?
-        if (targetGroup && targetGroup.is('.jq-dropdown')) {
-            // Is it a jq-dropdown menu?
-            if (targetGroup.is('.jq-dropdown-menu')) {
-                // Did we click on an option? If so close it.
-                if (!targetGroup.is('A')) return;
-            } else {
-                // Nope, it's a panel. Leave it open.
-                return;
-            }
-        }
-
-        // Hide any jq-dropdown that may be showing
-        $(document).find('.jq-dropdown:visible').each(function () {
-            var jqDropdown = $(this);
-            jqDropdown
-                .hide()
-                .removeData('jq-dropdown-trigger')
-                .trigger('hide', { jqDropdown: jqDropdown });
-        });
-
-        // Remove all jq-dropdown-open classes
-        $(document).find('.jq-dropdown-open').removeClass('jq-dropdown-open');
-
-    }
-
-    $(document).on('click.jq-dropdown', '[data-jq-dropdown]', show);
-    $(document).on('click.jq-dropdown', hide);
 
 })(jQuery);

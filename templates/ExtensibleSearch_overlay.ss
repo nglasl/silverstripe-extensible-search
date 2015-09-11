@@ -1,7 +1,7 @@
-<div class="esp-overlay">
+<div class="esp-overlay" style="display: none;">
 	<div class="search-typeahead">
 		<ul class="search-typeahead-list">
-			<li class="typeahead list-item"><a href='#'>Title</a></li>
+			<li class="typeahead list-item" style="display: none;"><a href='#'>Title</a></li>
 		</ul>
 	</div>
 	<div class="recent-searches">
@@ -9,7 +9,7 @@
 			<h3 class="list-title">Recent Searches</h3>
 		</div>
 		<ul class="recent-searches-list">
-			<li class="recentsearch list-item"><a href='#'>Title</a></li>
+			<li class="recentsearch list-item" style="display: none;"><a href='#'>Title</a></li>
 		</ul>
 	</div>
 	<% if $Count %>
