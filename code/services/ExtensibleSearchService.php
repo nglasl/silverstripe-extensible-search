@@ -175,10 +175,10 @@ class ExtensibleSearchService {
 			$pageID = (int)$pageID;
 			if(($page = ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)) && $page->canView()) {
 
-				$results = ExtensibleSearchPage_Controller::create($page)->getSearchEngineResults()['Results'];
+				$results = ExtensibleSearchPage_Controller::create($page)->getSearchEngineResults();
 				$return = array();
 				//Covert our Array of objects into an array of search terms/titles
-				foreach ($results as $value) {
+				foreach ($results['Results'] as $value) {
 					$return[] = $value->Title;
 				}
 
