@@ -36,7 +36,7 @@
 						var resentsearch = overlay.find('.recentsearch').first().clone();
 						overlay.find('.recentsearch').remove();
 
-						overlay.find('.search-suggestions-list > li.list-item > a')
+						overlay.find('.search-suggestions-list > list-item > a')
 							.each(function(){
 								$(this).attr('href',
 									'//' + window.location.host
