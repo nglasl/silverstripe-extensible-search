@@ -104,7 +104,7 @@ class ExtensibleSearchAPI extends Controller {
 			$this->getResponse()->addHeader('Content-Type', 'application/json');
 
 			// 128 = JSON_PRETTY_PRINT, const added in 5.4
-			return json_encode($suggestions. 128);
+			return json_encode($suggestions, 128);
 		} else {
 
 			return $this->httpError(404);
