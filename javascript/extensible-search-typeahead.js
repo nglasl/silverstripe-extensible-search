@@ -36,7 +36,7 @@
 						var resentsearch = overlay.find('.recentsearch').first().clone();
 						overlay.find('.recentsearch').remove();
 
-						overlay.find('.search-suggestions-list > list-item > a')
+						overlay.find('.search-suggestions-list > .list-item > a')
 							.each(function(){
 								$(this).attr('href',
 									'//' + window.location.host
@@ -154,16 +154,18 @@
 	 * return recent searches the users has made and found useful
 	 */
 	var bindSearchCapture = function () {
-		$(document).on('click', '#SearchResults a', function (e) {
-			var url = location.pathname + location.search;
-			var searchTerm = $('#SearchForm_getForm_Search').val();
-			var item = {
-				link: url,
-				title: searchTerm,
-				type: 'SearchTerms',
-				class: ''
+		$(document).on('mouseup', 'a.searchResult', function (e) {
+			if(e.which === 1 || e.which === 2) {
+				var url = location.pathname + location.search;
+				var searchTerm = $('#SearchForm_getForm_Search').val();
+				var item = {
+					link: url,
+					title: searchTerm,
+					type: 'SearchTerms',
+					class: ''
+				}
+				ESPPageStore.recordView(item);
 			}
-			ESPPageStore.recordView(item);
 		});
 	};
 
