@@ -4,3 +4,9 @@ name: extensible-search-extensions
 SearchForm:
   extensions:
     - 'SearchFormResultsExtension'
+ExtensibleSearchSuggestion:
+    enable_suggestions: TRUE
+    enable_typeahead: TRUE
+Page_Controller:
+ extensions:
+    - 'ExtensibleSearchExtension'

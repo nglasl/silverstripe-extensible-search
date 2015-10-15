@@ -2,24 +2,24 @@
 
 _The current release is **1.1.8**_
 
-	A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
+A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
-	This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
+This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
 
 _**NOTE:** This repository has been pulled together using re-factored code from an existing module._
 
-:bust_in_silhouette:
-
-https://github.com/nyeholt/silverstripe-solr
-
-## Requirement
+## Requirements
 
 * SilverStripe 3.1.X
+
+### Optional Dependencies
+
+ * [SilverStrip Solr](https://github.com/nyeholt/silverstripe-solr)
 
 ## Getting Started
 
 * Place the module under your root project directory.
-* Either define the full-text YAML or retrieve a search wrapper module (such as Solr).
+* Either define the [full-text YAML](#enabling-full-text) or retrieve a [search wrapper](#custom-search-wrappers) module (such as Solr).
 * `/dev/build`
 * Configure your extensible search page.
 
@@ -46,21 +46,38 @@ SiteTree:
     - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
-To allow search functionality through template hooks, make sure the appropriate extension has also been applied.
+### Searching from other pages
+
+To use the Extensible Search Page, search engine and configuration adding the `ExtensibleSearchExtension` to `Page_Controller` is necessary.
 
 ```yaml
 Page_Controller:
   extensions:
     - 'ExtensibleSearchExtension'
 ```
-
-The search form may now be retrieved from a template using `$SearchForm`.
+This allows search functionality through template hooks, the search form may now be rendered in a template using `$SearchForm`.
 
 ### Custom Search Wrappers
 
 These will need to be created as an extension applied to `ExtensibleSearchPage`, having their class name end with `Search`. The same will need to be done for the controller, however this will be applied to `ExtensibleSearchPage_Controller` and end with `Search_Controller`.
 
-https://github.com/nyeholt/silverstripe-solr
+For example Solr is added as a Search Engine using this yml config:
+
+```yaml
+---
+Name: extensions
+---
+ExtensibleSearchPage:
+  extensions:
+    - 'SolrSearch'
+ExtensibleSearchPage_Controller:
+  extensions:
+    - 'SolrSearch_Controller'
+```
+
+Currently supported Wrappers:
+
+ - [SilverStripe Solr](https://github.com/nyeholt/silverstripe-solr)
 
 #### Customisation
 
@@ -80,19 +97,76 @@ These include the following and may be accessed from your extensible page instan
 * Search **history**, including search date/time, time taken, and the search engine used.
 * Export to CSV.
 
-### Search Suggestions
+### Search Suggestions and Typeahead (Search Overlay)
 
-These may be disabled by configuring the `enable_suggestions` flag.
+Extensible Search Page has several Search suggestion/typeahead features built in, these are:
 
-The user generated search suggestions will require approval by default, however this may be configured using the `automatic_approval` flag.
+#### Recent Search
 
-To enable autocomplete using approved search suggestions, the following will be required.
+A local storage backed list of searches the local user has made *and* clicked a link in the results page.
 
-```php
-Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
-Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
-Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
+#### Search Suggestions
+
+A list of searches executed by all users of the site this is currently stored and aggregated in the database.
+The user generated search suggestions will require approval by default this is done in the CMS on the Extensible Search Page under the Search Suggestions tab, however this may be configured using the `automatic_approval` yml flag.
+
+#### Search Typeahead
+
+The search typeahead uses ajax to submit the current form input as the user types, it uses the entire current form including any sorting or filtering the user has applied.
+
+#### Configuration
+
+By default these features are disabled to enable them add this YAML snippet to your config and `$SearchPage.SearchOverlay` to your Search page template.
+
+```yaml
+ExtensibleSearchSuggestion:
+    enable_suggestions: TRUE
+    enable_typeahead: TRUE
 ```
+
+The `$SearchPage.SearchOverlay` uses the `ExtensibleSearch_overlay.ss` template to add in a `div` that `extensible-search-typeahead.js` looks for. If you have multiple search forms on a single page (e.g a Search in the header and in the content), you'll need to add ``$SearchPage.SearchOverlay` twice. On page load `extensible-search-typeahead.js` binds the `$SearchPage.SearchOverlay` to the *nearest* Search form, so it's recommended to add the `$SearchPage.SearchOverlay` immediately after the `$SearchForm` in templates e.g
+
+```
+<div class="search-bar">
+	$SearchForm
+	$SearchPage.SearchOverlay
+</div>
+```
+
+To remove any of the Search suggestion feature create an `ExtensibleSearch_overlay.ss` in your themes template directory and modify the following code, removed or reordering the 'search-typeahead', 'recent-searches' or 'search-suggestions':
+```
+<div class="esp-overlay" style="display: none;">
+	<div class="search-typeahead">
+		<ul class="search-typeahead-list">
+			<li class="typeahead list-item" style="display: none;"><a href='#'>Title</a></li>
+		</ul>
+	</div>
+	<div class="recent-searches">
+		<div class="list-heading">
+			<h3 class="list-title">Recent Searches</h3>
+		</div>
+		<ul class="recent-searches-list">
+			<li class="recentsearch list-item" style="display: none;"><a href='#'>Title</a></li>
+		</ul>
+	</div>
+	<% if $Count %>
+	<div class="search-suggestions">
+	<div class="list-heading">
+		<h3 class="list-title">Search Suggestions</h3>
+	</div>
+	<ul class="search-suggestions-list">
+		<% loop $Me %>
+		<li class="list-item">
+			<a href="#">$Term</a>
+		</li>
+		<% end_loop %>
+	</ul>
+	</div>
+	<% end_if %>
+</div>
+```
+
+The `extensible-search-typeahead.js`, looks for the `.search-*-list` and then edits the `.list-item` classes inside each list, other classes can be added to style the overlay without effecting the javascript output.
 
 ### Templating
 

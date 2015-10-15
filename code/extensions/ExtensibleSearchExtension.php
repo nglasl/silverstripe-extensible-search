@@ -14,6 +14,15 @@ class ExtensibleSearchExtension extends Extension {
 		'results'
 	);
 
+	public function onAfterInit() {
+
+		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_typeahead')) {
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-typeahead.js');
+			Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search-typeahead.css');
+		}
+	}
+
 	/**
 	 * Returns the default search page for this site
 	 *
@@ -31,7 +40,7 @@ class ExtensibleSearchExtension extends Extension {
 
 	/**
 	 * Get the list of facet values for the given term
-	 * 
+	 *
 	 * @param String $term
 	 */
 	public function Facets($term=null) {
@@ -43,7 +52,7 @@ class ExtensibleSearchExtension extends Extension {
 	}
 
 	/**
-	 * The current search query that is being run by the search page. 
+	 * The current search query that is being run by the search page.
 	 *
 	 * @return String
 	 */

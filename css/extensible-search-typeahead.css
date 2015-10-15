@@ -1,0 +1,9 @@
+.esp-overlay {
+    position: absolute;
+    background-color: white;
+    border: 1px solid;
+    border-top: 0;
+    padding: 1em;
+    display: none;
+	z-index: 9001; // ;)
+}
