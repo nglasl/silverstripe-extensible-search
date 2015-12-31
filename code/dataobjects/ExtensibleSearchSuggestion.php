@@ -6,198 +6,197 @@
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
-class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {
+class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider
+{
 
-	/**
-	 *	Store the frequency to make search suggestion relevance more efficient.
-	 */
+    /**
+     *	Store the frequency to make search suggestion relevance more efficient.
+     */
 
-	private static $db = array(
-		'Term' => 'Varchar(255)',
-		'Frequency' => 'Int',
-		'Approved' => 'Boolean'
-	);
+    private static $db = array(
+        'Term' => 'Varchar(255)',
+        'Frequency' => 'Int',
+        'Approved' => 'Boolean'
+    );
 
-	private static $has_one = array(
-		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
-	);
+    private static $has_one = array(
+        'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+    );
 
-	private static $default_sort = 'Frequency DESC, Term ASC';
+    private static $default_sort = 'Frequency DESC, Term ASC';
 
-	private static $summary_fields = array(
-		'Term',
-		'FrequencySummary',
-		'FrequencyPercentage',
-		'ApprovedField'
-	);
+    private static $summary_fields = array(
+        'Term',
+        'FrequencySummary',
+        'FrequencyPercentage',
+        'ApprovedField'
+    );
 
-	private static $field_labels = array(
-		'Term' => 'Search Term',
-		'FrequencySummary' => 'Analytic Frequency',
-		'FrequencyPercentage' => 'Analytic Frequency %',
-		'ApprovedField' => 'Approved?'
-	);
+    private static $field_labels = array(
+        'Term' => 'Search Term',
+        'FrequencySummary' => 'Analytic Frequency',
+        'FrequencyPercentage' => 'Analytic Frequency %',
+        'ApprovedField' => 'Approved?'
+    );
 
-	/**
-	 *	Allow the ability to disable search suggestions.
-	 */
+    /**
+     *	Allow the ability to disable search suggestions.
+     */
 
-	private static $enable_suggestions = true;
+    private static $enable_suggestions = true;
 
-	/**
-	 *	Allow the ability to automatically approve user search generated suggestions.
-	 */
+    /**
+     *	Allow the ability to automatically approve user search generated suggestions.
+     */
 
-	private static $automatic_approval = false;
+    private static $automatic_approval = false;
 
-	/**
-	 *	Create a unique permission for management of search suggestions.
-	 */
+    /**
+     *	Create a unique permission for management of search suggestions.
+     */
 
-	public function providePermissions() {
+    public function providePermissions()
+    {
+        Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
+        return array(
+            'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
+                'category' => 'Extensible search',
+                'name' => 'Manage search suggestions',
+                'help' => 'Allow management of user search generated suggestions.'
+            )
+        );
+    }
 
-		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
-		return array(
-			'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
-				'category' => 'Extensible search',
-				'name' => 'Manage search suggestions',
-				'help' => 'Allow management of user search generated suggestions.'
-			)
-		);
-	}
+    /**
+     *	Allow access for CMS users viewing search suggestions.
+     */
 
-	/**
-	 *	Allow access for CMS users viewing search suggestions.
-	 */
+    public function canView($member = null)
+    {
+        return true;
+    }
 
-	public function canView($member = null) {
+    /**
+     *	Determine access for the current CMS user creating search suggestions.
+     */
 
-		return true;
-	}
+    public function canEdit($member = null)
+    {
+        return $this->canCreate($member);
+    }
 
-	/**
-	 *	Determine access for the current CMS user creating search suggestions.
-	 */
+    public function canCreate($member = null)
+    {
+        return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
+    }
 
-	public function canEdit($member = null) {
+    /**
+     *	Determine access for the current CMS user deleting search suggestions.
+     */
 
-		return $this->canCreate($member);
-	}
+    public function canDelete($member = null)
+    {
+        return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
+    }
 
-	public function canCreate($member = null) {
+    /**
+     *	Retrieve the search suggestion title.
+     *
+     *	@return string
+     */
 
-		return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
-	}
+    public function getTitle()
+    {
+        return $this->Term;
+    }
 
-	/**
-	 *	Determine access for the current CMS user deleting search suggestions.
-	 */
+    /**
+     *	Restrict access for CMS users editing search suggestions.
+     */
 
-	public function canDelete($member = null) {
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+        $fields->removeByName('ExtensibleSearchPageID');
 
-		return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
-	}
+        // Make sure the search suggestions and frequency are read only.
 
-	/**
-	 *	Retrieve the search suggestion title.
-	 *
-	 *	@return string
-	 */
+        if ($this->Term) {
+            $fields->makeFieldReadonly('Term');
+        }
+        $fields->removeByName('Frequency');
 
-	public function getTitle() {
+        // Update the approved flag positioning.
 
-		return $this->Term;
-	}
+        $fields->removeByName('Approved');
+        $fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
+            'Approved?'
+        )->addExtraClass('approved wrapper'));
+        $approved->push($this->getApprovedField());
+        return $fields;
+    }
 
-	/**
-	 *	Restrict access for CMS users editing search suggestions.
-	 */
+    /**
+     *	Confirm that the current search suggestion is valid.
+     */
 
-	public function getCMSFields() {
+    public function validate()
+    {
+        $result = parent::validate();
 
-		$fields = parent::getCMSFields();
-		$fields->removeByName('ExtensibleSearchPageID');
+        // Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
 
-		// Make sure the search suggestions and frequency are read only.
+        if ($result->valid() && (strlen($this->Term) < 3)) {
+            $result->error('Minimum autocomplete length required!');
+        } elseif ($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "' AND ExtensibleSearchPageID = " . (int)$this->ExtensibleSearchPageID)) {
+            $result->error('Suggestion already exists!');
+        }
+        return $result;
+    }
 
-		if($this->Term) {
-			$fields->makeFieldReadonly('Term');
-		}
-		$fields->removeByName('Frequency');
+    /**
+     *	Retrieve the frequency for display purposes.
+     *
+     *	@return string
+     */
 
-		// Update the approved flag positioning.
+    public function getFrequencySummary()
+    {
+        return $this->Frequency ? $this->Frequency : '-';
+    }
 
-		$fields->removeByName('Approved');
-		$fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
-			'Approved?'
-		)->addExtraClass('approved wrapper'));
-		$approved->push($this->getApprovedField());
-		return $fields;
-	}
+    /**
+     *	Retrieve the frequency percentage.
+     *
+     *	@return string
+     */
 
-	/**
-	 *	Confirm that the current search suggestion is valid.
-	 */
+    public function getFrequencyPercentage()
+    {
+        $history = ExtensibleSearch::get()->filter('ExtensibleSearchPageID', $this->ExtensibleSearchPageID);
+        return $this->Frequency ? sprintf('%.2f %%', ($this->Frequency / $history->count()) * 100) : '-';
+    }
 
-	public function validate() {
+    /**
+     *	Retrieve the approved field for update purposes.
+     *
+     *	@return string
+     */
 
-		$result = parent::validate();
+    public function getApprovedField()
+    {
+        $approved = CheckboxField::create(
+            'Approved',
+            '',
+            $this->Approved
+        )->addExtraClass('approved');
 
-		// Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
+        // Restrict this field appropriately.
 
-		if($result->valid() && (strlen($this->Term) < 3)) {
-			$result->error('Minimum autocomplete length required!');
-		}
-		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "' AND ExtensibleSearchPageID = " . (int)$this->ExtensibleSearchPageID)) {
-			$result->error('Suggestion already exists!');
-		}
-		return $result;
-	}
-
-	/**
-	 *	Retrieve the frequency for display purposes.
-	 *
-	 *	@return string
-	 */
-
-	public function getFrequencySummary() {
-
-		return $this->Frequency ? $this->Frequency : '-';
-	}
-
-	/**
-	 *	Retrieve the frequency percentage.
-	 *
-	 *	@return string
-	 */
-
-	public function getFrequencyPercentage() {
-
-		$history = ExtensibleSearch::get()->filter('ExtensibleSearchPageID', $this->ExtensibleSearchPageID);
-		return $this->Frequency ? sprintf('%.2f %%', ($this->Frequency / $history->count()) * 100) : '-';
-	}
-
-	/**
-	 *	Retrieve the approved field for update purposes.
-	 *
-	 *	@return string
-	 */
-
-	public function getApprovedField() {
-
-		$approved = CheckboxField::create(
-			'Approved',
-			'',
-			$this->Approved
-		)->addExtraClass('approved');
-
-		// Restrict this field appropriately.
-
-		$user = Member::currentUserID();
-		if(!Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
-			$approved->setAttribute('disabled', 'true');
-		}
-		return $approved;
-	}
-
+        $user = Member::currentUserID();
+        if (!Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
+            $approved->setAttribute('disabled', 'true');
+        }
+        return $approved;
+    }
 }
