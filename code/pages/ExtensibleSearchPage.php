@@ -256,6 +256,7 @@ class ExtensibleSearchPage extends Page {
 		$sortFields['ID'] = 'ID';
 		$sortFields['Title'] = 'Title';
 		ksort($sortFields);
+		return $sortFields;
 	}
 
 }
