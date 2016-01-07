@@ -109,12 +109,7 @@ class ExtensibleSearchPage extends Page {
 				$this->SortBy = 'Created';
 			}
 
-			$sortFields = array();
-			$sortFields['LastEdited'] = 'LastEdited';
-			$sortFields['Created'] = 'Created';
-			$sortFields['ID'] = 'ID';
-			$sortFields['Title'] = 'Title';
-			ksort($sortFields);
+			$sortFields = $this->getSelectableFields();
 			$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
 			$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
 
@@ -249,6 +244,18 @@ class ExtensibleSearchPage extends Page {
 			}
 		}
 
+	}
+
+	public function getSelectableFields() {
+
+		// TO DO determine what data objects we're searching on
+		// TO DO determine the fields for these data objects
+		$sortFields = array();
+		$sortFields['LastEdited'] = 'LastEdited';
+		$sortFields['Created'] = 'Created';
+		$sortFields['ID'] = 'ID';
+		$sortFields['Title'] = 'Title';
+		ksort($sortFields);
 	}
 
 }
