@@ -248,6 +248,22 @@ class ExtensibleSearchPage extends Page {
 
 	public function getSelectableFields() {
 
+		// Attempt to trigger this method on the current search engine extension instead.
+
+		if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
+			$engine = "{$this->SearchEngine}Search";
+			foreach($this->extension_instances as $instance) {
+				if((get_class($instance) === $engine)) {
+					$instance->setOwner($this);
+					if(method_exists($instance, 'getSelectableFields')) {
+						return $instance->getSelectableFields();
+					}
+					$instance->clearOwner();
+					break;
+				}
+			}
+		}
+
 		// TO DO determine what data objects we're searching on
 		// TO DO determine the fields for these data objects
 		$sortFields = array();
