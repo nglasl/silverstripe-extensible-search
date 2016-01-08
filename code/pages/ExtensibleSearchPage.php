@@ -14,20 +14,21 @@
 
 class ExtensibleSearchPage extends Page {
 
+	// listing template ID is not a has_one, because we may not have the listing page module
+
 	private static $db = array(
 		'SearchEngine' => 'Varchar(255)',
 		'ResultsPerPage' => 'Int',
 		'SortBy' => "Varchar(64)",
 		'SortDir' => "Enum('Ascending,Descending')",
-		// whether to start display with a *:* search
+		'DisplayForm' => 'Boolean',
 		'StartWithListing' => 'Boolean',
-		// not a has_one, because we may not have the listing page module
 		'ListingTemplateID' => 'Int'
 	);
 
 	// The default full-text search string that will be used to return all "start with listing" results.
 
-	public $default_search = '';
+	public static $default_search = '';
 
 	private static $has_many = array(
 		'History' => 'ExtensibleSearch',
@@ -309,7 +310,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// The default full-text search string to return all results.
 
-			$_GET['Search'] = $this->data()->default_search;
+			$data = $this->data();
+			$_GET['Search'] = $data::$default_search;
 
 			// Construct the default search string used for the current engine/wrapper.
 
@@ -318,8 +320,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				foreach($this->data()->extension_instances as $instance) {
 					if((get_class($instance) === $engine)) {
 						$instance->setOwner($this);
-						if(isset($instance->default_search)) {
-							$_GET['Search'] = $instance->default_search;
+						if(isset($instance::$default_search)) {
+							$_GET['Search'] = $instance::$default_search;
 						}
 						$instance->clearOwner();
 						break;
