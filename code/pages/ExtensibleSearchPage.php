@@ -93,7 +93,8 @@ class ExtensibleSearchPage extends Page {
 
 		// Make sure a search engine is being used before allowing customisation.
 
-		if($this->SearchEngine) {
+		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if($this->SearchEngine && ((($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) || (($this->SearchEngine === 'Full-Text') && is_array($fulltext) && (count($fulltext) > 0)))) {
 
 			// Determine the CMS customisation available to the current search engine/wrapper.
 
@@ -115,32 +116,30 @@ class ExtensibleSearchPage extends Page {
 			$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
 			$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
 
-			if($this->SearchEngine) {
-				$support = self::$supports_hierarchy;
+			$support = self::$supports_hierarchy;
 
-				// Determine whether the current engine/wrapper supports hierarchy.
+			// Determine whether the current engine/wrapper supports hierarchy.
 
-				if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-					$engine = $this->SearchEngine;
-					foreach($this->data()->extension_instances as $instance) {
-						if((get_class($instance) === $engine)) {
-							$instance->setOwner($this);
-							if(isset($instance::$supports_hierarchy)) {
-								$support = $instance::$supports_hierarchy;
-							}
-							$instance->clearOwner();
-							break;
+			if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+				$engine = $this->SearchEngine;
+				foreach($this->data()->extension_instances as $instance) {
+					if((get_class($instance) === $engine)) {
+						$instance->setOwner($this);
+						if(isset($instance::$supports_hierarchy)) {
+							$support = $instance::$supports_hierarchy;
 						}
+						$instance->clearOwner();
+						break;
 					}
 				}
-				if($support || ClassInfo::exists('Multisites')) {
-					$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create('SearchTrees', 'Restrict results to these subtrees', 'SiteTree'), 'Content');
-					if(!$support) {
-						$tree->setDisableFunction(function($page) {
-							return ($page->ParentID !== 0);
-						});
-						$tree->setRightTitle('The selected search engine does not support further restrictions');
-					}
+			}
+			if($support || ClassInfo::exists('Multisites')) {
+				$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create('SearchTrees', 'Restrict results to these subtrees', 'SiteTree'), 'Content');
+				if(!$support) {
+					$tree->setDisableFunction(function($page) {
+						return ($page->ParentID !== 0);
+					});
+					$tree->setRightTitle('The selected search engine does not support further restrictions');
 				}
 			}
 
@@ -336,7 +335,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$engine = $this->data()->SearchEngine;
 		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+		if(is_null($engine) || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
 			return $this->httpError(404);
 		}
 
@@ -418,7 +417,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$engine = $this->data()->SearchEngine;
 		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
-			return $this->httpError(404);
+			return null;
 		}
 
 		// Construct the search form.
@@ -487,7 +486,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$engine = $this->data()->SearchEngine;
 		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+		if(is_null($engine) || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
 			return $this->httpError(404);
 		}
 
