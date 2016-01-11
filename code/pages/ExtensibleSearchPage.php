@@ -73,11 +73,17 @@ class ExtensibleSearchPage extends Page {
 		// Retrieve a list of search engine extensions currently applied that end with 'Search'.
 
 		$extensions = self::config()->search_engine_extensions;
-		foreach($extensions as $extension) {
-			$exists = ClassInfo::exists($extension) && (ClassInfo::exists("{$extension}Controller") || ClassInfo::exists("{$extension}_Controller"));
-			$has = $this->hasExtension($extension) && (ModelAsController::controller_for($this)->hasExtension("{$extension}Controller") || ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller"));
+		foreach($extensions as $extension => $title) {
+
+			// Support configuration that doesn't define a pretty title.
+
+			if(is_numeric($extension)) {
+				$extension = $title;
+			}
+			$exists = ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller");
+			$has = $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller");
 			if($exists && $has) {
-				$engines[$extension] = $extension;
+				$engines[$extension] = $title;
 			}
 		}
 
@@ -489,7 +495,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		if(($engine !== 'Full-Text') && $this->extension_instances) {
 			foreach($this->extension_instances as $instance) {
-				if((get_class($instance) === "{$engine}Controller") || (get_class($instance) === "{$engine}_Controller")) {
+				if(get_class($instance) === "{$engine}_Controller") {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSearchResults')) {
 
