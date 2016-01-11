@@ -32,6 +32,8 @@ class ExtensibleSearchPage extends Page {
 
 	public static $supports_hierarchy = false;
 
+	private static $search_engine_extensions = array();
+
 	private static $has_many = array(
 		'History' => 'ExtensibleSearch',
 		'Suggestions' => 'ExtensibleSearchSuggestion'
@@ -70,18 +72,18 @@ class ExtensibleSearchPage extends Page {
 
 		// Retrieve a list of search engine extensions currently applied that end with 'Search'.
 
-		$extensions = $this->get_extensions(get_class());
+		$extensions = self::config()->search_engine_extensions;
 		foreach($extensions as $extension) {
-			$reversed = strrev($extension);
-			if(strpos($reversed, strrev('Search')) === 0) {
-				$engine = strrev(substr($reversed, 6));
-				$engines[$engine] = $engine;
+			$exists = ClassInfo::exists($extension) && (ClassInfo::exists("{$extension}Controller") || ClassInfo::exists("{$extension}_Controller"));
+			$has = $this->hasExtension($extension) && (ModelAsController::controller_for($this)->hasExtension("{$extension}Controller") || ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller"));
+			if($exists && $has) {
+				$engines[$extension] = $extension;
 			}
 		}
 
 		// Allow selection of the search engine extension to use.
 
-		$fields->addFieldToTab('Root.Main', new DropdownField('SearchEngine', 'Search Engine', $engines), 'Content');
+		$fields->addFieldToTab('Root.Main', DropdownField::create('SearchEngine', 'Search Engine', $engines)->setRightTitle('The default full-text search engine will be available out of the box'), 'Content');
 
 		// Make sure a search engine is being used before allowing customisation.
 
@@ -113,7 +115,7 @@ class ExtensibleSearchPage extends Page {
 				// Determine whether the current engine/wrapper supports hierarchy.
 
 				if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-					$engine = "{$this->SearchEngine}Search";
+					$engine = $this->SearchEngine;
 					foreach($this->data()->extension_instances as $instance) {
 						if((get_class($instance) === $engine)) {
 							$instance->setOwner($this);
@@ -282,7 +284,7 @@ class ExtensibleSearchPage extends Page {
 		// Attempt to trigger this method on the current search engine extension instead.
 
 		if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-			$engine = "{$this->SearchEngine}Search";
+			$engine = $this->SearchEngine;
 			foreach($this->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
 					$instance->setOwner($this);
@@ -345,8 +347,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Construct the default search string used for the current engine/wrapper.
 
-			if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-				$engine = "{$this->SearchEngine}Search";
+			if(($this->data()->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+				$engine = $this->data()->SearchEngine;
 				foreach($this->data()->extension_instances as $instance) {
 					if((get_class($instance) === $engine)) {
 						$instance->setOwner($this);
@@ -486,9 +488,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Attempt to retrieve the results for the current search engine extension.
 
 		if(($engine !== 'Full-Text') && $this->extension_instances) {
-			$extension = "{$engine}Search_Controller";
 			foreach($this->extension_instances as $instance) {
-				if((get_class($instance) === $extension)) {
+				if((get_class($instance) === "{$engine}Controller") || (get_class($instance) === "{$engine}_Controller")) {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSearchResults')) {
 
@@ -496,7 +497,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						$startTime = microtime(true);
 						$customisation = $instance->getSearchResults($data, $form);
-						$output = $this->customise($customisation)->renderWith(array("{$engine}Search_results", "{$engine}SearchPage_results", 'ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', "{$engine}Search", "{$engine}SearchPage", 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
+						$output = $this->customise($customisation)->renderWith(array("{$engine}_results", "{$engine}Page_results", 'ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', "{$engine}", "{$engine}Page", 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
 						$totalTime = microtime(true) - $startTime;
 
 						// Log the details of a user search for analytics.
@@ -526,8 +527,8 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Determine whether the current engine/wrapper supports hierarchy.
 
-		if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-			$engine = "{$this->SearchEngine}Search";
+		if(($this->data()->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+			$engine = $this->data()->SearchEngine;
 			foreach($this->data()->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
 					$instance->setOwner($this);
