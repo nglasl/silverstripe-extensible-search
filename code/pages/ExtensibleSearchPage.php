@@ -30,6 +30,8 @@ class ExtensibleSearchPage extends Page {
 
 	public static $default_search = '';
 
+	public static $supports_hierarchy = false;
+
 	private static $has_many = array(
 		'History' => 'ExtensibleSearch',
 		'Suggestions' => 'ExtensibleSearchSuggestion'
@@ -40,7 +42,8 @@ class ExtensibleSearchPage extends Page {
 	);
 
 	private static $defaults = array(
-		'ShowInMenus'			=> 0
+		'ShowInMenus' => 0,
+		'ShowInSearch' => 0
 	);
 
 	public function getCMSFields() {
@@ -104,7 +107,34 @@ class ExtensibleSearchPage extends Page {
 			$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
 			$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
 
-			$fields->addFieldToTab('Root.Main', new TreeMultiselectField('SearchTrees', 'Restrict results to these subtrees', 'Page'), 'Content');
+			if($this->SearchEngine) {
+				$support = self::$supports_hierarchy;
+
+				// Determine whether the current engine/wrapper supports hierarchy.
+
+				if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+					$engine = "{$this->SearchEngine}Search";
+					foreach($this->data()->extension_instances as $instance) {
+						if((get_class($instance) === $engine)) {
+							$instance->setOwner($this);
+							if(isset($instance::$supports_hierarchy)) {
+								$support = $instance::$supports_hierarchy;
+							}
+							$instance->clearOwner();
+							break;
+						}
+					}
+				}
+				if($support || ClassInfo::exists('Multisites')) {
+					$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create('SearchTrees', 'Restrict results to these subtrees', 'SiteTree'), 'Content');
+					if(!$support) {
+						$tree->setDisableFunction(function($page) {
+							return ($page->ParentID !== 0);
+						});
+						$tree->setRightTitle('The selected search engine does not support further restrictions');
+					}
+				}
+			}
 
 			if (!$this->SortBy) {
 				$this->SortBy = 'Created';
@@ -491,8 +521,27 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Apply any site tree restrictions.
 
 		$filter = implode(', ', $this->SearchTrees()->map('ID', 'ID')->toArray());
-		if($filter) {
-			$filter = "ParentID IN({$filter})";
+		$page = $this->data();
+		$support = $page::$supports_hierarchy;
+
+		// Determine whether the current engine/wrapper supports hierarchy.
+
+		if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
+			$engine = "{$this->SearchEngine}Search";
+			foreach($this->data()->extension_instances as $instance) {
+				if((get_class($instance) === $engine)) {
+					$instance->setOwner($this);
+					if(isset($instance::$supports_hierarchy)) {
+						$support = $instance::$supports_hierarchy;
+					}
+					$instance->clearOwner();
+					break;
+				}
+			}
+		}
+		if($filter && ($support || ClassInfo::exists('Multisites'))) {
+			$field = $support ? 'ParentID' : 'SiteID';
+			$filter = "{$field} IN({$filter})";
 		}
 		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$sort} {$direction}", $filter, $data) : null;
 
