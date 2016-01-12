@@ -20,8 +20,7 @@ class ExtensibleSearchPage extends Page {
 		'SearchEngine' => 'Varchar(255)',
 		'ResultsPerPage' => 'Int',
 		'SortBy' => "Varchar(64)",
-		'SortDir' => "Enum('Ascending,Descending')",
-		'DisplayForm' => 'Boolean',
+		'SortDir' => "Enum('Ascending,Descending', 'Descending')",
 		'StartWithListing' => 'Boolean',
 		'ListingTemplateID' => 'Int'
 	);
@@ -45,7 +44,9 @@ class ExtensibleSearchPage extends Page {
 
 	private static $defaults = array(
 		'ShowInMenus' => 0,
-		'ShowInSearch' => 0
+		'ShowInSearch' => 0,
+		'SortBy' => 'Created',
+		'ResultsPerPage' => 10
 	);
 
 	public function getCMSFields() {
@@ -89,7 +90,7 @@ class ExtensibleSearchPage extends Page {
 
 		// Allow selection of the search engine extension to use.
 
-		$fields->addFieldToTab('Root.Main', DropdownField::create('SearchEngine', 'Search Engine', $engines)->setRightTitle('The default full-text search engine will be available out of the box'), 'Content');
+		$fields->addFieldToTab('Root.Main', $search = DropdownField::create('SearchEngine', 'Search Engine', $engines), 'Content');
 
 		// Make sure a search engine is being used before allowing customisation.
 
@@ -142,22 +143,23 @@ class ExtensibleSearchPage extends Page {
 					$tree->setRightTitle('The selected search engine does not support further restrictions');
 				}
 			}
+			if(!$this->SortDir) {
 
-			if (!$this->SortBy) {
-				$this->SortBy = 'Created';
+				// Initialise the default sorting direction.
+
+				$this->SortDir = 'Descending';
 			}
 
 			$sortFields = $this->getSelectableFields();
 			$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
 			$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
-
-			$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		}
 		else {
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
 				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"
 			), 'Title');
+			$search->setRightTitle('This will need to be saved before further customisation is available');
 		}
 
 		// Retrieve the extensible search analytics, when enabled.
@@ -256,6 +258,8 @@ class ExtensibleSearchPage extends Page {
 				'ApprovedField' => 'Approved'
 			));
 		}
+
+		$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		return $fields;
 	}
 
@@ -272,10 +276,7 @@ class ExtensibleSearchPage extends Page {
 			$page = DataObject::get_one('ExtensibleSearchPage');
 			if(!($page && $page->exists())) {
 				$page = ExtensibleSearchPage::create();
-				$page->Title = _t('ExtensibleSearchPage.DEFAULT_PAGE_TITLE', 'Search Page');
-				$page->Content = '';
-				$page->ResultsPerPage = 10;
-				$page->Status = 'New page';
+				$page->Title = 'Search Page';
 				$page->write();
 
 				DB::alteration_message('Search page created', 'created');
@@ -302,15 +303,29 @@ class ExtensibleSearchPage extends Page {
 			}
 		}
 
-		// TO DO determine what data objects we're searching on
-		// TO DO determine the fields for these data objects
-		$sortFields = array();
-		$sortFields['LastEdited'] = 'LastEdited';
-		$sortFields['Created'] = 'Created';
-		$sortFields['ID'] = 'ID';
-		$sortFields['Title'] = 'Title';
-		ksort($sortFields);
-		return $sortFields;
+		$searchable = array();
+		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(is_array($fulltext) && (count($fulltext) > 0)) {
+			foreach($fulltext as $class) {
+				$fields = DataObject::database_fields($class);
+				if(isset($fields['LastEdited'])) {
+					$searchable['LastEdited'] = 'Last Edited';
+				}
+				if(isset($fields['Created'])) {
+					$searchable['Created'] = 'Created';
+				}
+				if(isset($fields['Sort'])) {
+					$searchable['Sort'] = 'Order';
+				}
+				if(isset($fields['Title'])) {
+					$searchable['Title'] = in_array($class, ClassInfo::subclassesFor('SiteTree')) ? 'Name': 'Title';
+				}
+				if(isset($fields['MenuTitle'])) {
+					$searchable['MenuTitle'] = 'Navigation Label';
+				}
+			}
+		}
+		return $searchable;
 	}
 
 }
@@ -365,7 +380,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 					}
 				}
 			}
-			$this->DefaultListing = true;
 			return $this->getSearchResults($_GET, $this->getForm());
 		}
 		return array();
