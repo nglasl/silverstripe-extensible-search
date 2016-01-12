@@ -45,7 +45,7 @@ class ExtensibleSearchPage extends Page {
 	private static $defaults = array(
 		'ShowInMenus' => 0,
 		'ShowInSearch' => 0,
-		'SortBy' => 'Created',
+		'SortBy' => 'Relevance',
 		'ResultsPerPage' => 10
 	);
 
@@ -318,11 +318,16 @@ class ExtensibleSearchPage extends Page {
 					$searchable['Sort'] = 'Order';
 				}
 				if(isset($fields['Title'])) {
-					$searchable['Title'] = in_array($class, ClassInfo::subclassesFor('SiteTree')) ? 'Name': 'Title';
+					$searchable['Title'] = 'Title';
 				}
 				if(isset($fields['MenuTitle'])) {
 					$searchable['MenuTitle'] = 'Navigation Label';
 				}
+				$searchable['Relevance'] = 'Relevance';
+
+				// Add an extension here so custom "site tree" fields may be implemented to sort against.
+
+				$this->extend('updateExtensibleSearchSelectableFields', $searchable);
 			}
 		}
 		return $searchable;
