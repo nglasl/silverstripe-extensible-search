@@ -33,7 +33,7 @@ class ExtensibleSearchPage extends Page {
 	);
 
 	private static $many_many = array(
-		'SearchTrees' => 'Page'
+		'SearchTrees' => 'SiteTree'
 	);
 
 	/**
@@ -52,7 +52,8 @@ class ExtensibleSearchPage extends Page {
 	 *	The custom search engines that may be selected.
 	 */
 
-	private static $search_engine_extensions = array();
+	private static $search_engine_extensions = array(
+	);
 
 	/**
 	 *	The process to automatically create a search page by default, executed on project build.
@@ -61,10 +62,24 @@ class ExtensibleSearchPage extends Page {
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
+		if(self::config()->create_default_pages) {
+
+			// Determine whether a search page already exists.
+
+			if(!ExtensibleSearchPage::get()->first()) {
+
+				// Instantiate a search page.
+
+				$page = ExtensibleSearchPage::create();
+				$page->Title = 'Search Page';
+				$page->writeToStage('Stage');
+				DB::alteration_message('Extensible Search Page', 'created');
+			}
+		}
 
 		// This is required to support multiple sites.
 
-		if(ClassInfo::exists('Multisites')) {
+		else if(ClassInfo::exists('Multisites')) {
 			foreach(Site::get() as $site) {
 
 				// Determine whether a search page already exists.
@@ -78,20 +93,6 @@ class ExtensibleSearchPage extends Page {
 					$page->writeToStage('Stage');
 					DB::alteration_message("\"{$site->Title}\" Extensible Search Page", 'created');
 				}
-			}
-		}
-		else if(self::config()->create_default_pages){
-
-			// Determine whether a search page already exists.
-
-			if(!ExtensibleSearchPage::get()->first()) {
-
-				// Instantiate a search page.
-
-				$page = ExtensibleSearchPage::create();
-				$page->Title = 'Search Page';
-				$page->writeToStage('Stage');
-				DB::alteration_message('Extensible Search Page', 'created');
 			}
 		}
 	}
@@ -118,18 +119,18 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine the custom search engines.
 
-		foreach(self::config()->search_engine_extensions as $extension => $title) {
+		foreach(self::config()->search_engine_extensions as $extension => $display) {
 
 			// The configuration may define an optional display title.
 
 			if(is_numeric($extension)) {
-				$extension = $title;
+				$extension = $display;
 			}
 
 			// Determine whether the custom search engine extensions have been applied correctly.
 
 			if(ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller") && $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller")) {
-				$engines[$extension] = $title;
+				$engines[$extension] = $display;
 			}
 		}
 
@@ -154,13 +155,13 @@ class ExtensibleSearchPage extends Page {
 
 			// Determine whether the search engine supports hierarchy.
 
-			$supports = self::$supports_hierarchy;
+			$hierarchy = self::$supports_hierarchy;
 			if($this->SearchEngine !== 'Full-Text') {
 				foreach($this->extension_instances as $instance) {
-					if((get_class($instance) === $this->SearchEngine)) {
+					if(get_class($instance) === $this->SearchEngine) {
 						$instance->setOwner($this);
 						if(isset($instance::$supports_hierarchy)) {
-							$supports = $instance::$supports_hierarchy;
+							$hierarchy = $instance::$supports_hierarchy;
 						}
 						$instance->clearOwner();
 						break;
@@ -168,9 +169,9 @@ class ExtensibleSearchPage extends Page {
 				}
 			}
 
-			// The search engine will only support limited heirarchy for multiple sites.
+			// The search engine will only support limited hierarchy for multiple sites.
 
-			if($supports || ClassInfo::exists('Multisites')) {
+			if($hierarchy || ClassInfo::exists('Multisites')) {
 
 				// Display the search trees selection.
 
@@ -179,14 +180,15 @@ class ExtensibleSearchPage extends Page {
 					'Search Trees',
 					'SiteTree'
 				), 'Content');
-				if(!$supports) {
+				if(!$hierarchy) {
 
-					// Update the selection to reflect the limited heirarchy for multiple sites.
+					// Update the selection to reflect the limited hierarchy for multiple sites.
 
 					$tree->setDisableFunction(function($page) {
+
 						return ($page->ParentID !== 0);
 					});
-					$tree->setRightTitle('The selected <strong>search engine</strong> only supports limited heirarchy');
+					$tree->setRightTitle('The selected <strong>search engine</strong> only supports limited hierarchy');
 				}
 			}
 
@@ -209,16 +211,17 @@ class ExtensibleSearchPage extends Page {
 			// Display the start with listing selection.
 
 			$fields->addFieldToTab('Root.Main', CheckboxField::create(
-				'StartWithListing'
+				'StartWithListing',
+				'Start With Listing?'
 			), 'Content');
 
 			// Allow listing template configuration when the listing page module is present.
 
-			if(class_exists('ListingTemplate')) {
+			if(ClassInfo::exists('ListingTemplate')) {
 
 				// Determine the listing templates that exist.
 
-				$templates = DataObject::get('ListingTemplate')->map();
+				$templates = ListingTemplate::get()->map();
 
 				// Display the listing template selection.
 
@@ -226,14 +229,13 @@ class ExtensibleSearchPage extends Page {
 					'ListingTemplateID',
 					'Listing Template',
 					$templates
-				)->setEmptyString(''), 'Content');
+				)->setHasEmptyDefault(true), 'Content');
 			}
 
 			// Display the results per page selection.
 
 			$fields->addFieldToTab('Root.Main', NumericField::create(
-				'ResultsPerPage',
-				'Results Per Page'
+				'ResultsPerPage'
 			), 'Content');
 		}
 		else {
@@ -265,7 +267,9 @@ class ExtensibleSearchPage extends Page {
 			);
 			$analytics = ArrayList::create();
 			foreach($query->execute() as $result) {
-				$result = ArrayData::create($result);
+				$result = ArrayData::create(
+					$result
+				);
 				$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
 				$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
 				$result->Results = $result->Results ? 'true' : 'false';
@@ -372,7 +376,7 @@ class ExtensibleSearchPage extends Page {
 			// Determine the custom search engine specific selectable fields.
 
 			foreach($this->extension_instances as $instance) {
-				if((get_class($instance) === $this->SearchEngine)) {
+				if(get_class($instance) === $this->SearchEngine) {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSelectableFields')) {
 						return $instance->getSelectableFields();
@@ -403,12 +407,12 @@ class ExtensibleSearchPage extends Page {
 				if(isset($fields['Sort'])) {
 					$selectable['Sort'] = 'Display Order';
 				}
-
-				// Allow extension, so custom fields may be selectable.
-
-				$this->extend('updateExtensibleSearchPageSelectableFields', $selectable);
 			}
 		}
+
+		// Allow extension, so custom fields may be selectable.
+
+		$this->extend('updateExtensibleSearchPageSelectableFields', $selectable);
 		return $selectable;
 	}
 
@@ -454,7 +458,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			if(($this->data()->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
 				$engine = $this->data()->SearchEngine;
 				foreach($this->data()->extension_instances as $instance) {
-					if((get_class($instance) === $engine)) {
+					if(get_class($instance) === $engine) {
 						$instance->setOwner($this);
 						if(isset($instance::$default_search)) {
 							$_GET['Search'] = $instance::$default_search;
@@ -668,6 +672,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 
 		// Render the full-text results using a listing template where defined.
+		// should probably check that listing template still exists at this point
 
 		if($this->data()->ListingTemplateID && $results) {
 			$template = DataObject::get_by_id('ListingTemplate', $this->data()->ListingTemplateID);
@@ -695,10 +700,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
 		return $output;
 	}
-	
+
 	/**
-	 * Allow calling by /search/results for displaying a results page. 
-	 * 
+	 * Allow calling by /search/results for displaying a results page.
+	 *
 	 * @param type $data
 	 * @param type $form
 	 * @return string
