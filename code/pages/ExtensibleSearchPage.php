@@ -1,45 +1,23 @@
 <?php
 
 /**
- * A page type specifically used for displaying search results.
- *
- * This is an alternative encapsulation of search logic as it comprises much more than the out of the
- * box example. To use this instead of the default implementation, your search form call in Page should first
- * retrieve the ExtensibleSearchPage to use as its context.
- *
- * @author Nathan Glasl <nathan@silverstripe.com.au>
- * @author Marcus Nyeholt <marcus@silverstripe.com.au>
- * @license http://silverstripe.org/bsd-license/
+ *	The page used to display search results, allowing user customisation and developer extension, including analytics and suggestions.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
 class ExtensibleSearchPage extends Page {
 
-	// listing template ID is not a has_one, because we may not have the listing page module
+	/**
+	 *	The listing template relationship is manually defined, as the listing page module may not be present.
+	 */
 
 	private static $db = array(
 		'SearchEngine' => 'Varchar(255)',
-		'ResultsPerPage' => 'Int',
-		'SortBy' => "Varchar(64)",
-		'SortDir' => "Enum('Ascending,Descending', 'Descending')",
+		'SortBy' => 'Varchar(255)',
+		'SortDirection' => "Enum('DESC, ASC', 'DESC')",
 		'StartWithListing' => 'Boolean',
+		'ResultsPerPage' => 'Int',
 		'ListingTemplateID' => 'Int'
-	);
-
-	// The default full-text search string that will be used to return all "start with listing" results.
-
-	public static $default_search = '';
-
-	public static $supports_hierarchy = false;
-
-	private static $search_engine_extensions = array();
-
-	private static $has_many = array(
-		'History' => 'ExtensibleSearch',
-		'Suggestions' => 'ExtensibleSearchSuggestion'
-	);
-
-	private static $many_many = array(
-		'SearchTrees'			=> 'Page',
 	);
 
 	private static $defaults = array(
@@ -49,124 +27,230 @@ class ExtensibleSearchPage extends Page {
 		'ResultsPerPage' => 10
 	);
 
+	private static $has_many = array(
+		'History' => 'ExtensibleSearch',
+		'Suggestions' => 'ExtensibleSearchSuggestion'
+	);
+
+	private static $many_many = array(
+		'SearchTrees' => 'Page'
+	);
+
+	/**
+	 *	The full-text search engine does not support hierarchy filtering.
+	 */
+
+	public static $supports_hierarchy = false;
+
+	/**
+	 *	The full-text start with listing default search.
+	 */
+
+	public static $default_search = '';
+
+	/**
+	 *	The custom search engines that may be selected.
+	 */
+
+	private static $search_engine_extensions = array();
+
+	/**
+	 *	The process to automatically create a search page by default, executed on project build.
+	 */
+
+	public function requireDefaultRecords() {
+
+		parent::requireDefaultRecords();
+
+		// This is required to support multiple sites.
+
+		if(ClassInfo::exists('Multisites')) {
+			foreach(Site::get() as $site) {
+
+				// Determine whether a search page already exists.
+
+				if(!ExtensibleSearchPage::get()->filter('SiteID', $site->ID)->first()) {
+
+					// Instantiate a search page.
+
+					$page = ExtensibleSearchPage::create();
+					$page->Title = 'Search Page';
+					$page->writeToStage('Stage');
+					DB::alteration_message("\"{$site->Title}\" Extensible Search Page", 'created');
+				}
+			}
+		}
+		else if(self::config()->create_default_pages){
+
+			// Determine whether a search page already exists.
+
+			if(!ExtensibleSearchPage::get()->first()) {
+
+				// Instantiate a search page.
+
+				$page = ExtensibleSearchPage::create();
+				$page->Title = 'Search Page';
+				$page->writeToStage('Stage');
+				DB::alteration_message('Extensible Search Page', 'created');
+			}
+		}
+	}
+
+	/**
+	 *	Display the CMS search page configuration, search engine listing, analytics and suggestions.
+	 */
+
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
-		// Restrict the search suggestion approval appropriately.
+		// Restrict the search suggestion functionality appropriately.
 
 		$user = Member::currentUserID();
 		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
 			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-approval.js');
 		}
 
-		// Determine if full text search is enabled.
+		// Instantiate the search engine listing that will be available.
 
-		$engines = array(
-			'' => ''
-		);
-		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_array($searchable) && (count($searchable) > 0)) {
-			$engines['Full-Text'] = 'Full-Text';
-		}
+		$engines = array();
 
-		// Retrieve a list of search engine extensions currently applied that end with 'Search'.
+		// Determine the custom search engines.
 
-		$extensions = self::config()->search_engine_extensions;
-		foreach($extensions as $extension => $title) {
+		foreach(self::config()->search_engine_extensions as $extension => $title) {
 
-			// Support configuration that doesn't define a pretty title.
+			// The configuration may define an optional display title.
 
 			if(is_numeric($extension)) {
 				$extension = $title;
 			}
-			$exists = ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller");
-			$has = $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller");
-			if($exists && $has) {
+
+			// Determine whether the custom search engine extensions have been applied correctly.
+
+			if(ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller") && $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller")) {
 				$engines[$extension] = $title;
 			}
 		}
 
-		// Allow selection of the search engine extension to use.
+		// Determine whether the full-text search engine has been enabled.
 
-		$fields->addFieldToTab('Root.Main', $search = DropdownField::create('SearchEngine', 'Search Engine', $engines), 'Content');
+		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if($count = (is_array($classes) && (count($classes) > 0))) {
+			$engines['Full-Text'] = 'Full-Text';
+		}
 
-		// Make sure a search engine is being used before allowing customisation.
+		// Display the search engine selection.
 
-		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if($this->SearchEngine && ((($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) || (($this->SearchEngine === 'Full-Text') && is_array($fulltext) && (count($fulltext) > 0)))) {
+		$fields->addFieldToTab('Root.Main', DropdownField::create(
+			'SearchEngine',
+			'Search Engine',
+			$engines
+		)->setHasEmptyDefault(true)->setRightTitle('This will need to be saved before further customisation is available'), 'Content');
 
-			// Determine the CMS customisation available to the current search engine/wrapper.
+		// Determine whether a search engine has been selected.
 
-			$fields->addFieldToTab('Root.Main', new CheckboxField('StartWithListing', _t('ExtensibleSearchPage.START_LISTING', 'Display initial listing - useful for filterable "data type" lists')), 'Content');
+		if($this->SearchEngine && ((($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) || (($this->SearchEngine === 'Full-Text') && $count))) {
 
-			if(class_exists('ListingTemplate')) {
-				$templates = DataObject::get('ListingTemplate');
-				if ($templates) {
-					$templates = $templates->map();
-				} else {
-					$templates = array();
-				}
+			// Determine whether the search engine supports hierarchy.
 
-				$label = _t('ExtensibleSearchPage.CONTENT_TEMPLATE', 'Listing Template - if not set, theme template will be used');
-				$fields->addFieldToTab('Root.Main', $template = DropdownField::create('ListingTemplateID', $label, $templates, '', null)->setEmptyString('(results template)'), 'Content');
-				$template->setEmptyString('(results template)');
-			}
-
-			$perPage = array('5' => '5', '10' => '10', '15' => '15', '20' => '20');
-			$fields->addFieldToTab('Root.Main',new DropdownField('ResultsPerPage', _t('ExtensibleSearchPage.RESULTS_PER_PAGE', 'Results per page'), $perPage), 'Content');
-
-			$support = self::$supports_hierarchy;
-
-			// Determine whether the current engine/wrapper supports hierarchy.
-
-			if(($this->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-				$engine = $this->SearchEngine;
-				foreach($this->data()->extension_instances as $instance) {
-					if((get_class($instance) === $engine)) {
+			$supports = self::$supports_hierarchy;
+			if($this->SearchEngine !== 'Full-Text') {
+				foreach($this->extension_instances as $instance) {
+					if((get_class($instance) === $this->SearchEngine)) {
 						$instance->setOwner($this);
 						if(isset($instance::$supports_hierarchy)) {
-							$support = $instance::$supports_hierarchy;
+							$supports = $instance::$supports_hierarchy;
 						}
 						$instance->clearOwner();
 						break;
 					}
 				}
 			}
-			if($support || ClassInfo::exists('Multisites')) {
-				$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create('SearchTrees', 'Restrict results to these subtrees', 'SiteTree'), 'Content');
-				if(!$support) {
+
+			// The search engine will only support limited heirarchy for multiple sites.
+
+			if($supports || ClassInfo::exists('Multisites')) {
+
+				// Display the search trees selection.
+
+				$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create(
+					'SearchTrees',
+					'Search Trees',
+					'SiteTree'
+				), 'Content');
+				if(!$supports) {
+
+					// Update the selection to reflect the limited heirarchy for multiple sites.
+
 					$tree->setDisableFunction(function($page) {
 						return ($page->ParentID !== 0);
 					});
-					$tree->setRightTitle('The selected search engine does not support further restrictions');
+					$tree->setRightTitle('The selected <strong>search engine</strong> only supports limited heirarchy');
 				}
 			}
-			if(!$this->SortDir) {
 
-				// Initialise the default sorting direction.
+			// Display the sorting selection.
 
-				$this->SortDir = 'Descending';
+			$fields->addFieldToTab('Root.Main', DropdownField::create(
+				'SortBy',
+				'Sort By',
+				$this->getSelectableFields()
+			), 'Content');
+			$fields->addFieldToTab('Root.Main', DropdownField::create(
+				'SortDirection',
+				'Sort Direction',
+				array(
+					'DESC' => 'Descending',
+					'ASC' => 'Ascending'
+				)
+			), 'Content');
+
+			// Display the start with listing selection.
+
+			$fields->addFieldToTab('Root.Main', CheckboxField::create(
+				'StartWithListing'
+			), 'Content');
+
+			// Allow listing template configuration when the listing page module is present.
+
+			if(class_exists('ListingTemplate')) {
+
+				// Determine the listing templates that exist.
+
+				$templates = DataObject::get('ListingTemplate')->map();
+
+				// Display the listing template selection.
+
+				$fields->addFieldToTab('Root.Main', DropdownField::create(
+					'ListingTemplateID',
+					'Listing Template',
+					$templates
+				)->setEmptyString(''), 'Content');
 			}
 
-			$sortFields = $this->getSelectableFields();
-			$fields->addFieldToTab('Root.Main', new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $sortFields), 'Content');
-			$fields->addFieldToTab('Root.Main', new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->dbObject('SortDir')->enumValues()), 'Content');
+			// Display the results per page selection.
+
+			$fields->addFieldToTab('Root.Main', NumericField::create(
+				'ResultsPerPage',
+				'Results Per Page'
+			), 'Content');
 		}
 		else {
+
+			// The search engine will need to be selected before customisation is available.
+
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
 				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"
 			), 'Title');
-			$search->setRightTitle('This will need to be saved before further customisation is available');
 		}
 
-		// Retrieve the extensible search analytics, when enabled.
+		// Determine whether analytics have been enabled.
 
 		if(Config::inst()->get('ExtensibleSearch', 'enable_analytics')) {
 
-			// Retrieve the search analytics.
+			// Retrieve the extensible search analytics.
 
 			$history = $this->History();
 			$query = new SQLQuery(
@@ -188,7 +272,7 @@ class ExtensibleSearchPage extends Page {
 				$analytics->push($result);
 			}
 
-			// Instantiate the search analytic summary display.
+			// Instantiate the search analytic summary.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
 				'Summary',
@@ -264,35 +348,26 @@ class ExtensibleSearchPage extends Page {
 	}
 
 	/**
-	 * Ensures that there is always a search page
-	 * by checking if there's an instance of
-	 * a base ExtensibleSearchPage. If there
-	 * is not, one is created when the DB is built.
+	 *	Determine the search engine specific selectable fields.
 	 */
-	function requireDefaultRecords() {
-		parent::requireDefaultRecords();
-
-		if(SiteTree::get_create_default_pages()){
-			$page = DataObject::get_one('ExtensibleSearchPage');
-			if(!($page && $page->exists())) {
-				$page = ExtensibleSearchPage::create();
-				$page->Title = 'Search Page';
-				$page->write();
-
-				DB::alteration_message('Search page created', 'created');
-			}
-		}
-
-	}
 
 	public function getSelectableFields() {
 
-		// Attempt to trigger this method on the current search engine extension instead.
+		// Instantiate the default selectable fields, just in case the selected search engine does not provide any.
 
-		if(($this->SearchEngine !== 'Full-Text') && $this->extension_instances) {
-			$engine = $this->SearchEngine;
+		$selectable = array(
+			'LastEdited' => 'Last Edited',
+			'Created' => 'Created'
+		);
+
+		// Determine the search engine.
+
+		if($this->SearchEngine !== 'Full-Text') {
+
+			// Determine the custom search engine specific selectable fields.
+
 			foreach($this->extension_instances as $instance) {
-				if((get_class($instance) === $engine)) {
+				if((get_class($instance) === $this->SearchEngine)) {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSelectableFields')) {
 						return $instance->getSelectableFields();
@@ -302,35 +377,34 @@ class ExtensibleSearchPage extends Page {
 				}
 			}
 		}
+		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
+			$selectable = array(
+				'Relevance' => 'Relevance'
+			) + $selectable;
 
-		$searchable = array();
-		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_array($fulltext) && (count($fulltext) > 0)) {
-			foreach($fulltext as $class) {
+			// Determine the full-text specific selectable fields.
+
+			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
-				if(isset($fields['LastEdited'])) {
-					$searchable['LastEdited'] = 'Last Edited';
-				}
-				if(isset($fields['Created'])) {
-					$searchable['Created'] = 'Created';
-				}
-				if(isset($fields['Sort'])) {
-					$searchable['Sort'] = 'Order';
-				}
+
+				// Determine the most appropriate fields.
+
 				if(isset($fields['Title'])) {
-					$searchable['Title'] = 'Title';
+					$selectable['Title'] = 'Title';
 				}
 				if(isset($fields['MenuTitle'])) {
-					$searchable['MenuTitle'] = 'Navigation Label';
+					$selectable['MenuTitle'] = 'Navigation Title';
 				}
-				$searchable['Relevance'] = 'Relevance';
+				if(isset($fields['Sort'])) {
+					$selectable['Sort'] = 'Display Order';
+				}
 
-				// Add an extension here so custom "site tree" fields may be implemented to sort against.
+				// Allow extension, so custom fields may be selectable.
 
-				$this->extend('updateExtensibleSearchSelectableFields', $searchable);
+				$this->extend('updateExtensibleSearchPageSelectableFields', $selectable);
 			}
 		}
-		return $searchable;
+		return $selectable;
 	}
 
 }
@@ -363,7 +437,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		if ($this->StartWithListing) {
 			$_GET['SortBy'] = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
-			$_GET['SortDir'] = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
+			$_GET['SortDirection'] = isset($_GET['SortDirection']) ? $_GET['SortDirection'] : $this->data()->SortDirection;
 
 			// The default full-text search string to return all results.
 
@@ -471,9 +545,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				), ' $0', $field));
 			}
 			$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
-			$sortDir = isset($_GET['SortDir']) ? $_GET['SortDir'] : $this->data()->SortDir;
+			$sorting = array(
+				'DESC' => 'Descending',
+				'ASC' => 'Ascending'
+			);
+			$sortDir = isset($_GET['SortDirection']) ? $_GET['SortDirection'] : $this->data()->SortDirection;
 			$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
-			$fields->push(new DropdownField('SortDir', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $this->data()->dbObject('SortDir')->enumValues(), $sortDir));
+			$fields->push(new DropdownField('SortDirection', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $sorting, $sortDir));
 		}
 
 		$actions = new FieldList(new FormAction('getSearchResults', _t('SearchForm.GO', 'Search')));
@@ -538,10 +616,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Fall back to displaying the full-text results.
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		// these should use what's in $data
 		if(is_null($sort = $this->data()->SortBy)) {
 			$sort = 'Relevance';
 		}
-		$direction = ($this->data()->SortDir === 'Ascending') ? 'ASC' : 'DESC';
+		$direction = $this->data()->SortDirection;
 
 		// Apply any site tree restrictions.
 
