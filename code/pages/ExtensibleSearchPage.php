@@ -272,7 +272,7 @@ class ExtensibleSearchPage extends Page {
 				$analytics->push($result);
 			}
 
-			// Instantiate the search analytic summary.
+			// Instantiate the search analytic summary display.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
 				'Summary',
@@ -280,13 +280,8 @@ class ExtensibleSearchPage extends Page {
 				$analytics
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
-			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
-			$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
-			$summaryConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
-				'FrequencyPercentage' => 'Frequency'
-			));
 
-			// Update the export fields, since we're not using a data list.
+			// Update the display columns, and instantiate an export button.
 
 			$summaryDisplay = array(
 				'Term' => 'Search Term',
@@ -295,11 +290,16 @@ class ExtensibleSearchPage extends Page {
 				'AverageTimeTaken' => 'Average Time Taken (s)',
 				'Results' => 'Has Results?'
 			);
+			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
+			$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
 			$summaryExport->setExportColumns($summaryDisplay);
 
-			// Update the summary fields.
+			// Update the custom summary fields to be sortable.
 
-			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
+			$summaryConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
+				'FrequencyPercentage' => 'Frequency'
+			));
+			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
 
 			// Instantiate the search analytic history display.
 
@@ -309,8 +309,10 @@ class ExtensibleSearchPage extends Page {
 				$history
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
-			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
-			$historyConfiguration->addComponent($historyExport = new GridFieldExportButton());
+
+			// Instantiate an export button.
+
+			$historyConfiguration->addComponent(new GridFieldExportButton());
 
 			// Update the custom summary fields to be sortable.
 
@@ -318,9 +320,10 @@ class ExtensibleSearchPage extends Page {
 				'TimeSummary' => 'Created',
 				'TimeTakenSummary' => 'Time'
 			));
+			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
 		}
 
-		// Retrieve the extensible search suggestions, when enabled.
+		// Determine whether suggestions have been enabled.
 
 		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 
@@ -332,7 +335,6 @@ class ExtensibleSearchPage extends Page {
 				$this->Suggestions(),
 				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
 			)->setModelClass('ExtensibleSearchSuggestion'));
-			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');
 
 			// Update the custom summary fields to be sortable.
 
@@ -341,7 +343,10 @@ class ExtensibleSearchPage extends Page {
 				'FrequencyPercentage' => 'Frequency',
 				'ApprovedField' => 'Approved'
 			));
+			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');
 		}
+
+		// Allow extension.
 
 		$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		return $fields;
