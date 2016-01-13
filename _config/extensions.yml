@@ -1,6 +1,0 @@
----
-name: extensible-search-extensions
----
-SearchForm:
-  extensions:
-    - 'SearchFormResultsExtension'

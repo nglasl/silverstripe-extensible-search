@@ -545,7 +545,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Apply any site tree restrictions.
 
-		$filter = implode(', ', $this->SearchTrees()->map('ID', 'ID')->toArray());
+		$filter = $this->SearchTrees()->column();
 		$page = $this->data();
 		$support = $page::$supports_hierarchy;
 
@@ -564,11 +564,24 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				}
 			}
 		}
-		if($filter && ($support || ClassInfo::exists('Multisites'))) {
-			$field = $support ? 'ParentID' : 'SiteID';
-			$filter = "{$field} IN({$filter})";
+		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$_GET['start'] = 0;
+		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getResults(null, $data) : null;
+
+		// Apply filters, sorting, and correct the permissions.
+
+		if($results) {
+			$items = $results->getList();
+			if(count($filter) && ($support || ClassInfo::exists('Multisites'))) {
+				$items = $items->filter($support ? 'ParentID' : 'SiteID', $filter);
+			}
+			$items = $items->sort("{$sort} {$direction}");
+			$results = PaginatedList::create($items);
+			$results->setPageStart($start);
+			$results->setPageLength($this->data()->ResultsPerPage);
+			$results->setTotalItems(count($items));
+			$results->setLimitItems(true);
 		}
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getExtendedResults($this->data()->ResultsPerPage, "{$sort} {$direction}", $filter, $data) : null;
 
 		// Render the full-text results using a listing template where defined.
 
