@@ -141,7 +141,7 @@ class ExtensibleSearchPage extends Page {
 			'SearchEngine',
 			'Search Engine',
 			$engines
-		)->setHasEmptyDefault(true)->setRightTitle('This will need to be saved before further customisation is available'), 'Content');
+		)->setHasEmptyDefault(true)->setRightTitle('This will need to be saved before further customisation is available'), 'Title');
 
 		// Determine whether a search engine has been selected.
 
@@ -209,6 +209,12 @@ class ExtensibleSearchPage extends Page {
 				'Start With Listing?'
 			), 'Content');
 
+			// Display the results per page selection.
+
+			$fields->addFieldToTab('Root.Main', NumericField::create(
+				'ResultsPerPage'
+			), 'Content');
+
 			// Allow listing template configuration when the listing page module is present.
 
 			if(ClassInfo::exists('ListingTemplate')) {
@@ -225,12 +231,6 @@ class ExtensibleSearchPage extends Page {
 					$templates
 				)->setHasEmptyDefault(true), 'Content');
 			}
-
-			// Display the results per page selection.
-
-			$fields->addFieldToTab('Root.Main', NumericField::create(
-				'ResultsPerPage'
-			), 'Content');
 		}
 		else {
 
