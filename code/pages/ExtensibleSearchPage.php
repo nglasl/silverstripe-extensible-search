@@ -43,12 +43,6 @@ class ExtensibleSearchPage extends Page {
 	public static $supports_hierarchy = false;
 
 	/**
-	 *	The full-text start with listing default search.
-	 */
-
-	public static $default_search = '';
-
-	/**
 	 *	The custom search engines that may be selected.
 	 */
 
@@ -451,23 +445,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// The default full-text search string to return all results.
 
 			$data = $this->data();
-			$_GET['Search'] = $data::$default_search;
-
-			// Construct the default search string used for the current engine/wrapper.
-
-			if(($this->data()->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-				$engine = $this->data()->SearchEngine;
-				foreach($this->data()->extension_instances as $instance) {
-					if(get_class($instance) === $engine) {
-						$instance->setOwner($this);
-						if(isset($instance::$default_search)) {
-							$_GET['Search'] = $instance::$default_search;
-						}
-						$instance->clearOwner();
-						break;
-					}
-				}
-			}
+			$_GET['Search'] = '';
 			return $this->getSearchResults($_GET, $this->getForm());
 		}
 		return array();
