@@ -56,6 +56,11 @@ class ExtensibleSearchPage extends Page {
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
+		$mode = Versioned::get_reading_mode();
+		Versioned::reading_stage('Stage');
+
+		// Determine whether the search page can be created.
+
 		if(self::config()->create_default_pages) {
 
 			// Determine whether a search page already exists.
@@ -67,7 +72,7 @@ class ExtensibleSearchPage extends Page {
 				$page = ExtensibleSearchPage::create();
 				$page->Title = 'Search Page';
 				$page->writeToStage('Stage');
-				DB::alteration_message('Extensible Search Page', 'created');
+				DB::alteration_message('"Default" Extensible Search Page', 'created');
 			}
 		}
 
@@ -89,6 +94,7 @@ class ExtensibleSearchPage extends Page {
 				}
 			}
 		}
+		Versioned::set_reading_mode($mode);
 	}
 
 	/**
