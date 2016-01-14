@@ -366,8 +366,18 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine whether the default sorting needs to be initialised.
 
-		if($this->SearchEngine && !$this->SortBy) {
-			$this->SortBy = ($this->SearchEngine !== 'Full-Text') ? 'LastEdited' : 'Relevance';
+		$changed = $this->getChangedFields();
+		if($this->SearchEngine && isset($changed['SearchEngine']) && ($changed['SearchEngine']['before'] != $changed['SearchEngine']['after'])) {
+
+			// The sorting will need to be present in the selectable fields.
+
+			$selectable = $this->getSelectableFields();
+			if(!isset($selectable[$this->SortBy])) {
+
+				// The sorting was not present, therefore initialise a default.
+
+				$this->SortBy = ($this->SearchEngine !== 'Full-Text') ? 'LastEdited' : 'Relevance';
+			}
 		}
 		if(!$this->SortDirection) {
 			$this->SortDirection = 'DESC';
