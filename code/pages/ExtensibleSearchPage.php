@@ -186,7 +186,7 @@ class ExtensibleSearchPage extends Page {
 
 					$tree->setDisableFunction(function($page) {
 
-						return ($page->ParentID !== 0);
+						return ($page->ParentID != 0);
 					});
 					$tree->setRightTitle('The selected <strong>search engine</strong> only supports limited hierarchy');
 				}
