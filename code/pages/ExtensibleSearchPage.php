@@ -214,7 +214,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.Main', CheckboxField::create(
 				'StartWithListing',
 				'Start With Listing?'
-			), 'Content');
+			)->addExtraClass('start-with-listing'), 'Content');
 
 			// Display the results per page selection.
 

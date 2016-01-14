@@ -25,6 +25,13 @@ p.extensible-search.notification {
 
 /* Correcting some core layout issues. */
 
+div.start-with-listing input,
+div.start-with-listing label,
+li.valEXTENSIBLE_SEARCH_SUGGESTIONS input,
+li.valEXTENSIBLE_SEARCH_SUGGESTIONS label {
+	vertical-align: middle;
+}
+
 #Root_SearchAnalytics p.grid-csv-button {
 	margin-top: 8px;
 	padding-bottom: 1px;
@@ -41,9 +48,4 @@ div.approved.wrapper input.approved {
 
 div.approved.wrapper span.readonly {
 	padding-top: 0;
-}
-
-li.valEXTENSIBLE_SEARCH_SUGGESTIONS input,
-li.valEXTENSIBLE_SEARCH_SUGGESTIONS label {
-	vertical-align: middle;
 }
