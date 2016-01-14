@@ -88,6 +88,7 @@ class ExtensibleSearchPage extends Page {
 					// Instantiate a search page.
 
 					$page = ExtensibleSearchPage::create();
+					$page->ParentID = $site->ID;
 					$page->Title = 'Search Page';
 					$page->writeToStage('Stage');
 					DB::alteration_message("\"{$site->Title}\" Extensible Search Page", 'created');
