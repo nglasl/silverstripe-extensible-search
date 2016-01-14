@@ -23,7 +23,6 @@ class ExtensibleSearchPage extends Page {
 	private static $defaults = array(
 		'ShowInMenus' => 0,
 		'ShowInSearch' => 0,
-		'SortBy' => 'Relevance',
 		'ResultsPerPage' => 10
 	);
 
@@ -358,6 +357,24 @@ class ExtensibleSearchPage extends Page {
 	}
 
 	/**
+	 *	Initialise the default sorting.
+	 */
+
+	public function onBeforeWrite() {
+
+		parent::onBeforeWrite();
+
+		// Determine whether the default sorting needs to be initialised.
+
+		if($this->SearchEngine && !$this->SortBy) {
+			$this->SortBy = ($this->SearchEngine !== 'Full-Text') ? 'LastEdited' : 'Relevance';
+		}
+		if(!$this->SortDirection) {
+			$this->SortDirection = 'DESC';
+		}
+	}
+
+	/**
 	 *	Determine the search engine specific selectable fields.
 	 *
 	 *	@return array(string, string)
@@ -369,7 +386,7 @@ class ExtensibleSearchPage extends Page {
 
 		$selectable = array(
 			'LastEdited' => 'Last Edited',
-			'Created' => 'Created'
+			'ID' => 'Created'
 		);
 
 		// Determine the search engine.
