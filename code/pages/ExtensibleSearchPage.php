@@ -358,6 +358,8 @@ class ExtensibleSearchPage extends Page {
 
 	/**
 	 *	Determine the search engine specific selectable fields.
+	 *
+	 *	@return array(string, string)
 	 */
 
 	public function getSelectableFields() {
