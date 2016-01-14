@@ -380,21 +380,19 @@ class ExtensibleSearchPage extends Page {
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === $this->SearchEngine) {
 					$instance->setOwner($this);
-					if(method_exists($instance, 'getSelectableFields')) {
-						return $instance->getSelectableFields();
-					}
-					$instance->clearOwner();
-					break;
+					$fields = method_exists($instance, 'getSelectableFields') ? $instance->getSelectableFields() : array();
+					return $fields + $selectable;
 				}
 			}
 		}
-		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
+		else {
 			$selectable = array(
 				'Relevance' => 'Relevance'
 			) + $selectable;
 
 			// Determine the full-text specific selectable fields.
 
+			$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
 
