@@ -401,7 +401,7 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine the search engine.
 
-		if($this->SearchEngine !== 'Full-Text') {
+		if(($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) {
 
 			// Determine the custom search engine specific selectable fields.
 
@@ -413,7 +413,7 @@ class ExtensibleSearchPage extends Page {
 				}
 			}
 		}
-		else {
+		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
 			$selectable = array(
 				'Relevance' => 'Relevance'
 			) + $selectable;
