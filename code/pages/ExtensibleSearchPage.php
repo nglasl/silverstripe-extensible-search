@@ -245,7 +245,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
 				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"
-			), 'Title');
+			), 'SearchEngine');
 		}
 
 		// Determine whether analytics have been enabled.
