@@ -70,7 +70,7 @@ class ExtensibleSearchPage extends Page {
 
 				$page = ExtensibleSearchPage::create();
 				$page->Title = 'Search Page';
-				$page->writeToStage('Stage');
+				$page->write();
 				DB::alteration_message('"Default" Extensible Search Page', 'created');
 			}
 		}
@@ -89,7 +89,7 @@ class ExtensibleSearchPage extends Page {
 					$page = ExtensibleSearchPage::create();
 					$page->ParentID = $site->ID;
 					$page->Title = 'Search Page';
-					$page->writeToStage('Stage');
+					$page->write();
 					DB::alteration_message("\"{$site->Title}\" Extensible Search Page", 'created');
 				}
 			}
