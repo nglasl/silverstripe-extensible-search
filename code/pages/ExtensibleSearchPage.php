@@ -420,7 +420,6 @@ class ExtensibleSearchPage extends Page {
 
 			// Determine the full-text specific selectable fields.
 
-			$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
 			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
 
