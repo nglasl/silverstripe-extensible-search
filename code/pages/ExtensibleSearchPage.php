@@ -36,17 +36,17 @@ class ExtensibleSearchPage extends Page {
 	);
 
 	/**
-	 *	The full-text search engine does not support hierarchy filtering.
-	 */
-
-	public static $supports_hierarchy = false;
-
-	/**
 	 *	The custom search engines that may be selected.
 	 */
 
 	private static $search_engine_extensions = array(
 	);
+
+	/**
+	 *	The full-text search engine does not support hierarchy filtering.
+	 */
+
+	public static $supports_hierarchy = false;
 
 	/**
 	 *	The process to automatically create a search page by default, executed on project build.
@@ -136,7 +136,8 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine whether the full-text search engine has been enabled.
 
-		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		$configuration = Config::inst();
+		$classes = $configuration->get('FulltextSearchable', 'searchable_classes');
 		if($count = (is_array($classes) && (count($classes) > 0))) {
 			$engines['Full-Text'] = 'Full-Text';
 		}
@@ -250,7 +251,7 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine whether analytics have been enabled.
 
-		if(Config::inst()->get('ExtensibleSearch', 'enable_analytics')) {
+		if($configuration->get('ExtensibleSearch', 'enable_analytics')) {
 
 			// Retrieve the extensible search analytics.
 
@@ -329,7 +330,7 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine whether suggestions have been enabled.
 
-		if(Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+		if($configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 
 			// Instantiate the search suggestion display.
 
