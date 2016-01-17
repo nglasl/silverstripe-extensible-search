@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	The page used to display search results, while allowing user customisation and developer extension.
+ *	The page used to display search results, allowing user customisation and developer extension.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -98,7 +98,7 @@ class ExtensibleSearchPage extends Page {
 	}
 
 	/**
-	 *	Display the search engine specific configuration, and the search page specific analytics/suggestions.
+	 *	Display the search engine specific configuration, and the search page specific analytics and suggestions.
 	 */
 
 	public function getCMSFields() {
@@ -106,7 +106,7 @@ class ExtensibleSearchPage extends Page {
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
-		// Appropriately restrict the search suggestion functionality.
+		// Appropriately restrict the approval functionality.
 
 		$user = Member::currentUserID();
 		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
@@ -131,7 +131,7 @@ class ExtensibleSearchPage extends Page {
 			}
 		}
 
-		// Determine whether full-text has been enabled.
+		// Determine whether the full-text search engine is available.
 
 		$configuration = Config::inst();
 		$classes = $configuration->get('FulltextSearchable', 'searchable_classes');
@@ -167,7 +167,7 @@ class ExtensibleSearchPage extends Page {
 				}
 			}
 
-			// The search engine will only support limited hierarchy filtering for multiple sites.
+			// The search engine may only support limited hierarchy filtering for multiple sites.
 
 			if($hierarchy || ClassInfo::exists('Multisites')) {
 
@@ -231,7 +231,7 @@ class ExtensibleSearchPage extends Page {
 		}
 		else {
 
-			// Display a notification, in that a search engine needs to be selected.
+			// The search engine has not been selected.
 
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
@@ -257,7 +257,7 @@ class ExtensibleSearchPage extends Page {
 				'Term'
 			);
 
-			// These will require some display formatting.
+			// These will require display formatting.
 
 			$analytics = ArrayList::create();
 			foreach($query->execute() as $result) {
@@ -270,7 +270,7 @@ class ExtensibleSearchPage extends Page {
 				$analytics->push($result);
 			}
 
-			// Instantiate the analytic summary display.
+			// Instantiate the analytic summary.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
 				'Summary',
@@ -302,7 +302,7 @@ class ExtensibleSearchPage extends Page {
 			));
 			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
 
-			// Instantiate the analytic history display.
+			// Instantiate the analytic history.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $history = GridField::create(
 				'History',
@@ -328,7 +328,7 @@ class ExtensibleSearchPage extends Page {
 
 		if($configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 
-			// Instantiate the suggestions display.
+			// Determine the search page specific suggestions.
 
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
@@ -392,14 +392,14 @@ class ExtensibleSearchPage extends Page {
 
 	public function getSelectableFields() {
 
-		// Instantiate some default selectable fields, just in case the selected search engine does not provide any.
+		// Instantiate some default selectable fields, just in case the search engine does not provide any.
 
 		$selectable = array(
 			'LastEdited' => 'Last Edited',
 			'ID' => 'Created'
 		);
 
-		// Determine the search engine selected.
+		// Determine the search engine.
 
 		if(($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) {
 
@@ -415,7 +415,7 @@ class ExtensibleSearchPage extends Page {
 		}
 		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
 
-			// Determine the full-text specific selectable fields, primarily for sorting.
+			// Determine the full-text specific selectable fields.
 
 			$selectable = array(
 				'Relevance' => 'Relevance'
