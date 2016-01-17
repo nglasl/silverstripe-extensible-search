@@ -144,10 +144,10 @@ class ExtensibleSearchPage extends Page {
 
 		if($this->SearchEngine && isset($engines[$this->SearchEngine])) {
 
-			// Display a search engine specific notification.
+			// Display a search engine specific notice.
 
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
-				'SearchEngineNotification',
+				'SearchEngineNotice',
 				"<p class='extensible-search notice'><strong>{$engines[$this->SearchEngine]} Search Page</strong></p>"
 			), 'Title');
 
