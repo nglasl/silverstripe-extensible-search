@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	The page used to display search results, allowing user customisation and developer extension.
+ *	The page used to display search results, analytics and suggestions, allowing user customisation and developer extension.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -49,7 +49,7 @@ class ExtensibleSearchPage extends Page {
 	public static $supports_hierarchy = false;
 
 	/**
-	 *	Instantiate an extensible search page, should one not exist.
+	 *	Instantiate a search page, should one not exist.
 	 */
 
 	public function requireDefaultRecords() {
@@ -58,7 +58,7 @@ class ExtensibleSearchPage extends Page {
 		$mode = Versioned::get_reading_mode();
 		Versioned::reading_stage('Stage');
 
-		// Determine whether pages can be created.
+		// Determine whether pages should be created.
 
 		if(self::config()->create_default_pages) {
 
