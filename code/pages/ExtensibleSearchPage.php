@@ -144,11 +144,11 @@ class ExtensibleSearchPage extends Page {
 
 		if($this->SearchEngine && isset($engines[$this->SearchEngine])) {
 
-			// Display a search engine specific heading.
+			// Display a search engine specific notification.
 
-			$fields->addFieldToTab('Root.Main', HeaderField::create(
-				'SearchEngineHeading',
-				"{$engines[$this->SearchEngine]} Search Page"
+			$fields->addFieldToTab('Root.Main', LiteralField::create(
+				'SearchEngineNotification',
+				"<p class='extensible-search notice'><strong>{$engines[$this->SearchEngine]} Search Page</strong></p>"
 			), 'Title');
 
 			// Determine whether the search engine supports hierarchy filtering.
@@ -239,7 +239,7 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotification',
 				"<p class='extensible-search notification'><strong>Select a Search Engine</strong></p>"
-			), 'SearchEngine');
+			), 'Title');
 		}
 
 		// Determine whether analytics have been enabled.

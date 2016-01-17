@@ -4,6 +4,19 @@
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
+p.extensible-search.notice,
+p.extensible-search.notification {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+p.extensible-search.notice {
+	background: #F0F8FC;
+	padding: 10px;
+	border: 1px solid #93CDE8;
+}
+
 p.extensible-search.notification {
 	background: #FFA84C;
 	background: -o-linear-gradient(top, #FFA84C, #FF7B0D);
@@ -14,9 +27,6 @@ p.extensible-search.notification {
 	background: -webkit-linear-gradient(top, #FFA84C, #FF7B0D);
 	padding: 5px;
 	border: 1px solid #FF7400;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
 }
 
 #Form_EditForm_Suggestions input.approved {
