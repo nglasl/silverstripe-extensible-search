@@ -106,13 +106,6 @@ class ExtensibleSearchPage extends Page {
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
-		// Appropriately restrict the approval functionality.
-
-		$user = Member::currentUserID();
-		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
-			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-approval.js');
-		}
-
 		// Determine the search engine extensions that are available.
 
 		$engines = array();
@@ -178,10 +171,10 @@ class ExtensibleSearchPage extends Page {
 					'Search Trees',
 					'SiteTree'
 				), 'Content');
+
+				// Determine whether the search engine only supports limited hierarchy filtering.
+
 				if(!$hierarchy) {
-
-					// Update the selection with the limited hierarchy filtering for multiple sites.
-
 					$tree->setDisableFunction(function($page) {
 
 						return ($page->ParentID != 0);
@@ -327,6 +320,13 @@ class ExtensibleSearchPage extends Page {
 		// Determine whether suggestions have been enabled.
 
 		if($configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
+
+			// Appropriately restrict the approval functionality.
+
+			$user = Member::currentUserID();
+			if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
+				Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-approval.js');
+			}
 
 			// Determine the search page specific suggestions.
 
