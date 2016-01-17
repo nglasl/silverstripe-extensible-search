@@ -36,7 +36,7 @@ class ExtensibleSearchPage extends Page {
 	);
 
 	/**
-	 *	The search engines that are available.
+	 *	The search engine extensions that are available.
 	 */
 
 	private static $search_engine_extensions = array(
@@ -113,18 +113,18 @@ class ExtensibleSearchPage extends Page {
 			Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-approval.js');
 		}
 
-		// Determine the search engines that are available.
+		// Determine the search engine extensions that are available.
 
 		$engines = array();
 		foreach(self::config()->search_engine_extensions as $extension => $display) {
 
-			// The search engines may define an optional display title.
+			// The search engine extensions may define an optional display title.
 
 			if(is_numeric($extension)) {
 				$extension = $display;
 			}
 
-			// Determine whether the search engines have been configured correctly.
+			// Determine whether the search engine extensions have been applied correctly.
 
 			if(ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller") && $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller")) {
 				$engines[$extension] = $display;
