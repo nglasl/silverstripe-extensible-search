@@ -175,6 +175,9 @@ class ExtensibleSearchPage extends Page {
 				// Determine whether the search engine only supports limited hierarchy filtering.
 
 				if(!$hierarchy) {
+
+					// Update the search trees to reflect this.
+
 					$tree->setDisableFunction(function($page) {
 
 						return ($page->ParentID != 0);
