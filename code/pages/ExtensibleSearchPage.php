@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	The page used to display search engine results, while allowing user customisation and developer extension.
+ *	The page used to display search results, while allowing user customisation and developer extension.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -58,7 +58,7 @@ class ExtensibleSearchPage extends Page {
 		$mode = Versioned::get_reading_mode();
 		Versioned::reading_stage('Stage');
 
-		// Determine whether a page can be created.
+		// Determine whether pages can be created.
 
 		if(self::config()->create_default_pages) {
 
@@ -98,7 +98,7 @@ class ExtensibleSearchPage extends Page {
 	}
 
 	/**
-	 *	Display the search engine specific configuration, and the extensible search page specific analytics and suggestions.
+	 *	Display the search engine specific configuration, and the search page specific analytics/suggestions.
 	 */
 
 	public function getCMSFields() {
@@ -106,7 +106,7 @@ class ExtensibleSearchPage extends Page {
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
-		// The search suggestion functionality will be restricted.
+		// Appropriately restrict the search suggestion functionality.
 
 		$user = Member::currentUserID();
 		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
@@ -243,7 +243,7 @@ class ExtensibleSearchPage extends Page {
 
 		if($configuration->get('ExtensibleSearch', 'enable_analytics')) {
 
-			// Retrieve the extensible search analytics.
+			// Determine the search page specific analytics.
 
 			$history = $this->History();
 			$query = new SQLQuery(
@@ -256,6 +256,9 @@ class ExtensibleSearchPage extends Page {
 				),
 				'Term'
 			);
+
+			// These will require some display formatting.
+
 			$analytics = ArrayList::create();
 			foreach($query->execute() as $result) {
 				$result = ArrayData::create(
@@ -267,7 +270,7 @@ class ExtensibleSearchPage extends Page {
 				$analytics->push($result);
 			}
 
-			// Instantiate the search analytic summary.
+			// Instantiate the analytic summary display.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
 				'Summary',
@@ -299,7 +302,7 @@ class ExtensibleSearchPage extends Page {
 			));
 			$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
 
-			// Instantiate the search analytic history.
+			// Instantiate the analytic history display.
 
 			$fields->addFieldToTab('Root.SearchAnalytics', $history = GridField::create(
 				'History',
@@ -325,7 +328,7 @@ class ExtensibleSearchPage extends Page {
 
 		if($configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions')) {
 
-			// Instantiate the search suggestion display.
+			// Instantiate the suggestions display.
 
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
@@ -351,14 +354,14 @@ class ExtensibleSearchPage extends Page {
 	}
 
 	/**
-	 *	Initialise the search engine specific default sorting.
+	 *	Initialise the default search engine specific sorting.
 	 */
 
 	public function onBeforeWrite() {
 
 		parent::onBeforeWrite();
 
-		// Determine whether the search engine has changed.
+		// Determine whether a new search engine has been selected.
 
 		$changed = $this->getChangedFields();
 		if($this->SearchEngine && isset($changed['SearchEngine']) && ($changed['SearchEngine']['before'] != $changed['SearchEngine']['after'])) {
@@ -368,13 +371,13 @@ class ExtensibleSearchPage extends Page {
 			$selectable = $this->getSelectableFields();
 			if(!isset($selectable[$this->SortBy])) {
 
-				// Initialise the search engine specific default sort by.
+				// Initialise the default search engine specific sort by.
 
 				$this->SortBy = ($this->SearchEngine !== 'Full-Text') ? 'LastEdited' : 'Relevance';
 			}
 		}
 
-		// Initialise the search engine specific default sort direction.
+		// Initialise the default search engine specific sort direction.
 
 		if(!$this->SortDirection) {
 			$this->SortDirection = 'DESC';
@@ -396,7 +399,7 @@ class ExtensibleSearchPage extends Page {
 			'ID' => 'Created'
 		);
 
-		// Determine the search engine.
+		// Determine the search engine selected.
 
 		if(($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) {
 
@@ -412,7 +415,7 @@ class ExtensibleSearchPage extends Page {
 		}
 		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
 
-			// Determine the full-text specific selectable fields.
+			// Determine the full-text specific selectable fields, primarily for sorting.
 
 			$selectable = array(
 				'Relevance' => 'Relevance'
@@ -420,7 +423,7 @@ class ExtensibleSearchPage extends Page {
 			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
 
-				// Determine the most appropriate fields.
+				// Determine the most appropriate fields, primarily for sorting.
 
 				if(isset($fields['Title'])) {
 					$selectable['Title'] = 'Title';
