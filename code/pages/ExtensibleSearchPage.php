@@ -399,7 +399,7 @@ class ExtensibleSearchPage extends Page {
 			'ID' => 'Created'
 		);
 
-		// Determine the search engine.
+		// Determine the search engine that has been selected.
 
 		if(($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) {
 
