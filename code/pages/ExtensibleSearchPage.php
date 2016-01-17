@@ -128,7 +128,7 @@ class ExtensibleSearchPage extends Page {
 
 		$configuration = Config::inst();
 		$classes = $configuration->get('FulltextSearchable', 'searchable_classes');
-		if($count = (is_array($classes) && (count($classes) > 0))) {
+		if(is_array($classes) && (count($classes) > 0)) {
 			$engines['Full-Text'] = 'Full-Text';
 		}
 
@@ -142,7 +142,14 @@ class ExtensibleSearchPage extends Page {
 
 		// Determine whether a search engine has been selected.
 
-		if($this->SearchEngine && ((($this->SearchEngine !== 'Full-Text') && ClassInfo::exists($this->SearchEngine)) || (($this->SearchEngine === 'Full-Text') && $count))) {
+		if($this->SearchEngine && isset($engines[$this->SearchEngine])) {
+
+			// Display a search engine specific heading.
+
+			$fields->addFieldToTab('Root.Main', HeaderField::create(
+				'SearchEngineHeading',
+				"{$engines[$this->SearchEngine]} Search Page"
+			), 'Title');
 
 			// Determine whether the search engine supports hierarchy filtering.
 
