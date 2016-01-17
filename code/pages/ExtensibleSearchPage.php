@@ -138,7 +138,7 @@ class ExtensibleSearchPage extends Page {
 			'SearchEngine',
 			'Search Engine',
 			$engines
-		)->setHasEmptyDefault(true)->setRightTitle('This will need to be saved before further customisation is available'), 'Title');
+		)->setHasEmptyDefault(true)->setRightTitle('This needs to be saved before further customisation is available'), 'Title');
 
 		// Determine whether a search engine has been selected.
 
@@ -182,7 +182,7 @@ class ExtensibleSearchPage extends Page {
 
 						return ($page->ParentID != 0);
 					});
-					$tree->setRightTitle('The selected <strong>search engine</strong> only supports limited hierarchy');
+					$tree->setRightTitle('This <strong>search engine</strong> only supports limited hierarchy');
 				}
 			}
 
