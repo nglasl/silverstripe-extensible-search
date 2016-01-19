@@ -459,8 +459,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
 		'getForm',
-		'getSearchResults',
-		'results'
+		'getSearchResults'
 	);
 
 	public $service;
@@ -494,47 +493,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		return array();
 	}
 
-	/**
-	 *	Display an error page on invalid request.
-	 *
-	 *	@parameter <{ERROR_CODE}> integer
-	 *	@parameter <{ERROR_MESSAGE}> string
-	 */
+	public function getForm($request = null, $filters = true) {
 
-	public function httpError($code, $message = null) {
-
-		// Determine the error page for the given status code.
-
-		$errorPages = ErrorPage::get()->filter('ErrorCode', $code);
-
-		// Allow extension customisation.
-
-		$this->extend('updateErrorPages', $errorPages);
-
-		// Retrieve the error page response.
-
-		if($errorPage = $errorPages->first()) {
-			Requirements::clear();
-			Requirements::clear_combined_files();
-			$response = ModelAsController::controller_for($errorPage)->handleRequest(new SS_HTTPRequest('GET', ''), DataModel::inst());
-			throw new SS_HTTPResponse_Exception($response, $code);
+		if(is_string($filters)) {
+			$filters = ($filters === 'true');
 		}
-
-		// Retrieve the cached error page response.
-
-		else if(file_exists($cachedPage = ErrorPage::get_filepath_for_errorcode($code, class_exists('Translatable') ? Translatable::get_current_locale() : null))) {
-			$response = new SS_HTTPResponse();
-			$response->setStatusCode($code);
-			$response->setBody(file_get_contents($cachedPage));
-			throw new SS_HTTPResponse_Exception($response, $code);
-		}
-		else {
-			return parent::httpError($code, $message);
-		}
-	}
-
-	public function getForm($filters = true) {
-
 		// Don't allow searching without a valid search engine.
 
 		$engine = $this->data()->SearchEngine;
@@ -595,6 +558,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$form->setFormMethod('GET');
 		$form->disableSecurityToken();
 		return $form;
+	}
+
+	public function Form($request = null, $filters = true) {
+
+		return $this->getForm($request, $filters);
 	}
 
 	/**
@@ -720,18 +688,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
 		return $output;
-	}
-
-	/**
-	 * Allow calling by /search/results for displaying a results page.
-	 *
-	 * @param type $data
-	 * @param type $form
-	 * @return string
-	 */
-	public function results($data = null, $form = null) {
-
-		return $this->getSearchResults($data, $form);
 	}
 
 }

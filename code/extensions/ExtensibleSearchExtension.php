@@ -31,7 +31,7 @@ class ExtensibleSearchExtension extends Extension {
 
 	/**
 	 * Get the list of facet values for the given term
-	 * 
+	 *
 	 * @param String $term
 	 */
 	public function Facets($term=null) {
@@ -43,7 +43,7 @@ class ExtensibleSearchExtension extends Extension {
 	}
 
 	/**
-	 * The current search query that is being run by the search page. 
+	 * The current search query that is being run by the search page.
 	 *
 	 * @return String
 	 */
@@ -61,7 +61,7 @@ class ExtensibleSearchExtension extends Extension {
 
 		// Retrieve the search form input, excluding any filters.
 
-		$form = ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getForm(false) : null;
+		$form = ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getForm(null, false) : null;
 
 		// Update the search input to account for usability.
 
