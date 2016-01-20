@@ -593,7 +593,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			FieldList::create(
 				FormAction::create(
 					'getSearchResults',
-					'Search'
+					'Go'
 				)
 			)
 		);
@@ -691,7 +691,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$engine = $this->data()->SearchEngine;
 			foreach($this->data()->extension_instances as $instance) {
 				if((get_class($instance) === $engine)) {
-					$instance->setOwner($this);
+					$instance->setOwner($this->data());
 					if(isset($instance::$supports_hierarchy)) {
 						$support = $instance::$supports_hierarchy;
 					}
@@ -712,7 +712,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				$items = $items->filter($support ? 'ParentID' : 'SiteID', $filter);
 			}
 			$items = $items->sort("{$sort} {$direction}");
-			$results = PaginatedList::create($items);
+			$results = PaginatedList::create(
+				$items
+			);
 			$results->setPageStart($start);
 			$results->setPageLength($this->data()->ResultsPerPage);
 			$results->setTotalItems(count($items));
@@ -725,7 +727,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if($this->data()->ListingTemplateID && $results) {
 			$template = DataObject::get_by_id('ListingTemplate', $this->data()->ListingTemplateID);
 			if($template && $template->exists()) {
-				$render = $this->data()->customise(array(
+				$render = $this->customise(array(
 					'Items' => $results
 				));
 				$viewer = SSViewer::fromString($template->ItemTemplate);
@@ -738,7 +740,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$customisation = array(
 			'Results' => $results,
 			'Query' => $form ? $form->getSearchQuery() : null,
-			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
+			'Title' => 'Search Results'
 		);
 		$output = $this->customise($customisation)->renderWith($templates);
 		$totalTime = microtime(true) - $startTime;
