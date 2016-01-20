@@ -528,6 +528,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function getForm($request = null, $filters = true) {
 
+		if(is_null($request)) {
+			$request = $this->getRequest();
+		}
+
 		// Determine whether a template filter was passed through.
 
 		if(is_string($filters)) {
