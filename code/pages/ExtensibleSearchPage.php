@@ -546,12 +546,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$request = $this->getRequest();
 		}
 
-		// Determine whether a template filter has been passed through.
-
-		if(is_string($sorting)) {
-			$sorting = ($sorting === 'true');
-		}
-
 		// Display the search selection.
 
 		$fields = FieldList::create(
@@ -562,7 +556,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
-		// Determine whether to display form filters.
+		// Determine whether a template filter has been passed through.
+
+		if(is_string($sorting)) {
+			$sorting = ($sorting === 'true');
+		}
+
+		// Determine whether to display form sorting.
 
 		if($sorting) {
 
