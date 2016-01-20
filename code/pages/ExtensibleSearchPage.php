@@ -469,7 +469,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	);
 
 	/**
-	 *	Determine whether this page should start with a search listing.
+	 *	Determine whether the search page should start with a listing.
 	 */
 
 	public function index() {
@@ -485,11 +485,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			return $this->httpError(404);
 		}
 
-		// Determine whether this page should start with a search listing.
+		// Determine whether the search page should start with a listing.
 
 		if($this->data()->StartWithListing) {
 
-			// Display the default search listing.
+			// Display the search results.
 
 			$request = $this->getRequest();
 			return $this->getSearchResults(array(
@@ -521,8 +521,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Retrieve the search form.
+	 *	Instantiate the search form.
 	 *
+	 *	@parameter <{REQUEST}> ss http request
+	 *	@parameter <{DISPLAY_SORTING_FIELDS}> boolean
 	 *	@return search form
 	 */
 
@@ -546,7 +548,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$request = $this->getRequest();
 		}
 
-		// Display the search selection.
+		// Display the search.
 
 		$fields = FieldList::create(
 			TextField::create(
@@ -562,7 +564,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$sorting = ($sorting === 'true');
 		}
 
-		// Determine whether to display form sorting.
+		// Determine whether to display the sorting fields.
 
 		if($sorting) {
 
@@ -610,8 +612,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Retrieve the search form.
+	 *	Instantiate the search form.
 	 *
+	 *	@parameter <{REQUEST}> ss http request
+	 *	@parameter <{DISPLAY_SORTING_FIELDS}> boolean
 	 *	@return search form
 	 */
 
