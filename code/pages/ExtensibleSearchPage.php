@@ -498,24 +498,26 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'SortDirection' => $request->getVar('SortDirection')
 			), $this->getForm($request));
 		}
+		else {
 
-		// Determine the template to use.
+			// Determine the template to use.
 
-		$templates = array(
-			'ExtensibleSearch',
-			'ExtensibleSearchPage',
-			'Page'
-		);
+			$templates = array(
+				'ExtensibleSearch',
+				'ExtensibleSearchPage',
+				'Page'
+			);
 
-		// Determine whether to include search engine extension templates.
+			// Determine whether to include search engine extension templates.
 
-		if($engine !== 'Full-Text') {
-			$templates = array_merge(array(
-				$engine,
-				"{$engine}Page"
-			), $templates);
+			if($engine !== 'Full-Text') {
+				$templates = array_merge(array(
+					$engine,
+					"{$engine}Page"
+				), $templates);
+			}
+			return $this->renderWith($templates);
 		}
-		return $this->renderWith($templates);
 	}
 
 	/**
