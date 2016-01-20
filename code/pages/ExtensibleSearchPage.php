@@ -457,120 +457,164 @@ class ExtensibleSearchPage extends Page {
 
 class ExtensibleSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array(
-		'getForm',
-		'getSearchResults'
-	);
-
 	public $service;
 
 	private static $dependencies = array(
 		'service' => '%$ExtensibleSearchService'
 	);
 
+	private static $allowed_actions = array(
+		'getForm',
+		'getSearchResults'
+	);
+
+	/**
+	 *	Determine whether this page should start with a search listing.
+	 */
+
 	public function index() {
 
-		// Don't allow searching without a valid search engine.
+		// Determine whether a search engine has been selected.
 
 		$engine = $this->data()->SearchEngine;
-		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_null($engine) || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
+		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(!$engine || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($classes) || (count($classes) === 0)))) {
+
+			// The search engine has not been selected.
+
 			return $this->httpError(404);
 		}
 
-		// This default search listing will be displayed when the search page has loaded.
+		// Determine whether this page should start with a search listing.
 
-		if ($this->StartWithListing) {
-			$_GET['SortBy'] = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
-			$_GET['SortDirection'] = isset($_GET['SortDirection']) ? $_GET['SortDirection'] : $this->data()->SortDirection;
+		if($this->data()->StartWithListing) {
 
-			// The default full-text search string to return all results.
+			// Display the default search listing.
 
-			$data = $this->data();
-			$_GET['Search'] = '';
-			return $this->getSearchResults($_GET, $this->getForm());
+			$request = $this->getRequest();
+			return $this->getSearchResults(array(
+				'Search' => $request->getVar('Search'),
+				'SortBy' => $request->getVar('SortBy'),
+				'SortDirection' => $request->getVar('SortDirection')
+			), $this->getForm());
 		}
-		return array();
+
+		// Determine whether to include search engine extension templates.
+
+		if($engine !== 'Full-Text') {
+			$engineTemplates = array(
+				$engine,
+				"{$engine}Page"
+			);
+		}
+		else {
+			$engineTemplates = array();
+		}
+
+		// Determine the template to use.
+
+		return $this->renderWith(array_merge($engineTemplates, array(
+			'ExtensibleSearch',
+			'ExtensibleSearchPage',
+			'Page'
+		)));
 	}
 
+	/**
+	 *	Retrieve the search form.
+	 *
+	 *	@return search form
+	 */
+
 	public function getForm($request = null, $filters = true) {
+
+		// Determine whether a template filter was passed through.
 
 		if(is_string($filters)) {
 			$filters = ($filters === 'true');
 		}
-		// Don't allow searching without a valid search engine.
+
+		// Determine whether a search engine has been selected.
 
 		$engine = $this->data()->SearchEngine;
-		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_null($engine) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
-			return null;
+		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(!$engine || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($classes) || (count($classes) === 0)))) {
+
+			// The search engine has not been selected.
+
+			return $this->httpError(404);
 		}
 
-		// Construct the search form.
+		// Display the search selection.
 
-		$fields = new FieldList(
-			TextField::create('Search', _t('SearchForm.SEARCH', 'Search'), isset($_GET['Search']) ? $_GET['Search'] : '')->addExtraClass('extensible-search search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
+		$fields = FieldList::create(
+			TextField::create(
+				'Search',
+				'Search',
+				$request->getVar('Search')
+			)->addExtraClass('extensible-search search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
-		// When filters have been enabled, display these in the form.
+		// Determine whether to display form filters.
 
 		if($filters) {
-			$objFields = $this->data()->getSelectableFields();
 
-			// Remove content and groups from being sortable (as they are not relevant).
+			// Display the sorting selection.
 
-			unset($objFields['Content']);
-			unset($objFields['Groups']);
-
-			// Remove any custom field types and display the sortable options nicely to the user.
-
-			foreach($objFields as &$field) {
-				if($customType = strpos($field, ':')) {
-					$field = substr($field, 0, $customType);
-				}
-
-				// Add spaces between words, other characters and numbers.
-
-				$field = ltrim(preg_replace(array(
-					'/([A-Z][a-z]+)/',
-					'/([A-Z]{2,})/',
-					'/([_.0-9]+)/'
-				), ' $0', $field));
-			}
-			$sortBy = isset($_GET['SortBy']) ? $_GET['SortBy'] : $this->data()->SortBy;
-			$sorting = array(
-				'DESC' => 'Descending',
-				'ASC' => 'Ascending'
-			);
-			$sortDir = isset($_GET['SortDirection']) ? $_GET['SortDirection'] : $this->data()->SortDirection;
-			$fields->push(new DropdownField('SortBy', _t('ExtensibleSearchPage.SORT_BY', 'Sort By'), $objFields, $sortBy));
-			$fields->push(new DropdownField('SortDirection', _t('ExtensibleSearchPage.SORT_DIR', 'Sort Direction'), $sorting, $sortDir));
+			$by = $request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy;
+			$direction = $request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection;
+			$fields->push(DropdownField::create(
+				'SortBy',
+				'Sort By',
+				$this->data()->getSelectableFields(),
+				$by
+			));
+			$fields->push(DropdownField::create(
+				'SortDirection',
+				'Sort Direction',
+				array(
+					'DESC' => 'Descending',
+					'ASC' => 'Ascending'
+				),
+				$direction
+			));
 		}
 
-		$actions = new FieldList(new FormAction('getSearchResults', _t('SearchForm.GO', 'Search')));
+		// Instantiate the search form.
 
-		$form = new SearchForm($this, 'getForm', $fields, $actions);
-		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_array($searchable) && (count($searchable) > 0)) {
-			$form->classesToSearch($searchable);
+		$form = SearchForm::create(
+			$this,
+			'getForm',
+			$fields,
+			FieldList::create(
+				FormAction::create(
+					'getSearchResults',
+					'Search'
+				)
+			)
+		);
+
+		// When using the full-text search engine, the classes to search needs to be initialised.
+
+		if($engine === 'Full-Text') {
+			$form->classesToSearch($classes);
 		}
-		$form->addExtraClass('searchPageForm');
-		$form->setFormMethod('GET');
-		$form->disableSecurityToken();
 		return $form;
 	}
 
+	/**
+	 *	Retrieve the search form.
+	 *
+	 *	@return search form
+	 */
+
 	public function Form($request = null, $filters = true) {
+
+		// This provides consistency when it comes to defining parameters from the template.
 
 		return $this->getForm($request, $filters);
 	}
 
-	/**
-	 * Process and render search results (taken from @Link ContentControllerSearchExtension with slightly altered parameters).
-	 *
-	 * @param array $data The raw request data submitted by user
-	 * @param SearchForm $form The form instance that was submitted
-	 */
 	public function getSearchResults($data = null, $form = null) {
 
 		// Keep track of the search time taken.
@@ -587,6 +631,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Attempt to retrieve the results for the current search engine extension.
 
+		$templates = array(
+			'ExtensibleSearch_results',
+			'ExtensibleSearchPage_results',
+			'ExtensibleSearch',
+			'ExtensibleSearchPage',
+			'Page_results',
+			'Page'
+		);
 		if(($engine !== 'Full-Text') && $this->extension_instances) {
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === "{$engine}_Controller") {
@@ -597,7 +649,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						$startTime = microtime(true);
 						$customisation = $instance->getSearchResults($data, $form);
-						$output = $this->customise($customisation)->renderWith(array("{$engine}_results", "{$engine}Page_results", 'ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', "{$engine}", "{$engine}Page", 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
+						$engineTemplates = array(
+							"{$engine}_results",
+							"{$engine}Page_results",
+							$engine,
+							"{$engine}Page"
+						);
+						$output = $this->customise($customisation)->renderWith(array_merge($engineTemplates, $templates));
 						$totalTime = microtime(true) - $startTime;
 
 						// Log the details of a user search for analytics.
@@ -614,15 +672,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Fall back to displaying the full-text results.
 
 		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		// these should use what's in $data
-		if(is_null($sort = $this->data()->SortBy)) {
-			$sort = 'Relevance';
-		}
-		$direction = $this->data()->SortDirection;
+		$sort = isset($data['SortBy']) ? $data['SortBy'] : $this->data()->SortBy;
+		$direction = isset($data['SortDirection']) ? $data['SortDirection'] : $this->data()->SortDirection;
 
 		// Apply any site tree restrictions.
 
-		$filter = $this->SearchTrees()->column();
+		$filter = $this->data()->SearchTrees()->column();
 		$page = $this->data();
 		$support = $page::$supports_hierarchy;
 
@@ -681,7 +736,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			'Query' => $form ? $form->getSearchQuery() : null,
 			'Title' => _t('ExtensibleSearchPage.SearchResults', 'Search Results')
 		);
-		$output = $this->customise($customisation)->renderWith(array('ExtensibleSearch_results', 'ExtensibleSearchPage_results', 'Page_results', 'ExtensibleSearch', 'ExtensibleSearchPage', 'Page'));
+		$output = $this->customise($customisation)->renderWith($templates);
 		$totalTime = microtime(true) - $startTime;
 
 		// Log the details of a user search for analytics.
