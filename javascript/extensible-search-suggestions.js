@@ -3,7 +3,7 @@
 
 		// Bind autocomplete to the search form.
 
-		var search = $('input.extensible-search.search');
+		var search = $('input.extensible-search');
 		if(search.length) {
 			search.autocomplete({
 

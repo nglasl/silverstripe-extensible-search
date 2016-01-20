@@ -496,28 +496,26 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'Search' => $request->getVar('Search'),
 				'SortBy' => $request->getVar('SortBy'),
 				'SortDirection' => $request->getVar('SortDirection')
-			), $this->getForm());
-		}
-
-		// Determine whether to include search engine extension templates.
-
-		if($engine !== 'Full-Text') {
-			$engineTemplates = array(
-				$engine,
-				"{$engine}Page"
-			);
-		}
-		else {
-			$engineTemplates = array();
+			), $this->getForm($request));
 		}
 
 		// Determine the template to use.
 
-		return $this->renderWith(array_merge($engineTemplates, array(
+		$templates = array(
 			'ExtensibleSearch',
 			'ExtensibleSearchPage',
 			'Page'
-		)));
+		);
+
+		// Determine whether to include search engine extension templates.
+
+		if($engine !== 'Full-Text') {
+			$templates = array_merge(array(
+				$engine,
+				"{$engine}Page"
+			), $templates);
+		}
+		return $this->renderWith($templates);
 	}
 
 	/**
@@ -526,27 +524,30 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 *	@return search form
 	 */
 
-	public function getForm($request = null, $filters = true) {
-
-		if(is_null($request)) {
-			$request = $this->getRequest();
-		}
-
-		// Determine whether a template filter was passed through.
-
-		if(is_string($filters)) {
-			$filters = ($filters === 'true');
-		}
+	public function getForm($request = null, $sorting = true) {
 
 		// Determine whether a search engine has been selected.
 
 		$engine = $this->data()->SearchEngine;
-		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		$configuration = Config::inst();
+		$classes = $configuration->get('FulltextSearchable', 'searchable_classes');
 		if(!$engine || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($classes) || (count($classes) === 0)))) {
 
 			// The search engine has not been selected.
 
 			return $this->httpError(404);
+		}
+
+		// Determine whether the request has been passed through.
+
+		if(is_null($request)) {
+			$request = $this->getRequest();
+		}
+
+		// Determine whether a template filter has been passed through.
+
+		if(is_string($sorting)) {
+			$sorting = ($sorting === 'true');
 		}
 
 		// Display the search selection.
@@ -556,22 +557,22 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'Search',
 				'Search',
 				$request->getVar('Search')
-			)->addExtraClass('extensible-search search')->setAttribute('data-suggestions-enabled', Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
+			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
 		// Determine whether to display form filters.
 
-		if($filters) {
+		if($sorting) {
 
 			// Display the sorting selection.
 
-			$by = $request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy;
+			$sort = $request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy;
 			$direction = $request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection;
 			$fields->push(DropdownField::create(
 				'SortBy',
 				'Sort By',
 				$this->data()->getSelectableFields(),
-				$by
+				$sort
 			));
 			$fields->push(DropdownField::create(
 				'SortDirection',
@@ -612,11 +613,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 *	@return search form
 	 */
 
-	public function Form($request = null, $filters = true) {
+	public function Form($request = null, $sorting = true) {
 
 		// This provides consistency when it comes to defining parameters from the template.
 
-		return $this->getForm($request, $filters);
+		return $this->getForm($request, $sorting);
 	}
 
 	public function getSearchResults($data = null, $form = null) {
