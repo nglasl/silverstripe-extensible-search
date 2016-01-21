@@ -521,6 +521,45 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
+	 *	Display an error page on invalid request.
+	 *
+	 *	@parameter <{ERROR_CODE}> integer
+	 *	@parameter <{ERROR_MESSAGE}> string
+	 */
+
+	public function httpError($code, $message = null) {
+
+		// Determine the error page for the given status code.
+
+		$errorPages = ErrorPage::get()->filter('ErrorCode', $code);
+
+		// Allow extension customisation.
+
+		$this->extend('updateErrorPages', $errorPages);
+
+		// Retrieve the error page response.
+
+		if($errorPage = $errorPages->first()) {
+			Requirements::clear();
+			Requirements::clear_combined_files();
+			$response = ModelAsController::controller_for($errorPage)->handleRequest(new SS_HTTPRequest('GET', ''), DataModel::inst());
+			throw new SS_HTTPResponse_Exception($response, $code);
+		}
+
+		// Retrieve the cached error page response.
+
+		else if(file_exists($cachedPage = ErrorPage::get_filepath_for_errorcode($code, class_exists('Translatable') ? Translatable::get_current_locale() : null))) {
+			$response = new SS_HTTPResponse();
+			$response->setStatusCode($code);
+			$response->setBody(file_get_contents($cachedPage));
+			throw new SS_HTTPResponse_Exception($response, $code);
+		}
+		else {
+			return parent::httpError($code, $message);
+		}
+	}
+
+	/**
 	 *	Instantiate the search form.
 	 *
 	 *	@parameter <{REQUEST}> ss http request
@@ -539,7 +578,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// The search engine has not been selected.
 
-			return $this->httpError(404);
+			return null;
 		}
 
 		// Determine whether the request has been passed through.
