@@ -441,8 +441,17 @@ class ExtensibleSearchPage extends Page {
 				if(isset($fields['MenuTitle'])) {
 					$selectable['MenuTitle'] = 'Navigation Title';
 				}
+				if(isset($fields['ClassName'])) {
+					$selectable['ClassName'] = 'Type';
+				}
 				if(isset($fields['Sort'])) {
 					$selectable['Sort'] = 'Display Order';
+				}
+
+				// This is specific to file searching.
+
+				if(isset($fields['Name'])) {
+					$selectable['Name'] = 'File Name';
 				}
 			}
 		}
@@ -689,6 +698,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			'Page_results',
 			'Page'
 		);
+		if(!isset($data['Search'])) {
+			$data['Search'] = null;
+		}
 		if(($engine !== 'Full-Text') && $this->extension_instances) {
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === "{$engine}_Controller") {
