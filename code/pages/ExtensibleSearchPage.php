@@ -676,7 +676,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	/**
 	 *	Display the search form results.
 	 *
-	 *	@parameter <{SEARCH_DATA}> array
+	 *	@parameter <{SEARCH_PARAMETERS}> array
 	 *	@parameter <{SEARCH_FORM}> search form
 	 *	@return html text
 	 */
