@@ -673,6 +673,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		return $this->getForm($request, $sorting);
 	}
 
+	/**
+	 *	Display the search form results.
+	 *
+	 *	@parameter <{SEARCH_DATA}> array
+	 *	@parameter <{SEARCH_FORM}> search form
+	 *	@return html text
+	 */
+
 	public function getSearchResults($data = null, $form = null) {
 
 		// Keep track of the search time taken.
