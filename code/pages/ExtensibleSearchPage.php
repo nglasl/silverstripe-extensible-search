@@ -7,17 +7,12 @@
 
 class ExtensibleSearchPage extends Page {
 
-	/**
-	 *	The listing template relationship is manually defined, as the listing page module may not be present.
-	 */
-
 	private static $db = array(
 		'SearchEngine' => 'Varchar(255)',
 		'SortBy' => 'Varchar(255)',
 		'SortDirection' => "Enum('DESC, ASC', 'DESC')",
 		'StartWithListing' => 'Boolean',
-		'ResultsPerPage' => 'Int',
-		'ListingTemplateID' => 'Int'
+		'ResultsPerPage' => 'Int'
 	);
 
 	private static $defaults = array(
@@ -221,16 +216,6 @@ class ExtensibleSearchPage extends Page {
 			$fields->addFieldToTab('Root.Main', NumericField::create(
 				'ResultsPerPage'
 			), 'Content');
-
-			// Display the listing template selection, when the listing page module is present.
-
-			if(ClassInfo::exists('ListingTemplate')) {
-				$fields->addFieldToTab('Root.Main', DropdownField::create(
-					'ListingTemplateID',
-					'Listing Template',
-					ListingTemplate::get()->map()
-				)->setHasEmptyDefault(true), 'Content');
-			}
 		}
 		else {
 
@@ -683,136 +668,152 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function getSearchResults($data = null, $form = null) {
 
-		// Keep track of the search time taken.
+		// Determine whether a search engine has been selected.
 
-		$startTime = microtime(true);
+		$page = $this->data();
+		$engine = $page->SearchEngine;
+		$classes = Config::inst()->get('FulltextSearchable', 'searchable_classes');
+		if(!$engine || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($classes) || (count($classes) === 0)))) {
 
-		// Don't allow searching without a valid search engine.
+			// The search engine has not been selected.
 
-		$engine = $this->data()->SearchEngine;
-		$fulltext = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		if(is_null($engine) || (($engine !== 'Full-Text') && !ClassInfo::exists($engine)) || (($engine === 'Full-Text') && (!is_array($fulltext) || (count($fulltext) === 0)))) {
 			return $this->httpError(404);
 		}
 
-		// Attempt to retrieve the results for the current search engine extension.
+		// The analytics require time taken.
 
-		$templates = array(
-			'ExtensibleSearch_results',
-			'ExtensibleSearchPage_results',
-			'ExtensibleSearch',
-			'ExtensibleSearchPage',
-			'Page_results',
-			'Page'
-		);
+		$startTime = microtime(true);
+
+		// Determine whether the search parameters have been passed through.
+
 		if(!isset($data['Search'])) {
 			$data['Search'] = null;
 		}
-		if(($engine !== 'Full-Text') && $this->extension_instances) {
+		if(!isset($data['SortBy'])) {
+			$data['SortBy'] = $page->SortBy;
+		}
+		if(!isset($data['SortDirection'])) {
+			$data['SortDirection'] = $page->SortDirection;
+		}
+		if(!isset($form)) {
+			$this->getForm($this->getRequest());
+		}
+
+		// Instantiate some default templates.
+
+		$templates = array(
+			'ExtensibleSearch',
+			'ExtensibleSearchPage',
+			'Page'
+		);
+
+		// Determine the search engine that has been selected.
+
+		if($engine !== 'Full-Text') {
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === "{$engine}_Controller") {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSearchResults')) {
 
-						// Keep track of the search time taken, for the current search engine extension.
+						// The analytics require search engine specific time taken.
 
 						$startTime = microtime(true);
-						$customisation = $instance->getSearchResults($data, $form);
-						$engineTemplates = array(
-							"{$engine}_results",
-							"{$engine}Page_results",
-							$engine,
-							"{$engine}Page"
-						);
-						$output = $this->customise($customisation)->renderWith(array_merge($engineTemplates, $templates));
-						$totalTime = microtime(true) - $startTime;
 
-						// Log the details of a user search for analytics.
+						// Determine the search results.
 
-						$this->service->logSearch($data['Search'], (isset($customisation['Results']) && ($results = $customisation['Results'])) ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
-						return $output;
+						$parameters = $instance->getSearchResults($data, $form);
 					}
 					$instance->clearOwner();
 					break;
 				}
 			}
+
+			// Determine the number of results.
+
+			$count = (isset($parameters['Results']) && ($results = $parameters['Results'])) ? count($results) : 0;
+
+			// Determine the template to use.
+
+			$templates = array_merge(array(
+				"{$engine}_results",
+				"{$engine}Page_results",
+				'ExtensibleSearch_results',
+				'ExtensibleSearchPage_results',
+				'Page_results',
+				$engine,
+				"{$engine}Page"
+			), $templates);
 		}
+		else {
 
-		// Fall back to displaying the full-text results.
+			// This is required so we can sort and filter the paginated list that comes back.
 
-		$searchable = Config::inst()->get('FulltextSearchable', 'searchable_classes');
-		$sort = isset($data['SortBy']) ? $data['SortBy'] : $this->data()->SortBy;
-		$direction = isset($data['SortDirection']) ? $data['SortDirection'] : $this->data()->SortDirection;
+			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+			$_GET['start'] = 0;
 
-		// Apply any site tree restrictions.
+			// Determine the full-text search results.
 
-		$filter = $this->data()->SearchTrees()->column();
-		$page = $this->data();
-		$support = $page::$supports_hierarchy;
+			$results = $form->getResults(null, $data);
 
-		// Determine whether the current engine/wrapper supports hierarchy.
+			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
 
-		if(($this->data()->SearchEngine !== 'Full-Text') && $this->data()->extension_instances) {
-			$engine = $this->data()->SearchEngine;
-			foreach($this->data()->extension_instances as $instance) {
-				if((get_class($instance) === $engine)) {
-					$instance->setOwner($this->data());
-					if(isset($instance::$supports_hierarchy)) {
-						$support = $instance::$supports_hierarchy;
-					}
-					$instance->clearOwner();
-					break;
-				}
+			$list = $results->getList();
+
+			// Determine whether the search engine supports hierarchy filtering.
+
+			$filter = $page->SearchTrees()->column();
+			$hierarchy = $page::$supports_hierarchy;
+
+			// The search engine may only support limited hierarchy filtering for multiple sites.
+
+			if(count($filter) && ($hierarchy || ClassInfo::exists('Multisites'))) {
+
+				// Apply the search tree filtering.
+
+				$list = $list->filter($hierarchy ? 'ParentID' : 'SiteID', $filter);
 			}
-		}
-		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-		$_GET['start'] = 0;
-		$results = (is_array($searchable) && (count($searchable) > 0) && $form) ? $form->getResults(null, $data) : null;
 
-		// Apply filters, sorting, and correct the permissions.
+			// Apply the sorting.
 
-		if($results) {
-			$items = $results->getList();
-			if(count($filter) && ($support || ClassInfo::exists('Multisites'))) {
-				$items = $items->filter($support ? 'ParentID' : 'SiteID', $filter);
-			}
-			$items = $items->sort("{$sort} {$direction}");
+			$sort = isset($data['SortBy']) ? $data['SortBy'] : $page->SortBy;
+			$direction = isset($data['SortDirection']) ? $data['SortDirection'] : $page->SortDirection;
+			$list = $list->sort("{$sort} {$direction}");
+
+			// The paginated list needs to be created again.
+
 			$results = PaginatedList::create(
-				$items
+				$list
 			);
 			$results->setPageStart($start);
-			$results->setPageLength($this->data()->ResultsPerPage);
-			$results->setTotalItems(count($items));
+			$results->setPageLength($page->ResultsPerPage);
+			$results->setTotalItems($count = $list->count());
 			$results->setLimitItems(true);
+
+			// Render everything into the search page template.
+
+			$parameters = array(
+				'Results' => $results,
+				'Query' => $form ? $form->getSearchQuery() : null,
+				'Title' => 'Search Results'
+			);
+
+			// Determine the template to use.
+
+			$templates = array_merge(array(
+				'ExtensibleSearch_results',
+				'ExtensibleSearchPage_results',
+				'Page_results'
+			), $templates);
 		}
 
-		// Render the full-text results using a listing template where defined.
-		// should probably check that listing template still exists at this point
+		// Display the search form results.
 
-		if($this->data()->ListingTemplateID && $results) {
-			$template = DataObject::get_by_id('ListingTemplate', $this->data()->ListingTemplateID);
-			if($template && $template->exists()) {
-				$render = $this->customise(array(
-					'Items' => $results
-				));
-				$viewer = SSViewer::fromString($template->ItemTemplate);
-				$results = $viewer->process($render);
-			}
-		}
+		$output = $this->customise($parameters)->renderWith($templates);
 
-		// Render everything into the search page template.
+		// Update the search page specific analytics.
 
-		$customisation = array(
-			'Results' => $results,
-			'Query' => $form ? $form->getSearchQuery() : null,
-			'Title' => 'Search Results'
-		);
-		$output = $this->customise($customisation)->renderWith($templates);
-		$totalTime = microtime(true) - $startTime;
-
-		// Log the details of a user search for analytics.
-
-		$this->service->logSearch($data['Search'], $results ? count($results) : 0, $totalTime, $engine, $this->data()->ID);
+		$time = microtime(true) - $startTime;
+		$this->service->logSearch($data['Search'], $count, $time, $engine, $page->ID);
 		return $output;
 	}
 

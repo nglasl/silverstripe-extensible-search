@@ -98,22 +98,6 @@ Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search
 
 Custom templating may be defined through your search wrapper, however the default templating for the full-text search is either `ExtensibleSearchPage_results` or `Page_results`.
 
-#### Listing Template
-
-If you have created a custom listing template for your results, you will need something like the following in your search page template.
-
-```
-<% if $ListingTemplateID %>
-	$Results
-<% else %>
-	<% loop $Results %>
-		...
-	<% end_loop %>
-<% end_if %>
-```
-
-This listing template will require looping through the `$Items` variable.
-
 ## To Do
 
 * Implement additional support for the default full-text search.
