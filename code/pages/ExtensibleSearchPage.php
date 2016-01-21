@@ -406,7 +406,8 @@ class ExtensibleSearchPage extends Page {
 
 		$selectable = array(
 			'LastEdited' => 'Last Edited',
-			'ID' => 'Created'
+			'ID' => 'Created',
+			'ClassName' => 'Type'
 		);
 
 		// Determine the search engine that has been selected.
@@ -440,9 +441,6 @@ class ExtensibleSearchPage extends Page {
 				}
 				if(isset($fields['MenuTitle'])) {
 					$selectable['MenuTitle'] = 'Navigation Title';
-				}
-				if(isset($fields['ClassName'])) {
-					$selectable['ClassName'] = 'Type';
 				}
 				if(isset($fields['Sort'])) {
 					$selectable['Sort'] = 'Display Order';
