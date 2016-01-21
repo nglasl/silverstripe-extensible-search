@@ -496,7 +496,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		if($this->data()->StartWithListing) {
 
-			// Display the search results.
+			// Display some search results.
 
 			$request = $this->getRequest();
 			return $this->getSearchResults(array(
@@ -507,7 +507,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 		else {
 
-			// Determine the template to use.
+			// Instantiate some default templates.
 
 			$templates = array(
 				'ExtensibleSearch',
@@ -515,7 +515,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'Page'
 			);
 
-			// Determine whether to include search engine extension templates.
+			// Determine the search engine specific templates.
 
 			if($engine !== 'Full-Text') {
 				$templates = array_merge(array(
@@ -523,6 +523,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 					"{$engine}Page"
 				), $templates);
 			}
+
+			// Determine the template to use.
+
 			return $this->renderWith($templates);
 		}
 	}
@@ -604,13 +607,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
 
-		// Determine whether a template filter has been passed through.
+		// Determine whether sorting has been passed through from the template.
 
 		if(is_string($sorting)) {
 			$sorting = ($sorting === 'true');
 		}
 
-		// Determine whether to display the sorting fields.
+		// Determine whether to display the sorting selection.
 
 		if($sorting) {
 
