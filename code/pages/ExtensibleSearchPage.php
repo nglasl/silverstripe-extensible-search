@@ -515,7 +515,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'Page'
 			);
 
-			// Determine the search engine specific templates.
+			// Instantiate the search engine specific templates.
 
 			if($engine !== 'Full-Text') {
 				$templates = array_merge(array(
@@ -573,7 +573,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 *	Instantiate the search form.
 	 *
 	 *	@parameter <{REQUEST}> ss http request
-	 *	@parameter <{DISPLAY_SORTING_FIELDS}> boolean
+	 *	@parameter <{DISPLAY_SORTING}> boolean
 	 *	@return search form
 	 */
 
@@ -619,13 +619,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Display the sorting selection.
 
-			$sort = $request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy;
-			$direction = $request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection;
 			$fields->push(DropdownField::create(
 				'SortBy',
 				'Sort By',
 				$this->data()->getSelectableFields(),
-				$sort
+				$request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy
 			));
 			$fields->push(DropdownField::create(
 				'SortDirection',
@@ -634,7 +632,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 					'DESC' => 'Descending',
 					'ASC' => 'Ascending'
 				),
-				$direction
+				$request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection
 			));
 		}
 
@@ -664,7 +662,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	 *	Instantiate the search form.
 	 *
 	 *	@parameter <{REQUEST}> ss http request
-	 *	@parameter <{DISPLAY_SORTING_FIELDS}> boolean
+	 *	@parameter <{DISPLAY_SORTING}> boolean
 	 *	@return search form
 	 */
 
