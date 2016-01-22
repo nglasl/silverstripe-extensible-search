@@ -682,7 +682,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// The analytics require time taken.
 
-		$startTime = microtime(true);
+		$time = microtime(true);
 
 		// Determine whether the search parameters have been passed through.
 
@@ -722,7 +722,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						// The analytics require search engine specific time taken.
 
-						$startTime = microtime(true);
+						$time = microtime(true);
 						$parameters = $instance->getSearchResults($data, $form);
 					}
 					$instance->clearOwner();
@@ -732,7 +732,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the number of results.
 
-			$count = (isset($parameters['Results']) && ($results = $parameters['Results'])) ? count($results) : 0;
+			$count = (isset($parameters['Results']) && ($results = $parameters['Results'])) ? count($results) : count($parameters);
 
 			// Determine the template to use.
 
@@ -797,8 +797,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Update the search page specific analytics.
 
-		$time = microtime(true) - $startTime;
-		$this->service->logSearch($data['Search'], $count, $time, $engine, $page->ID);
+		$this->service->logSearch($data['Search'], $count, microtime(true) - $time, $engine, $page->ID);
 
 		// Display the search form results.
 
