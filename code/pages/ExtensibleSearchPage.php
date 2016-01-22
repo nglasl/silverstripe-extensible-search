@@ -687,7 +687,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Determine whether the search parameters have been passed through.
 
 		if(!isset($data['Search'])) {
-			$data['Search'] = null;
+			$data['Search'] = '';
 		}
 		if(!isset($data['SortBy'])) {
 			$data['SortBy'] = $page->SortBy;
@@ -695,8 +695,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if(!isset($data['SortDirection'])) {
 			$data['SortDirection'] = $page->SortDirection;
 		}
+		$request = $this->getRequest();
 		if(!isset($form)) {
-			$this->getForm($this->getRequest());
+			$this->getForm($request);
 		}
 
 		// Instantiate some default templates.
@@ -755,7 +756,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
 
-			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+			$start = $request->getVar('start') ? (int)$request->getVar('start') : 0;
 			$_GET['start'] = 0;
 
 			// Determine the full-text search results.
