@@ -714,7 +714,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the search results.
 
-			$parameters = array(
+			$results = array(
 				'Results' => null
 			);
 			foreach($this->extension_instances as $instance) {
@@ -725,13 +725,13 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 						// The analytics require search engine specific time taken.
 
 						$time = microtime(true);
-						$parameters = $instance->getSearchResults($data, $form);
+						$results = $instance->getSearchResults($data, $form);
 
 						// The format needs to be correct.
 
-						if(!isset($parameters['Results'])) {
-							$parameters = array(
-								'Results' => $parameters
+						if(!isset($results['Results'])) {
+							$results = array(
+								'Results' => $results
 							);
 						}
 					}
@@ -742,7 +742,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the number of results.
 
-			$count = isset($parameters['Count']) ? (int)$parameters['Count'] : count($parameters['Results']);
+			$count = isset($results['Count']) ? (int)$results['Count'] : count($results['Results']);
 
 			// Determine the template to use.
 
@@ -765,8 +765,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the full-text search results.
 
-			$results = $form->getResults(-1, $data);
-			$list = $results->getList();
+			$list = $form->getResults(-1, $data)->getList();
 
 			// The search engine may only support limited hierarchy filtering for multiple sites.
 
@@ -784,7 +783,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// The paginated list needs to be created again.
 
-			$parameters = array(
+			$results = array(
 				'Title' => 'Search Results',
 				'Query' => $form->getSearchQuery($data),
 				'Results' => PaginatedList::create(
@@ -803,7 +802,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Determine the template to use.
 
-		$output = $this->customise($parameters)->renderWith($templates);
+		$output = $this->customise($results)->renderWith($templates);
 
 		// Update the search page specific analytics.
 
