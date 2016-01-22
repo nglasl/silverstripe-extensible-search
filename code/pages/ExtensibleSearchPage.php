@@ -723,9 +723,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 						// The analytics require search engine specific time taken.
 
 						$startTime = microtime(true);
-
-						// Determine the search results and template parameters.
-
 						$parameters = $instance->getSearchResults($data, $form);
 					}
 					$instance->clearOwner();
@@ -749,9 +746,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				"{$engine}Page"
 			), $templates);
 		}
-
-		// The full-text search results.
-
 		else {
 
 			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
@@ -764,14 +758,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$results = $form->getResults(null, $data);
 			$list = $results->getList();
 
-			// Determine whether the search engine supports hierarchy filtering.
-
-			$filter = $page->SearchTrees()->column();
-			$hierarchy = $page::$supports_hierarchy;
-
 			// The search engine may only support limited hierarchy filtering for multiple sites.
 
-			if(count($filter) && ($hierarchy || ClassInfo::exists('Multisites'))) {
+			$filter = $page->SearchTrees()->column();
+			if(count($filter) && (($hierarchy = $page::$supports_hierarchy) || ClassInfo::exists('Multisites'))) {
 
 				// Apply the search tree filtering.
 
@@ -784,16 +774,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// The paginated list needs to be created again.
 
-			$results = PaginatedList::create(
-				$list
-			)->setLimitItems(true)->setTotalItems($count = $list->count())->setPageLength($page->ResultsPerPage)->setPageStart($start);
-
-			// Determine template parameters.
-
 			$parameters = array(
 				'Title' => 'Search Results',
 				'Query' => $form->getSearchQuery(),
-				'Results' => $results
+				'Results' => PaginatedList::create(
+					$list
+				)->setLimitItems(true)->setTotalItems($count = $list->count())->setPageLength($page->ResultsPerPage)->setPageStart($start)
 			);
 
 			// Determine the template to use.
@@ -805,7 +791,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			), $templates);
 		}
 
-		// Display the search form results.
+		// Determine the template to use.
 
 		$output = $this->customise($parameters)->renderWith($templates);
 
@@ -813,6 +799,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$time = microtime(true) - $startTime;
 		$this->service->logSearch($data['Search'], $count, $time, $engine, $page->ID);
+
+		// Display the search form results.
+
 		return $output;
 	}
 
