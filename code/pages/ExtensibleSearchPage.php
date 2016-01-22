@@ -714,7 +714,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the search results.
 
-			$parameters = array();
+			$parameters = array(
+				'Results' => null
+			);
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === "{$engine}_Controller") {
 					$instance->setOwner($this);
@@ -724,6 +726,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						$time = microtime(true);
 						$parameters = $instance->getSearchResults($data, $form);
+
+						// The format needs to be correct.
+
+						if(!isset($parameters['Results'])) {
+							$parameters = array(
+								'Results' => $parameters
+							);
+						}
 					}
 					$instance->clearOwner();
 					break;
@@ -732,7 +742,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the number of results.
 
-			$count = (isset($parameters['Results']) && ($results = $parameters['Results'])) ? count($results) : count($parameters);
+			$count = isset($parameters['Count']) ? (int)$parameters['Count'] : count($parameters['Results']);
 
 			// Determine the template to use.
 
@@ -755,7 +765,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the full-text search results.
 
-			$results = $form->getResults(null, $data);
+			$results = $form->getResults(-1, $data);
 			$list = $results->getList();
 
 			// The search engine may only support limited hierarchy filtering for multiple sites.
@@ -776,10 +786,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$parameters = array(
 				'Title' => 'Search Results',
-				'Query' => $form->getSearchQuery(),
+				'Query' => $form->getSearchQuery($data),
 				'Results' => PaginatedList::create(
 					$list
-				)->setLimitItems(true)->setTotalItems($count = $list->count())->setPageLength($page->ResultsPerPage)->setPageStart($start)
+				)->setPageLength($page->ResultsPerPage)->setPageStart($start)->setTotalItems($count = $list->count())
 			);
 
 			// Determine the template to use.
