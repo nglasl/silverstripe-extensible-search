@@ -710,6 +710,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// Determine the search engine that has been selected.
 
 		if($engine !== 'Full-Text') {
+
+			// Determine the search results.
+
+			$parameters = array();
 			foreach($this->extension_instances as $instance) {
 				if(get_class($instance) === "{$engine}_Controller") {
 					$instance->setOwner($this);
@@ -719,7 +723,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 						$startTime = microtime(true);
 
-						// Determine the search results.
+						// Determine the search results and template parameters.
 
 						$parameters = $instance->getSearchResults($data, $form);
 					}
@@ -744,9 +748,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				"{$engine}Page"
 			), $templates);
 		}
+
+		// The full-text search results.
+
 		else {
 
-			// This is required so we can sort and filter the paginated list that comes back.
+			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
 
 			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 			$_GET['start'] = 0;
@@ -754,9 +761,6 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// Determine the full-text search results.
 
 			$results = $form->getResults(null, $data);
-
-			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
-
 			$list = $results->getList();
 
 			// Determine whether the search engine supports hierarchy filtering.
@@ -775,26 +779,20 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Apply the sorting.
 
-			$sort = isset($data['SortBy']) ? $data['SortBy'] : $page->SortBy;
-			$direction = isset($data['SortDirection']) ? $data['SortDirection'] : $page->SortDirection;
-			$list = $list->sort("{$sort} {$direction}");
+			$list = $list->sort("{$data['SortBy']} {$data['SortDirection']}");
 
 			// The paginated list needs to be created again.
 
 			$results = PaginatedList::create(
 				$list
-			);
-			$results->setPageStart($start);
-			$results->setPageLength($page->ResultsPerPage);
-			$results->setTotalItems($count = $list->count());
-			$results->setLimitItems(true);
+			)->setLimitItems(true)->setTotalItems($count = $list->count())->setPageLength($page->ResultsPerPage)->setPageStart($start);
 
-			// Render everything into the search page template.
+			// Determine template parameters.
 
 			$parameters = array(
-				'Results' => $results,
-				'Query' => $form ? $form->getSearchQuery() : null,
-				'Title' => 'Search Results'
+				'Title' => 'Search Results',
+				'Query' => $form->getSearchQuery(),
+				'Results' => $results
 			);
 
 			// Determine the template to use.
