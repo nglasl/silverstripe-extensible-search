@@ -26,7 +26,7 @@ class ExtensibleSearch extends DataObject {
 		'Term' => 'Search Term',
 		'TimeTakenSummary' => 'Time Taken (s)',
 		'Results' => 'Results',
-		'SearchEngine' => 'Search Engine'
+		'SearchEngineSummary' => 'Search Engine'
 	);
 
 	/**
@@ -55,6 +55,18 @@ class ExtensibleSearch extends DataObject {
 	public function getTimeTakenSummary() {
 
 		return round($this->Time, 5);
+	}
+
+	/**
+	 *	Retrieve the search engine for display purposes.
+	 *
+	 *	@return string
+	 */
+
+	public function getSearchEngineSummary() {
+
+		$configuration = Config::inst()->get('ExtensibleSearchPage', 'search_engine_extensions');
+		return isset($configuration[$this->SearchEngine]) ? $configuration[$this->SearchEngine] : $this->SearchEngine;
 	}
 
 }

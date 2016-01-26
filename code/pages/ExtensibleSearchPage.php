@@ -307,7 +307,8 @@ class ExtensibleSearchPage extends Page {
 
 			$historyConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
 				'TimeSummary' => 'Created',
-				'TimeTakenSummary' => 'Time'
+				'TimeTakenSummary' => 'Time',
+				'SearchEngineSummary' => 'SearchEngine'
 			));
 			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
 		}
