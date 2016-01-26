@@ -758,7 +758,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 		else {
 
-			// The paginated list needs to be manipulated, as filtering and sorting is not possible otherwise.
+			// The full-text paginated list needs to be manipulated, as filtering and sorting is not possible otherwise.
 
 			$start = $request->getVar('start') ? (int)$request->getVar('start') : 0;
 			$_GET['start'] = 0;
@@ -781,7 +781,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$list = $list->sort("{$data['SortBy']} {$data['SortDirection']}");
 
-			// The paginated list needs to be instantiated again.
+			// The full-text paginated list needs to be instantiated again.
 
 			$results = array(
 				'Title' => 'Search Results',
