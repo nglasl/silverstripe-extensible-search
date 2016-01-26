@@ -756,15 +756,15 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				"{$engine}Page"
 			), $templates);
 		}
+
+		// Determine the full-text specific search results.
+
 		else {
 
-			// The full-text paginated list needs to be manipulated, as filtering and sorting is not possible otherwise.
+			// The paginated list needs to be manipulated, as filtering and sorting is not possible otherwise.
 
 			$start = $request->getVar('start') ? (int)$request->getVar('start') : 0;
 			$_GET['start'] = 0;
-
-			// Determine the full-text specific search results.
-
 			$list = $form->getResults(-1, $data)->getList();
 
 			// The search engine may only support limited hierarchy filtering for multiple sites.
@@ -781,7 +781,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$list = $list->sort("{$data['SortBy']} {$data['SortDirection']}");
 
-			// The full-text paginated list needs to be instantiated again.
+			// The paginated list needs to be instantiated again.
 
 			$results = array(
 				'Title' => 'Search Results',
