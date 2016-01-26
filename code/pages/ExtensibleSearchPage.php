@@ -680,11 +680,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			return $this->httpError(404);
 		}
 
-		// The analytics require time taken.
+		// The analytics require the time taken.
 
 		$time = microtime(true);
 
-		// Determine whether the search parameters have been passed through.
+		// Determine whether search parameters have been passed through.
 
 		if(!isset($data['Search'])) {
 			$data['Search'] = '';
@@ -712,7 +712,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		if($engine !== 'Full-Text') {
 
-			// Determine the search results.
+			// Determine the search engine specific search results.
 
 			$results = array(
 				'Results' => null
@@ -722,12 +722,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 					$instance->setOwner($this);
 					if(method_exists($instance, 'getSearchResults')) {
 
-						// The analytics require search engine specific time taken.
+						// The analytics require the time taken.
 
 						$time = microtime(true);
 						$results = $instance->getSearchResults($data, $form);
 
-						// The format needs to be correct.
+						// The search results format needs to be correct.
 
 						if(!isset($results['Results'])) {
 							$results = array(
@@ -740,11 +740,11 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				}
 			}
 
-			// Determine the number of results.
+			// Determine the number of search results.
 
 			$count = isset($results['Count']) ? (int)$results['Count'] : count($results['Results']);
 
-			// Determine the template to use.
+			// Instantiate the search engine specific templates.
 
 			$templates = array_merge(array(
 				"{$engine}_results",
@@ -758,12 +758,12 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 		else {
 
-			// The paginated list needs to be manipulated, as sorting and filtering is not possible otherwise.
+			// The paginated list needs to be manipulated, as filtering and sorting is not possible otherwise.
 
 			$start = $request->getVar('start') ? (int)$request->getVar('start') : 0;
 			$_GET['start'] = 0;
 
-			// Determine the full-text search results.
+			// Determine the full-text specific search results.
 
 			$list = $form->getResults(-1, $data)->getList();
 
@@ -772,7 +772,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$filter = $page->SearchTrees()->column();
 			if(count($filter) && (($hierarchy = $page::$supports_hierarchy) || ClassInfo::exists('Multisites'))) {
 
-				// Apply the search tree filtering.
+				// Apply the search trees filtering.
 
 				$list = $list->filter($hierarchy ? 'ParentID' : 'SiteID', $filter);
 			}
@@ -781,7 +781,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$list = $list->sort("{$data['SortBy']} {$data['SortDirection']}");
 
-			// The paginated list needs to be created again.
+			// The paginated list needs to be instantiated again.
 
 			$results = array(
 				'Title' => 'Search Results',
@@ -791,7 +791,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				)->setPageLength($page->ResultsPerPage)->setPageStart($start)->setTotalItems($count = $list->count())
 			);
 
-			// Determine the template to use.
+			// Instantiate the full-text specific templates.
 
 			$templates = array_merge(array(
 				'ExtensibleSearch_results',
