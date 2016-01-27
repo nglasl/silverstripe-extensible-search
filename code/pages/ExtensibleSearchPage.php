@@ -766,7 +766,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$start = $request->getVar('start') ? (int)$request->getVar('start') : 0;
 			$_GET['start'] = 0;
-			$list = $form->getResults(-1, $data)->getList();
+			$list = $form->getResults(PHP_INT_MAX, $data)->getList();
 
 			// The search engine may only support limited hierarchy filtering for multiple sites.
 

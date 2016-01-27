@@ -1,6 +1,6 @@
 # [extensible-search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **2.0.1**_
+_The current release is **2.0.2**_
 
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
@@ -56,6 +56,8 @@ Page_Controller:
 
 The search form may now be retrieved from a template using `$SearchForm`.
 
+It should also be highlighted that unfortunately full-text doe **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
+
 ### Custom Search Wrappers
 
 These will need to be created as an extension applied to `ExtensibleSearchPage`, and explicitly defined under the `search_engine_extensions` using YAML. The `ExtensibleSearchPage_Controller` will also require an extension so the search results can be retrieved for your search engine correctly. When the one class has been added to `search_engine_extensions` (pretty titles can be defined using array syntax), and the two extensions applied, your search engine will appear as a selection.
@@ -64,11 +66,15 @@ https://github.com/nyeholt/silverstripe-solr
 
 #### Customisation
 
+##### Model Extension
+
+If your search wrapper supports filtering based upon page hierarchy (`ParentID` as opposed to just `SiteID`), the `supports_hierarchy` flag can be set.
+
+It is also possible to define the `getSelectableFields` function if you wish to customise what fields are returned to an end user, such as when selecting a field to sort by.
+
+##### Controller Extension
+
 To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
-
-DB field support may be defined using the `$support` class variable on your extension, an example being that your search wrapper does not support faceting.
-
-To allow full customisation of your custom search wrapper from the CMS, the `updateSource`, `getQueryBuilders` and `getSelectableFields` methods may need be implemented. Hopefully these will be updated further down the track to remove such a dependency.
 
 ### Search Analytics
 
@@ -96,10 +102,4 @@ Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search
 
 ### Templating
 
-Custom templating may be defined through your search wrapper, however the default templating for the full-text search is either `ExtensibleSearchPage_results` or `Page_results`.
-
-## To Do
-
-* Implement additional support for the default full-text search.
-* Look into creating alternate search wrapper modules.
-* Look into using search wrapper suggestions.
+The templating used is based upon the search engine selection, falling back to `ExtensibleSearch_results`, `ExtensibleSearchPage_results` and `Page_results`.
