@@ -670,7 +670,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	public function getSearchForm($request = null, $sorting = true) {
 
-		// This provides consistency when it comes to defining parameters from the template.
+		// When the search form is displayed twice, this prevents a duplicate element ID.
 
 		$form = $this->getForm($request, $sorting);
 		$form->setName('getSearchForm');
