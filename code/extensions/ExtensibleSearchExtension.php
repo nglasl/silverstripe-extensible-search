@@ -61,7 +61,7 @@ class ExtensibleSearchExtension extends Extension {
 
 		// Retrieve the search form input, excluding any filters.
 
-		$form = ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getForm(null, false) : null;
+		$form = ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getSearchForm(null, false) : null;
 
 		// Update the search input to account for usability.
 

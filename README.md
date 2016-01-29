@@ -14,7 +14,7 @@ https://github.com/nyeholt/silverstripe-solr
 
 ## Requirement
 
-* SilverStripe 3.1.X
+* SilverStripe 3.2.X
 
 ## Getting Started
 
@@ -56,7 +56,7 @@ Page_Controller:
 
 The search form may now be retrieved from a template using `$SearchForm`.
 
-It should also be highlighted that unfortunately full-text doe **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
+It should also be highlighted that unfortunately full-text does **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
 
 ### Custom Search Wrappers
 

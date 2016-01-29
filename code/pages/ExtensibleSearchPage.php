@@ -234,7 +234,7 @@ class ExtensibleSearchPage extends Page {
 			// Determine the search page specific analytics.
 
 			$history = $this->History();
-			$query = new SQLQuery(
+			$query = new SQLSelect(
 				"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
 				'ExtensibleSearch',
 				"ExtensibleSearchPageID = {$this->ID}",
@@ -458,6 +458,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
 		'getForm',
+		'getSearchForm',
 		'getSearchResults'
 	);
 
@@ -610,7 +611,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				'Sort By',
 				$this->data()->getSelectableFields(),
 				$request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy
-			));
+			)->setHasEmptyDefault(true));
 			$fields->push(DropdownField::create(
 				'SortDirection',
 				'Sort Direction',
@@ -619,7 +620,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 					'ASC' => 'Ascending'
 				),
 				$request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection
-			));
+			)->setHasEmptyDefault(true));
 		}
 
 		// Instantiate the search form.
@@ -660,6 +661,23 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
+	 *	Instantiate the search form.
+	 *
+	 *	@parameter <{REQUEST}> ss http request
+	 *	@parameter <{DISPLAY_SORTING}> boolean
+	 *	@return search form
+	 */
+
+	public function getSearchForm($request = null, $sorting = true) {
+
+		// This provides consistency when it comes to defining parameters from the template.
+
+		$form = $this->getForm($request, $sorting);
+		$form->setName('getSearchForm');
+		return $form;
+	}
+
+	/**
 	 *	Display the search form results.
 	 *
 	 *	@parameter <{SEARCH_PARAMETERS}> array
@@ -690,10 +708,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if(!isset($data['Search'])) {
 			$data['Search'] = '';
 		}
-		if(!isset($data['SortBy'])) {
+		if(!isset($data['SortBy']) || !$data['SortBy']) {
 			$data['SortBy'] = $page->SortBy;
 		}
-		if(!isset($data['SortDirection'])) {
+		if(!isset($data['SortDirection']) || !$data['SortDirection']) {
 			$data['SortDirection'] = $page->SortDirection;
 		}
 		$request = $this->getRequest();

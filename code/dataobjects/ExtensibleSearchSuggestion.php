@@ -148,7 +148,11 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		if($result->valid() && (strlen($this->Term) < 3)) {
 			$result->error('Minimum autocomplete length required!');
 		}
-		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', "ID != " . (int)$this->ID . " AND Term = '" . Convert::raw2sql($this->Term) . "' AND ExtensibleSearchPageID = " . (int)$this->ExtensibleSearchPageID)) {
+		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', array(
+			'ID != ?' => $this->ID,
+			'Term = ?' => $this->Term,
+			'ExtensibleSearchPageID = ?' => $this->ExtensibleSearchPageID
+		))) {
 			$result->error('Suggestion already exists!');
 		}
 		return $result;
