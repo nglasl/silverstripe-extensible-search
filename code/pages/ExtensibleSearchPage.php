@@ -673,7 +673,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		// When the search form is displayed twice, this prevents a duplicate element ID.
 
 		$form = $this->getForm($request, $sorting);
-		$form->setName('getSearchForm');
+		if($form) {
+			$form->setName('getSearchForm');
+		}
 		return $form;
 	}
 
