@@ -14,8 +14,8 @@
 		"email": "nathan@silverstripe.com.au"
 	}],
 	"require": {
-		"silverstripe/cms": "3.2.*",
-		"silverstripe/framework": "3.2.*"
+		"silverstripe/cms": "~3.2",
+		"silverstripe/framework": "~3.2"
 	},
 	"extra": {
 		"installer-name": "extensible-search",
