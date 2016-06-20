@@ -34,8 +34,7 @@ class ExtensibleSearchPage extends Page {
 	 *	The search engine extensions that are available.
 	 */
 
-	private static $search_engine_extensions = array(
-	);
+	private static $search_engine_extensions = array();
 
 	/**
 	 *	The full-text search engine does not support hierarchy filtering.
