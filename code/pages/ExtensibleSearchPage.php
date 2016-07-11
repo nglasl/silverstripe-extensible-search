@@ -342,7 +342,7 @@ class ExtensibleSearchPage extends Page {
 			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');
 		}
 
-		// Allow extension.
+		// Allow extension customisation.
 
 		$this->extend('updateExtensibleSearchPageCMSFields', $fields);
 		return $fields;
@@ -439,7 +439,7 @@ class ExtensibleSearchPage extends Page {
 			}
 		}
 
-		// Allow extension, so custom fields may be selectable.
+		// Allow extension customisation, so custom fields may be selectable.
 
 		$this->extend('updateExtensibleSearchPageSelectableFields', $selectable);
 		return $selectable;
@@ -641,9 +641,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if($engine === 'Full-Text') {
 			$form->classesToSearch($classes);
 		}
-		
+
+		// Allow extension customisation.
+
 		$this->extend('updateExtensibleSearchForm', $form);
-		
 		return $form;
 	}
 
