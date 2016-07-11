@@ -641,6 +641,9 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		if($engine === 'Full-Text') {
 			$form->classesToSearch($classes);
 		}
+		
+		$this->extend('updateExtensibleSearchForm', $form);
+		
 		return $form;
 	}
 
