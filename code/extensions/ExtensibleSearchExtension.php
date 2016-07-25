@@ -1,76 +1,47 @@
 <?php
 
 /**
- * A controller extension that provides additional methods on page controllers
- * to allow for better searching using an extensible search page
- *
- * @author marcus@silverstripe.com.au
- * @license http://silverstripe.org/bsd-license/
+ *	This extension is used to implement a search form, primarily outside the search page.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
+
 class ExtensibleSearchExtension extends Extension {
 
 	private static $allowed_actions = array(
-		'SearchForm',
-		'results'
+		'getSearchForm'
 	);
 
 	/**
-	 * Returns the default search page for this site
+	 *	Instantiate the search form, primarily outside the search page.
 	 *
-	 * @return ExtensibleSearchPage
+	 *	@parameter <{REQUEST}> ss http request
+	 *	@parameter <{DISPLAY_SORTING}> boolean
+	 *	@return search form
 	 */
+
+	public function getSearchForm($request = null, $sorting = false) {
+
+		// Instantiate the search form, primarily excluding the sorting selection.
+
+		return ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getSearchForm($request, $sorting) : null;
+	}
+
+	/**
+	 *	Retrieve the search page.
+	 *
+	 *	@return extensible search page
+	 */
+
 	public function getSearchPage() {
 
-		$page = ExtensibleSearchPage::get();
-		if(class_exists('Multisites')) {
-			$siteID = Multisites::inst()->getCurrentSiteId();
-			$page = $page->filter('SiteID', $siteID);
+		$pages = ExtensibleSearchPage::get();
+
+		// This is required to support multiple sites.
+
+		if(ClassInfo::exists('Multisites')) {
+			$pages = $pages->filter('SiteID', $this->owner->SiteID);
 		}
-		return $page->first();
-	}
-
-	/**
-	 * Get the list of facet values for the given term
-	 *
-	 * @param String $term
-	 */
-	public function Facets($term=null) {
-		$sp = $this->owner->getSearchPage();
-		if ($sp && $sp->hasMethod('currentFacets')) {
-			$facets = $sp->currentFacets($term);
-			return $facets;
-		}
-	}
-
-	/**
-	 * The current search query that is being run by the search page.
-	 *
-	 * @return String
-	 */
-	public function SearchQuery() {
-		$sp = $this->owner->getSearchPage();
-		if ($sp) {
-			return $sp->SearchQuery();
-		}
-	}
-
-	/**
-	 * Site search form
-	 */
-	public function SearchForm() {
-
-		// Retrieve the search form input, excluding any filters.
-
-		$form = ($page = $this->owner->getSearchPage()) ? ModelAsController::controller_for($page)->getSearchForm(null, false) : null;
-
-		// Update the search input to account for usability.
-
-		if($form) {
-			$search = $form->Fields()->dataFieldByName('Search');
-			$search->setAttribute('placeholder', $search->Title());
-			$search->setTitle('');
-		}
-		return $form;
+		return $pages->first();
 	}
 
 }

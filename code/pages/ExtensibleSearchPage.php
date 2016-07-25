@@ -664,20 +664,29 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Instantiate the search form.
+	 *	Instantiate the search form, primarily outside the search page.
 	 *
 	 *	@parameter <{REQUEST}> ss http request
 	 *	@parameter <{DISPLAY_SORTING}> boolean
 	 *	@return search form
 	 */
 
-	public function getSearchForm($request = null, $sorting = true) {
+	public function getSearchForm($request = null, $sorting = false) {
 
-		// When the search form is displayed twice, this prevents a duplicate element ID.
+		// Instantiate the search form, primarily excluding the sorting selection.
 
 		$form = $this->getForm($request, $sorting);
 		if($form) {
+
+			// When the search form is displayed twice, this prevents a duplicate element ID.
+
 			$form->setName('getSearchForm');
+
+			// Replace the search title with a placeholder.
+
+			$search = $form->Fields()->dataFieldByName('Search');
+			$search->setAttribute('placeholder', $search->Title());
+			$search->setTitle(null);
 		}
 		return $form;
 	}
