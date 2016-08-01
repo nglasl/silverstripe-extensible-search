@@ -132,6 +132,10 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 			'Approved?'
 		)->addExtraClass('approved wrapper'));
 		$approved->push($this->getApprovedField());
+
+		// Allow extension customisation.
+
+		$this->extend('updateExtensibleSearchSuggestionCMSFields', $fields);
 		return $fields;
 	}
 
@@ -155,6 +159,10 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		))) {
 			$result->error('Suggestion already exists!');
 		}
+
+		// Allow extension customisation.
+
+		$this->extend('validateExtensibleSearchSuggestion', $result);
 		return $result;
 	}
 

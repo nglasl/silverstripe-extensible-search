@@ -688,6 +688,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			$search->setAttribute('placeholder', $search->Title());
 			$search->setTitle(null);
 		}
+
+		// Allow extension customisation.
+
+		$this->extend('updateExtensibleSearchSearchForm', $form);
 		return $form;
 	}
 
