@@ -805,9 +805,14 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$output = $this->customise($results)->renderWith($templates);
 
-		// Update the search page specific analytics.
+		// Determine whether analytics are to be suppressed.
 
-		$this->service->logSearch($data['Search'], $count, microtime(true) - $time, $engine, $page->ID);
+		if($request->getVar('analytics') !== 'false') {
+
+			// Update the search page specific analytics.
+
+			$this->service->logSearch($data['Search'], $count, microtime(true) - $time, $engine, $page->ID);
+		}
 
 		// Display the search form results.
 
