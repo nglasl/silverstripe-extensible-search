@@ -6,12 +6,6 @@ _The current release is **3.0.2**_
 
 	This will allow CMS authors to configure the search page and results without needing to perform code alterations to determine how the search works.
 
-_**NOTE:** This repository has been pulled together using re-factored code from an existing module._
-
-:bust_in_silhouette:
-
-https://github.com/nyeholt/silverstripe-solr
-
 ## Requirement
 
 * SilverStripe 3.1.X or **3.2.X**
