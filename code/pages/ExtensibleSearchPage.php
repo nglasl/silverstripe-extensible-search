@@ -512,6 +512,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			// Determine the template to use.
 
+			$this->extend('updateTemplates', $templates);
 			return $this->renderWith($templates);
 		}
 	}
@@ -839,6 +840,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		// Determine the template to use.
 
+		$this->extend('updateTemplates', $templates);
 		$output = $this->customise($results)->renderWith($templates);
 
 		// Determine whether analytics are to be suppressed.
