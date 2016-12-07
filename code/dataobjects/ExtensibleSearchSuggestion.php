@@ -153,7 +153,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 			$result->error('Minimum autocomplete length required!');
 		}
 		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', array(
-			'ID != ?' => $this->ID,
+			'ID != ?' => (int)$this->ID,
 			'Term = ?' => $this->Term,
 			'ExtensibleSearchPageID = ?' => $this->ExtensibleSearchPageID
 		))) {

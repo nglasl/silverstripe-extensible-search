@@ -87,7 +87,21 @@ class ExtensibleSearchService {
 				'ExtensibleSearchPageID' => $pageID
 			));
 		}
-		$suggestion->write();
+
+		// The suggestion might now exist.
+
+		try {
+			$suggestion->write();
+		}
+		catch(ValidationException $exception) {
+
+			// This indicates a possible race condition.
+
+			$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->first();
+			$frequency = ExtensibleSearch::get()->filter($filter)->count();
+			$suggestion->Frequency = $frequency;
+			$suggestion->write();
+		}
 		return $suggestion;
 	}
 
