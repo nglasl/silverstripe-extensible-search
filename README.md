@@ -1,6 +1,6 @@
 # [extensible-search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **3.0.4**_
+_The current release is **3.1.0**_
 
 	A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
@@ -79,6 +79,10 @@ These include the following and may be accessed from your extensible page instan
 * Search **summary**, including the frequency, average time taken, and if the last search made actually contained results.
 * Search **history**, including search date/time, time taken, and the search engine used.
 * Export to CSV.
+
+## Archiving
+
+The `ExtensibleSearchArchiveTask` creates an archived collection of analytics for each search page. Depending on your search traffic, the queued jobs module may be recommended to trigger this on a schedule.
 
 ### Search Suggestions
 

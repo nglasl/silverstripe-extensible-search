@@ -41,13 +41,14 @@ li.valEXTENSIBLE_SEARCH_SUGGESTIONS label {
 	vertical-align: middle;
 }
 
-#Root_SearchAnalytics p.grid-csv-button {
+#Root_SearchAnalytics_set p.grid-csv-button,
+#Form_ItemEditForm_HistorySummary p.grid-csv-button {
 	margin-top: 8px;
 	padding-bottom: 1px;
 }
 
-#Form_EditForm_Summary tr.ss-gridfield-item,
-#Form_EditForm_History tr.ss-gridfield-item {
+#Root_SearchAnalytics_set tr.ss-gridfield-item,
+#Form_ItemEditForm_HistorySummary tr.ss-gridfield-item {
 	cursor: default;
 }
 

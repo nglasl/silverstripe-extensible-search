@@ -23,6 +23,7 @@ class ExtensibleSearchPage extends Page {
 
 	private static $has_many = array(
 		'History' => 'ExtensibleSearch',
+		'Archives' => 'ExtensibleSearchArchive',
 		'Suggestions' => 'ExtensibleSearchSuggestion'
 	);
 
@@ -230,39 +231,12 @@ class ExtensibleSearchPage extends Page {
 
 		if($configuration->get('ExtensibleSearch', 'enable_analytics')) {
 
-			// Determine the search page specific analytics.
-
-			$history = $this->History();
-			$query = new SQLSelect(
-				"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
-				'ExtensibleSearch',
-				"ExtensibleSearchPageID = {$this->ID}",
-				array(
-					'Frequency' => 'DESC',
-					'Term' => 'ASC'
-				),
-				'Term'
-			);
-
-			// These will require display formatting.
-
-			$analytics = ArrayList::create();
-			foreach($query->execute() as $result) {
-				$result = ArrayData::create(
-					$result
-				);
-				$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
-				$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
-				$result->Results = $result->Results ? 'true' : 'false';
-				$analytics->push($result);
-			}
-
 			// Instantiate the analytic summary.
 
-			$fields->addFieldToTab('Root.SearchAnalytics', $summary = GridField::create(
+			$fields->addFieldToTab('Root.SearchAnalytics.Current', $summary = GridField::create(
+				'HistorySummary',
 				'Summary',
-				'Summary',
-				$analytics
+				$this->getHistorySummary()
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
 
@@ -291,16 +265,12 @@ class ExtensibleSearchPage extends Page {
 
 			// Instantiate the analytic history.
 
-			$fields->addFieldToTab('Root.SearchAnalytics', $history = GridField::create(
+			$fields->addFieldToTab('Root.SearchAnalytics.Current', $history = GridField::create(
 				'History',
 				'History',
-				$history
+				$this->History()
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
-
-			// Instantiate an export button.
-
-			$historyConfiguration->addComponent(new GridFieldExportButton());
 
 			// Update the custom summary fields to be sortable.
 
@@ -310,6 +280,25 @@ class ExtensibleSearchPage extends Page {
 				'SearchEngineSummary' => 'SearchEngine'
 			));
 			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
+
+			// Instantiate the archived collection of search analytics.
+
+			$archives = $this->Archives();
+			if($archives->exists()) {
+				$fields->addFieldToTab('Root.SearchAnalytics.Archives', GridField::create(
+					'Archives',
+					'Archives',
+					$archives,
+					$archivesConfiguration = GridFieldConfig_RecordEditor::create()
+				)->setModelClass('ExtensibleSearchArchive'));
+
+				// Update the custom summary fields to be sortable.
+
+				$archivesConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
+					'TitleSummary' => 'StartingDate'
+				));
+				$archivesConfiguration->removeComponentsByType('GridFieldFilterHeader');
+			}
 		}
 
 		// Determine whether suggestions have been enabled.
@@ -443,6 +432,41 @@ class ExtensibleSearchPage extends Page {
 
 		$this->extend('updateExtensibleSearchPageSelectableFields', $selectable);
 		return $selectable;
+	}
+
+	/**
+	 *	Determine the search page specific analytics.
+	 *
+	 *	@return array list
+	 */
+
+	public function getHistorySummary() {
+
+		$history = $this->History();
+		$query = new SQLSelect(
+			"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
+			'ExtensibleSearch',
+			"ExtensibleSearchPageID = {$this->ID}",
+			array(
+				'Frequency' => 'DESC',
+				'Term' => 'ASC'
+			),
+			'Term'
+		);
+
+		// These will require display formatting.
+
+		$analytics = ArrayList::create();
+		foreach($query->execute() as $result) {
+			$result = ArrayData::create(
+				$result
+			);
+			$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
+			$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
+			$result->Results = $result->Results ? 'true' : 'false';
+			$analytics->push($result);
+		}
+		return $analytics;
 	}
 
 }

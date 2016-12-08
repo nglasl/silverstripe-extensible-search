@@ -28,13 +28,15 @@ class ExtensibleSearchService {
 
 		// Log the details of the user search.
 
-		$search = ExtensibleSearch::create(array(
-			'Term'	=> $term,
-			'Results' => $results,
-			'Time' => $time,
-			'SearchEngine' => $engine,
-			'ExtensibleSearchPageID' => $pageID
-		));
+		$search = ExtensibleSearch::create(
+			array(
+				'Term'	=> $term,
+				'Results' => $results,
+				'Time' => $time,
+				'SearchEngine' => $engine,
+				'ExtensibleSearchPageID' => $pageID
+			)
+		);
 		$search->write();
 
 		// Log the details of the user search as a suggestion.
@@ -80,12 +82,14 @@ class ExtensibleSearchService {
 
 			// Log the suggestion.
 
-			$suggestion = ExtensibleSearchSuggestion::create(array(
-				'Term' => $term,
-				'Frequency' => $frequency,
-				'Approved' => (int)Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval'),
-				'ExtensibleSearchPageID' => $pageID
-			));
+			$suggestion = ExtensibleSearchSuggestion::create(
+				array(
+					'Term' => $term,
+					'Frequency' => $frequency,
+					'Approved' => (int)Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval'),
+					'ExtensibleSearchPageID' => $pageID
+				)
+			);
 		}
 
 		// The suggestion might now exist.
