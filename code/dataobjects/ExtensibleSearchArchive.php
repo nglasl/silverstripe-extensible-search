@@ -83,6 +83,10 @@ class ExtensibleSearchArchive extends DataObject {
 			'FrequencyPercentage' => 'Frequency'
 		));
 		$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
+
+		// Allow extension customisation.
+
+		$this->extend('updateExtensibleSearchArchiveCMSFields', $fields);
 		return $fields;
 	}
 
