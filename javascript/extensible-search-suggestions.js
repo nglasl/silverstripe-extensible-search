@@ -1,5 +1,5 @@
 ;(function($) {
-	$(window).load(function() {
+	$(function() {
 
 		// Bind autocomplete to the search form.
 
