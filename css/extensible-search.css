@@ -51,11 +51,3 @@ li.valEXTENSIBLE_SEARCH_SUGGESTIONS label {
 #Form_ItemEditForm_HistorySummary tr.ss-gridfield-item {
 	cursor: default;
 }
-
-div.approved.wrapper input.approved {
-	margin-top: 2px;
-}
-
-div.approved.wrapper span.readonly {
-	padding-top: 0;
-}
