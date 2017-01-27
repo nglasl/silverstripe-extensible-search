@@ -17,18 +17,15 @@ _The current release is **3.1.2**_
 
 ## Overview
 
-### Configuring the Search Page
+### Extensible Search Page
 
-A new page type `ExtensibleSearchPage` should automatically be created for you in the site root.
-This should be published before you are able to perform searches using a search engine selection. Here you can configure how your search page behaves.
-
-<screenshot>
+This is automatically created, and allows configuration for search based on a search engine (more below).
 
 ### Search Engine
 
-#### Enabling Full-Text
+The extensible search page is designed to use full-text search by default, however does provide support for search engine extensions (elastic search for example).
 
-The extensible search page will work with the MySQL/SQLite full-text search by default, however will require some YAML configuration around the data objects you wish to search against.
+#### Full-Text
 
 ```yaml
 FulltextSearchable:
@@ -36,37 +33,33 @@ FulltextSearchable:
     - 'SiteTree'
 SiteTree:
   create_table_options:
-    MySQLDatabase:
-      'ENGINE=MyISAM'
+    MySQLDatabase: 'ENGINE=MyISAM'
   extensions:
     - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
-It should also be highlighted that unfortunately full-text does **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
+When considering the search engine to use, full-text has a few important limitations. The above can also be applied to `File`, however it currently does not support custom data objects or fields.
 
 #### Search Engine Extensions
 
-These will need to be created as an extension applied to `ExtensibleSearchPage`, and explicitly defined under the `search_engine_extensions` using YAML. The `ExtensibleSearchPage_Controller` will also require an extension so the search results can be retrieved for your search engine correctly. When the one class has been added to `search_engine_extensions` (pretty titles can be defined using array syntax), and the two extensions applied, your search engine will appear as a selection.
+The following is an example:
 
-<replace this with a solr example>
+```yaml
+ExtensibleSearchPage:
+  search_engine_extensions:
+    SolrSearch: 'Solr'
+  extensions:
+    - 'SolrSearch'
+ExtensibleSearchPage_Controller:
+  extensions:
+    - 'SolrSearch_Controller'
+```
 
-https://github.com/nyeholt/silverstripe-solr
+When implementing your own search engine extension, make sure to define the following:
 
-##### Customisation
-
-###### Model Extension
-
-If your search wrapper supports filtering based upon page hierarchy (`ParentID` as opposed to just `SiteID`), the `supports_hierarchy` flag can be set.
-
-It is also possible to define the `getSelectableFields` function if you wish to customise what fields are returned to an end user, such as when selecting a field to sort by.
-
-###### Controller Extension
-
-To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
+`supports_hierarchy` and `getSelectableFields` and `getSearchResults`
 
 ### Search Form
-
-To allow search functionality through template hooks, make sure the appropriate extension has been applied.
 
 ```yaml
 Page_Controller:
@@ -74,7 +67,11 @@ Page_Controller:
     - 'ExtensibleSearchExtension'
 ```
 
-The search form may now be retrieved from a template using `$SearchForm`
+The search form can be rendered in templates using:
+
+```php
+$SearchForm
+```
 
 ### Search Analytics
 
