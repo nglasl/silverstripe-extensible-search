@@ -55,9 +55,15 @@ ExtensibleSearchPage_Controller:
     - 'SolrSearch_Controller'
 ```
 
-When implementing your own search engine extension, make sure to define the following:
+When implementing a custom search engine, these are required:
 
-`supports_hierarchy` and `getSelectableFields` and `getSearchResults`
+`getSelectableFields` and `getSearchResults` (on the controller)
+
+Depending on whether the search engine supports nested filtering based on parent ID, this may be configured:
+
+```php
+public static $supports_hierarchy = true;
+```
 
 ### Search Form
 
