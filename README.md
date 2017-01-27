@@ -57,7 +57,7 @@ ExtensibleSearchPage_Controller:
 
 When implementing a custom search engine, these are required:
 
-`getSelectableFields` and `getSearchResults` (on the controller)
+`getSelectableFields` and `getSearchResults` (this one under the controller)
 
 Depending on whether the search engine supports nested filtering based on parent ID, this may be configured:
 
