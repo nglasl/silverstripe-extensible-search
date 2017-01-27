@@ -57,9 +57,9 @@ ExtensibleSearchPage_Controller:
 
 When implementing a custom search engine, these are required:
 
-`getSelectableFields` and `getSearchResults` (this one under the controller)
+`getSelectableFields` and `getSearchResults` (this one under the controller).
 
-Depending on whether the search engine supports filtering based on parent ID, this may also be configured:
+Depending on whether the search engine supports hierarchy filtering based on parent ID, this may also be configured:
 
 ```php
 public static $supports_hierarchy = true;
@@ -73,7 +73,7 @@ Page_Controller:
     - 'ExtensibleSearchExtension'
 ```
 
-The search form can be rendered in templates using:
+Then, to display the search form that users interact with:
 
 ```php
 $SearchForm
