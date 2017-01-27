@@ -23,7 +23,7 @@ This is automatically created, and allows configuration for search based on a se
 
 ### Search Engine
 
-The extensible search page is designed to use full-text search by default, however does provide support for search engine extensions (elastic search for example).
+The extensible search page is designed to use full-text search as a default, however it does provide support for a custom search engine (elastic search for example).
 
 #### Full-Text
 
@@ -40,7 +40,7 @@ SiteTree:
 
 When considering the search engine to use, full-text has a few important limitations. The above can also be applied to `File`, however it currently does not support custom data objects or fields.
 
-#### Search Engine Extensions
+#### Custom Search Engine
 
 The following is an example:
 
