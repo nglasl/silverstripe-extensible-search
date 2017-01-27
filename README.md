@@ -13,7 +13,7 @@ _The current release is **3.1.2**_
 ## Getting Started
 
 * Place the module under your root project directory.
-* Either define the full-text YAML or retrieve a search wrapper module (such as Solr).
+* Either define the full-text YAML or use a search engine extension.
 * `/dev/build`
 * Configure your extensible search page.
 
@@ -22,7 +22,21 @@ _The current release is **3.1.2**_
 ### Configuring the Search Page
 
 A new page type `ExtensibleSearchPage` should automatically be created for you in the site root.
-This should be published before you are able to perform searches using a search engine selection.
+This should be published before you are able to perform searches using a search engine selection. Here you can configure how your search page behaves.
+
+<screenshot>
+
+### The Search Form
+
+To allow search functionality through template hooks, make sure the appropriate extension has been applied.
+
+```yaml
+Page_Controller:
+  extensions:
+    - 'ExtensibleSearchExtension'
+```
+
+The search form may now be retrieved from a template using `$SearchForm`
 
 ### Enabling Full-Text
 
@@ -40,19 +54,50 @@ SiteTree:
     - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
-To allow search functionality through template hooks, make sure the appropriate extension has also been applied.
-
-```yaml
-Page_Controller:
-  extensions:
-    - 'ExtensibleSearchExtension'
-```
-
-The search form may now be retrieved from a template using `$SearchForm`.
-
 It should also be highlighted that unfortunately full-text does **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
 
-### Custom Search Wrappers
+### Search Analytics
+
+These may be disabled by configuring the `enable_analytics` flag.
+
+<screenshot>
+
+### Archiving
+
+`/dev/tasks/ExtensibleSearchArchiveTask` creates an archived collection of analytics for each search page. Depending on your search traffic, the queued jobs module may be recommended to trigger this on a schedule.
+
+`number_to_archive`
+
+<screenshots>
+
+### Search Suggestions
+
+These require the appropriate permissions.
+
+These may be disabled by configuring the `enable_suggestions` flag.
+
+The user generated search suggestions will require approval by default, however this may be configured using the `automatic_approval` flag.
+
+<screenshot>
+
+To enable autocomplete using approved search suggestions, the following will be required.
+
+```php
+Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
+
+// OPTIONAL.
+
+Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
+Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
+```
+
+### Smart Templating
+
+Custom search engine templates may be defined for your results. These are just two examples:
+
+`{$engine}_results` or `Page_results`
+
+### Search Engine Extensions
 
 These will need to be created as an extension applied to `ExtensibleSearchPage`, and explicitly defined under the `search_engine_extensions` using YAML. The `ExtensibleSearchPage_Controller` will also require an extension so the search results can be retrieved for your search engine correctly. When the one class has been added to `search_engine_extensions` (pretty titles can be defined using array syntax), and the two extensions applied, your search engine will appear as a selection.
 
@@ -69,35 +114,3 @@ It is also possible to define the `getSelectableFields` function if you wish to 
 ##### Controller Extension
 
 To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
-
-### Search Analytics
-
-These may be disabled by configuring the `enable_analytics` flag.
-
-These include the following and may be accessed from your extensible page instance:
-
-* Search **summary**, including the frequency, average time taken, and if the last search made actually contained results.
-* Search **history**, including search date/time, time taken, and the search engine used.
-* Export to CSV.
-
-## Archiving
-
-The `ExtensibleSearchArchiveTask` creates an archived collection of analytics for each search page. Depending on your search traffic, the queued jobs module may be recommended to trigger this on a schedule.
-
-### Search Suggestions
-
-These may be disabled by configuring the `enable_suggestions` flag.
-
-The user generated search suggestions will require approval by default, however this may be configured using the `automatic_approval` flag.
-
-To enable autocomplete using approved search suggestions, the following will be required.
-
-```php
-Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
-Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
-Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
-```
-
-### Templating
-
-The templating used is based upon the search engine selection, falling back to `ExtensibleSearch_results`, `ExtensibleSearchPage_results` and `Page_results`.
