@@ -38,7 +38,7 @@ SiteTree:
     - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
-When considering the search engine to use, full-text has some important limitations. This can also be applied for `File`, however it does not support any further customisation.
+When considering the search engine to use, full-text has some important limitations. This configuration can also be applied for `File`, however it unfortunately does not support any further customisation.
 
 #### Custom Search Engine
 
