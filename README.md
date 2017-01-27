@@ -56,6 +56,26 @@ SiteTree:
 
 It should also be highlighted that unfortunately full-text does **not** support custom data objects and fields. However, these can be applied to `File` and not just `SiteTree`.
 
+### Search Engine Extensions
+
+These will need to be created as an extension applied to `ExtensibleSearchPage`, and explicitly defined under the `search_engine_extensions` using YAML. The `ExtensibleSearchPage_Controller` will also require an extension so the search results can be retrieved for your search engine correctly. When the one class has been added to `search_engine_extensions` (pretty titles can be defined using array syntax), and the two extensions applied, your search engine will appear as a selection.
+
+<replace this with a solr example>
+
+https://github.com/nyeholt/silverstripe-solr
+
+#### Customisation
+
+##### Model Extension
+
+If your search wrapper supports filtering based upon page hierarchy (`ParentID` as opposed to just `SiteID`), the `supports_hierarchy` flag can be set.
+
+It is also possible to define the `getSelectableFields` function if you wish to customise what fields are returned to an end user, such as when selecting a field to sort by.
+
+##### Controller Extension
+
+To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
+
 ### Search Analytics
 
 These may be disabled by configuring the `enable_analytics` flag.
@@ -97,20 +117,6 @@ Custom search engine templates may be defined for your results. These are just t
 
 `{$engine}_results` or `Page_results`
 
-### Search Engine Extensions
+<replace this with a solr example>
 
-These will need to be created as an extension applied to `ExtensibleSearchPage`, and explicitly defined under the `search_engine_extensions` using YAML. The `ExtensibleSearchPage_Controller` will also require an extension so the search results can be retrieved for your search engine correctly. When the one class has been added to `search_engine_extensions` (pretty titles can be defined using array syntax), and the two extensions applied, your search engine will appear as a selection.
-
-https://github.com/nyeholt/silverstripe-solr
-
-#### Customisation
-
-##### Model Extension
-
-If your search wrapper supports filtering based upon page hierarchy (`ParentID` as opposed to just `SiteID`), the `supports_hierarchy` flag can be set.
-
-It is also possible to define the `getSelectableFields` function if you wish to customise what fields are returned to an end user, such as when selecting a field to sort by.
-
-##### Controller Extension
-
-To process the result set using your new search wrapper, the `getSearchResults` should be implemented on the controller extension, returning the array of data you wish to render into your search template.
+<maintainer>
