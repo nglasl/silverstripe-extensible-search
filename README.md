@@ -23,7 +23,7 @@ This is automatically created, and allows configuration for search based on a se
 
 ### Search Engine
 
-The extensible search page is designed to use full-text search as a default, however it does provide support for a custom search engine (elastic search for example).
+The extensible search page is designed to use full-text search out of the box, while providing support for a custom search engine (elastic search for example).
 
 #### Full-Text
 
