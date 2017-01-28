@@ -42,7 +42,7 @@ When considering the search engine to use, full-text has some important limitati
 
 #### Custom Search Engine
 
-The following is an example:
+The following is an example configuration:
 
 ```yaml
 ExtensibleSearchPage:
@@ -59,7 +59,7 @@ When implementing a custom search engine, these are required:
 
 `getSelectableFields` and `getSearchResults` (this one under the controller).
 
-Depending on whether the search engine supports hierarchy filtering based on parent ID, this may also be configured:
+Depending on whether the search engine supports hierarchy filtering based on parent ID, this may also be configured.
 
 ```php
 public static $supports_hierarchy = true;
@@ -73,7 +73,7 @@ Page_Controller:
     - 'ExtensibleSearchExtension'
 ```
 
-Then, to display the search form that users interact with:
+Using this, to display the search form that users interact with:
 
 ```php
 $SearchForm
