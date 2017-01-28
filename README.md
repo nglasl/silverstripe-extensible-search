@@ -81,7 +81,7 @@ $SearchForm
 
 ### Search Analytics
 
-These are important to help determine either popular content on your site, or whether content is difficult to locate. They're automatically enabled out of the box, however, can be disabled using the following:
+These are important to help determine either popular content on your site, or whether content is difficult for users to locate. They're automatically enabled out of the box, however, can be disabled using the following:
 
 ```yaml
 ExtensibleSearch:
