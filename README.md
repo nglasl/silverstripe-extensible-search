@@ -81,9 +81,14 @@ $SearchForm
 
 ### Search Analytics
 
-These may be disabled by configuring the `enable_analytics` flag.
+These are important to help determine either popular content on your site, or whether content is difficult to locate. They're automatically enabled out of the box, however, can be disabled using the following:
 
-<screenshot>
+```yaml
+ExtensibleSearch:
+  enable_analytics: false
+```
+
+When triggering a search, appending `?analytics=false` to the URL will bypass the search analytics. This is fantastic for debugging.
 
 ### Archiving
 
