@@ -90,13 +90,9 @@ ExtensibleSearch:
 
 When triggering a search, appending `?analytics=false` to the URL will bypass the search analytics. This is fantastic for debugging.
 
-### Archiving
+#### Archiving
 
-`/dev/tasks/ExtensibleSearchArchiveTask` creates an archived collection of analytics for each search page. Depending on your search traffic, the queued jobs module may be recommended to trigger this on a schedule.
-
-`number_to_archive`
-
-<screenshots>
+Depending on your search traffic, `/dev/tasks/ExtensibleSearchArchiveTask` may be used to archive past search analytics, for each search page. It would be recommended to trigger this on a schedule where possible.
 
 ### Search Suggestions
 
