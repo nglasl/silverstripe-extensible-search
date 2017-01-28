@@ -38,7 +38,7 @@ SiteTree:
     - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
 ```
 
-When considering the search engine to use, full-text has some important limitations. This configuration can also be applied to `File`, however, unfortunately it does not support any further customisation.
+When considering the search engine to use, full-text has some important limitations. This configuration can also be applied to `File`, however, unfortunately it does not support further customisation.
 
 #### Custom Search Engine
 
@@ -73,7 +73,7 @@ Page_Controller:
     - 'ExtensibleSearchExtension'
 ```
 
-Using this, to display the search form that users interact with:
+Using this, to display the search form that users interact with (from your template):
 
 ```php
 $SearchForm
