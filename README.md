@@ -118,7 +118,7 @@ Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
 
 Custom search engine specific templates may be defined for your search results. These are just two examples:
 
-`SolrSearch_results` or `Page_results`
+`SolrSearch_results.ss` or `Page_results.ss`
 
 ## Maintainer Contact
 
