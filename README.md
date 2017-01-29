@@ -116,7 +116,7 @@ Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
 
 ### Smart Templating
 
-Custom search engine specific templates may be defined for your results. These are just two examples:
+Custom search engine specific templates may be defined for your search results. These are just two examples:
 
 `SolrSearch_results` or `Page_results`
 
