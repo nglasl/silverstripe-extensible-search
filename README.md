@@ -103,7 +103,7 @@ ExtensibleSearchSuggestion:
   enable_suggestions: false
 ```
 
-To enable autocomplete using the **approved** search suggestions.
+To enable autocomplete using the **approved** search suggestions..
 
 ```php
 Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
@@ -118,8 +118,8 @@ Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
 
 Custom search engine templates may be defined for your results. These are just two examples:
 
-`{$engine}_results` or `Page_results`
+`SolrSearch_results` or `Page_results`
 
-<replace this with a solr example>
+## Maintainer Contact
 
-<maintainer>
+	Nathan Glasl, nathan@silverstripe.com.au
