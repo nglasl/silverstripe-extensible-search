@@ -96,15 +96,14 @@ Depending on your search traffic, `/dev/tasks/ExtensibleSearchArchiveTask` may b
 
 ### Search Suggestions
 
-These require the appropriate permissions.
+These are most effective alongside the search analytics (in which case they're automatically populated), and can be used to either display popular searches on your site, or search form autocomplete options. They're automatically enabled out of the box, however, can be disabled using the following:
 
-These may be disabled by configuring the `enable_suggestions` flag.
+```yaml
+ExtensibleSearchSuggestion:
+  enable_suggestions: false
+```
 
-The user generated search suggestions will require approval by default, however this may be configured using the `automatic_approval` flag.
-
-<screenshot>
-
-To enable autocomplete using approved search suggestions, the following will be required.
+To enable autocomplete using the **approved** search suggestions.
 
 ```php
 Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
