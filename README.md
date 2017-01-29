@@ -96,7 +96,7 @@ Depending on your search traffic, `/dev/tasks/ExtensibleSearchArchiveTask` may b
 
 ### Search Suggestions
 
-These are most effective alongside the search analytics (in which case they're automatically populated), and can be used to either display popular searches on your site, or search form autocomplete options. They're automatically enabled out of the box, however, can be disabled using the following:
+These are most effective alongside the search analytics (in which case they're automatically populated), and can be used to display either popular searches on your site, or search form autocomplete options. They're automatically enabled out of the box, however, can be disabled using the following:
 
 ```yaml
 ExtensibleSearchSuggestion:
