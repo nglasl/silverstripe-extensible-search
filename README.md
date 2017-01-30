@@ -1,6 +1,6 @@
 # [extensible-search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **3.1.2**_
+_The current release is **3.1.3**_
 
 > A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
@@ -20,6 +20,8 @@ _The current release is **3.1.2**_
 ### Extensible Search Page
 
 This is automatically created, and allows configuration for search based on a search engine (more below).
+
+![page](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-page.png)
 
 ### Search Engine
 
@@ -88,11 +90,17 @@ ExtensibleSearch:
   enable_analytics: false
 ```
 
+![analytics](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-analytics.png)
+
 When triggering a search, appending `?analytics=false` to the URL will bypass the search analytics. This is fantastic for debugging.
 
 #### Archiving
 
 Depending on your search traffic, `/dev/tasks/ExtensibleSearchArchiveTask` may be used to archive past search analytics, for each search page. It would be recommended to trigger this on a schedule where possible.
+
+![archives](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-archives.png)
+
+![archive](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-archive.png)
 
 ### Search Suggestions
 
@@ -102,6 +110,8 @@ These are most effective alongside the search analytics (in which case they're a
 ExtensibleSearchSuggestion:
   enable_suggestions: false
 ```
+
+![suggestions](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-suggestions.png)
 
 To enable autocomplete using the **approved** search suggestions..
 

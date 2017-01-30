@@ -21,6 +21,9 @@
 		"installer-name": "extensible-search",
 		"branch-alias": {
 			"dev-master": "3.1.x-dev"
-		}
+		},
+		"screenshots": [
+			"https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-analytics.png"
+		]
 	}
 }
