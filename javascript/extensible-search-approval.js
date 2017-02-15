@@ -9,52 +9,40 @@
 		});
 	}
 
-	// Bind the mouse events dynamically.
+	// Trigger an interface update to represent edit functionality.
 
-	$.entwine('ss', function($) {
+	$(document).on('mouseenter', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
-		$('#Form_EditForm_Suggestions td.col-ApprovedField').entwine({
+		$(this).next().children('a.edit-link').css('visibility', 'hidden');
+	});
 
-			// Trigger an interface update to represent edit functionality.
+	$(document).on('mouseleave', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
-			onmouseenter: function() {
+		$(this).next().children('a.edit-link').css('visibility', 'visible');
+	});
 
-				$(this).next().children('a.edit-link').css('visibility', 'hidden');
-			},
-			onmouseleave: function() {
+	// Toggle the selected search suggestion's approval.
 
-				$(this).next().children('a.edit-link').css('visibility', 'visible');
-			},
+	$(document).on('click', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
-			// Toggle the selected search suggestion's approval.
+		// Make sure this change is reflected in the respective field.
 
-			onclick: function() {
+		var input = $(this).children('input.approved');
+		input[0].checked = !input[0].checked;
+		update(input);
+		return false;
+	});
 
-				// Make sure this change is reflected in the respective field.
+	// Prevent event propagation using a separate binding.
 
-				var input = $(this).children('input.approved');
-				input[0].checked = !input[0].checked;
-				update(input);
-				return false;
-			}
-		});
+	$(document).on('click', '#Form_EditForm_Suggestions input.approved', function(event) {
 
-		// Prevent event propagation using a separate binding.
+		event.stopPropagation();
 
-		$('#Form_EditForm_Suggestions input.approved').entwine({
+		// Make sure the edit form doesn't detect changes.
 
-			// Toggle the selected search suggestion's approval.
-
-			onclick: function(event) {
-
-				event.stopPropagation();
-
-				// Make sure the edit form doesn't detect changes.
-
-				$('#Form_EditForm').removeClass('changed');
-				update($(this));
-			}
-		});
+		$('#Form_EditForm').removeClass('changed');
+		update($(this));
 	});
 
 })(jQuery);
