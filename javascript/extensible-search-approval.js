@@ -1,5 +1,7 @@
 ;(function($) {
 
+	var page = $(document);
+
 	// Toggle a search suggestion's approval.
 
 	function update(input) {
@@ -11,19 +13,19 @@
 
 	// Trigger an interface update to represent edit functionality.
 
-	$(document).on('mouseenter', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
+	page.on('mouseenter', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
 		$(this).next().children('a.edit-link').css('visibility', 'hidden');
 	});
 
-	$(document).on('mouseleave', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
+	page.on('mouseleave', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
 		$(this).next().children('a.edit-link').css('visibility', 'visible');
 	});
 
 	// Toggle the selected search suggestion's approval.
 
-	$(document).on('click', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
+	page.on('click', '#Form_EditForm_Suggestions td.col-ApprovedField', function() {
 
 		// Make sure this change is reflected in the respective field.
 
@@ -35,7 +37,7 @@
 
 	// Prevent event propagation using a separate binding.
 
-	$(document).on('click', '#Form_EditForm_Suggestions input.approved', function(event) {
+	page.on('click', '#Form_EditForm_Suggestions input.approved', function(event) {
 
 		event.stopPropagation();
 
