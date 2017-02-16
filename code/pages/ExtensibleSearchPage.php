@@ -444,14 +444,14 @@ class ExtensibleSearchPage extends Page {
 
 		$history = $this->History();
 		$query = new SQLSelect(
-			"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
+			"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS HasResults",
 			'ExtensibleSearch',
 			"ExtensibleSearchPageID = {$this->ID}",
 			array(
 				'Frequency' => 'DESC',
 				'Term' => 'ASC'
 			),
-			'Term'
+			array('Term', 'HasResults')
 		);
 
 		// These will require display formatting.
