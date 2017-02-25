@@ -8,6 +8,10 @@
 
 class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {
 
+    static $singular_name = 'Search Suggestion';
+    static $plural_name = 'Search Suggestions';
+    static $description = 'Search suggestions for Extensible Search module';
+
 	/**
 	 *	Store the frequency to make search suggestion relevance more efficient.
 	 */
@@ -110,6 +114,19 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	}
 
 	/**
+	 *	Make field_labels translatable
+	 */
+
+	function fieldLabels($includerelations = true) {
+		return array(
+			'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
+			'FrequencySummary' => _t('ExtensibleSearch.FrequencySummary','Analytic Frequency'),
+			'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Analytic Frequency %'),
+			'ApprovedField' => _t('ExtensibleSearch.Approved','Approved?')
+		);
+	}
+
+	/**
 	 *	Restrict access for CMS users editing search suggestions.
 	 */
 
@@ -157,7 +174,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 			'Term = ?' => $this->Term,
 			'ExtensibleSearchPageID = ?' => $this->ExtensibleSearchPageID
 		))) {
-			$result->error('Suggestion already exists!');
+			$result->error(_t('Extensible.Search.SuggestionExists','Suggestion already exists!'));
 		}
 
 		// Allow extension customisation.

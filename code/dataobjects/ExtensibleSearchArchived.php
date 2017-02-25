@@ -28,11 +28,11 @@ class ExtensibleSearchArchived extends DataObject {
 	);
 
 	private static $field_labels = array(
-		'Term' => 'Search Term',
-		'Frequency' => 'Frequency',
-		'FrequencyPercentage' => 'Frequency %',
-		'AverageTimeTaken' => 'Average Time Taken (s)',
-		'Results' => 'Has Results?'
+		'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
+		'Frequency' => _t('ExtensibleSearch.Frequency','Frequency'),
+		'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Frequency %'),
+		'AverageTimeTaken' => _t('ExtensibleSearch.AverageTimeTaken','Average Time Taken (s)'),
+		'Results' => _t('ExtensibleSearch.Results','Has Results?')
 	);
 
 	public function canEdit($member = null) {
