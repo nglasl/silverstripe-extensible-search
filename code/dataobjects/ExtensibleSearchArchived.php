@@ -28,12 +28,26 @@ class ExtensibleSearchArchived extends DataObject {
 	);
 
 	private static $field_labels = array(
-		'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
-		'Frequency' => _t('ExtensibleSearch.Frequency','Frequency'),
-		'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Frequency %'),
-		'AverageTimeTaken' => _t('ExtensibleSearch.AverageTimeTaken','Average Time Taken (s)'),
-		'Results' => _t('ExtensibleSearch.Results','Has Results?')
+		'Term' => 'Search Term',
+		'Frequency' => 'Frequency',
+		'FrequencyPercentage' => 'Frequency %',
+		'AverageTimeTaken' => 'Average Time Taken (s)',
+		'Results' => 'Has Results?'
 	);
+
+	/**
+	 *	Make field_labels translatable
+	 */
+
+	function fieldLabels($includerelations = true) {
+		return array(
+			'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
+			'FrequencySummary' => _t('ExtensibleSearch.Frequency','Frequency'),
+			'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Frequency %'),
+			'FrequencyPercentage' => _t('ExtensibleSearch.AvarageTimeTaken','Average Time Taken (s)'),
+			'ApprovedField' => _t('ExtensibleSearch.HasResults','Has Results?')
+		);
+	}
 
 	public function canEdit($member = null) {
 
