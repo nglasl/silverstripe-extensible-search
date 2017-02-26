@@ -219,7 +219,7 @@ class ExtensibleSearchPage extends Page {
 			// Display the results per page selection.
 
 			$fields->addFieldToTab('Root.Main', NumericField::create(
-				'ResultsPerPage'
+				(_t('ExtensibleSearch.ResultsPerPage','ResultsPerPage'))
 			), 'Content');
 		}
 		else {
