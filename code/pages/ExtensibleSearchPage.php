@@ -416,19 +416,19 @@ class ExtensibleSearchPage extends Page {
 				// Determine the most appropriate fields, primarily for sorting.
 
 				if(isset($fields['Title'])) {
-					$selectable['Title'] = 'Title';
+					$selectable['Title'] = (_t('ExtensibleSearch.Title','Title'));
 				}
 				if(isset($fields['MenuTitle'])) {
-					$selectable['MenuTitle'] = 'Navigation Title';
+					$selectable['MenuTitle'] = (_t('ExtensibleSearch.MenuTitle','Navigation Title'));
 				}
 				if(isset($fields['Sort'])) {
-					$selectable['Sort'] = 'Display Order';
+					$selectable['Sort'] = (_t('ExtensibleSearch.DisplayOrder','Display Order'));
 				}
 
 				// This is specific to file searching.
 
 				if(isset($fields['Name'])) {
-					$selectable['Name'] = 'File Name';
+					$selectable['Name'] = (_t('ExtensibleSearch.FileName','File Name'));
 				}
 			}
 		}
@@ -618,7 +618,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$fields = FieldList::create(
 			TextField::create(
 				'Search',
-				'Search',
+				_t('ExtensibleSearch.Search','Search'),
 				$request->getVar('Search')
 			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
