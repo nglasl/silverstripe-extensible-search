@@ -1,5 +1,5 @@
 fi:
-  ExtensibleSearch:
+  EXTENSIBLE_SEARCH:
     AnalyticFrequency: 'Analyysin tiheys'
     AnalyticFrequencyP: 'Analyysin tiheys %'
     Approved: 'Hyväksytty?'

@@ -41,11 +41,11 @@ class ExtensibleSearchArchived extends DataObject {
 
 	function fieldLabels($includerelations = true) {
 		return array(
-			'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
-			'FrequencySummary' => _t('ExtensibleSearch.Frequency','Frequency'),
-			'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Frequency %'),
-			'FrequencyPercentage' => _t('ExtensibleSearch.AvarageTimeTaken','Average Time Taken (s)'),
-			'ApprovedField' => _t('ExtensibleSearch.HasResults','Has Results?')
+			'Term' => _t('EXTENSIBLE_SEARCH.SearchTerm','Search Term'),
+			'Frequency' => _t('EXTENSIBLE_SEARCH.Frequency','Frequency'),
+			'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.FrequencyP','Frequency %'),
+			'AverageTimeTaken' => _t('EXTENSIBLE_SEARCH.AverageTimeTaken','Average Time Taken (s)'),
+			'Results' => _t('EXTENSIBLE_SEARCH.HasResults','Has Results?')
 		);
 	}
 

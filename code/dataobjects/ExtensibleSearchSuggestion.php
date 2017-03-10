@@ -119,10 +119,10 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	function fieldLabels($includerelations = true) {
 		return array(
-			'Term' => _t('ExtensibleSearch.SearchTerm','Search Term'),
-			'FrequencySummary' => _t('ExtensibleSearch.FrequencySummary','Analytic Frequency'),
-			'FrequencyPercentage' => _t('ExtensibleSearch.FrequencyP','Analytic Frequency %'),
-			'ApprovedField' => _t('ExtensibleSearch.Approved','Approved?')
+			'Term' => _t('EXTENSIBLE_SEARCH.SearchTerm','Search Term'),
+			'FrequencySummary' => _t('EXTENSIBLE_SEARCH.FrequencySummary','Analytic Frequency'),
+			'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.FrequencyP','Analytic Frequency %'),
+			'ApprovedField' => _t('EXTENSIBLE_SEARCH.Approved','Approved?')
 		);
 	}
 

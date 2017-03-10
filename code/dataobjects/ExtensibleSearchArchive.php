@@ -68,7 +68,7 @@ class ExtensibleSearchArchive extends DataObject {
 
 		$fields->addFieldToTab('Root.Main', GridField::create(
 			'HistorySummary',
-			_t('ExtensibleSearch.Summary','Summary'),
+			_t('EXTENSIBLE_SEARCH.Summary','Summary'),
 			$this->HistorySummary(),
 			$summaryConfiguration = GridFieldConfig_Base::create()
 		)->setModelClass('ExtensibleSearchArchived'));
