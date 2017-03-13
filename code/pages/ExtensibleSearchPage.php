@@ -7,6 +7,11 @@
 
 class ExtensibleSearchPage extends Page {
 
+    static $singular_name = 'Extensible Search Page';
+    static $plural_name = 'Extensible Search Pages';
+    static $description = 'Extensible Search extends SilverStripe SearchForm.';
+	static $icon = '';
+
 	private static $db = array(
 		'SearchEngine' => 'Varchar(255)',
 		'SortBy' => 'Varchar(255)',
@@ -131,9 +136,9 @@ class ExtensibleSearchPage extends Page {
 
 		$fields->addFieldToTab('Root.Main', DropdownField::create(
 			'SearchEngine',
-			'Search Engine',
+			_t('EXTENSIBLE_SEARCH.SearchEngine','Search Engine'),
 			$engines
-		)->setHasEmptyDefault(true)->setRightTitle('This needs to be saved before further customisation is available'), 'Title');
+		)->setHasEmptyDefault(true)->setRightTitle(_t('EXTENSIBLE_SEARCH.SearchEngineSaveNotice','This needs to be saved before further customisation is available')), 'Title');
 
 		// Determine whether a search engine has been selected.
 
@@ -143,7 +148,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'SearchEngineNotice',
-				"<p class='extensible-search notice'><strong>{$engines[$this->SearchEngine]} Search Page</strong></p>"
+				_t('EXTENSIBLE_SEARCH.SearchEngineNotice',"<p class='extensible-search notice'><strong>{$engines[$this->SearchEngine]} Search Page</strong></p>")
 			), 'Title');
 
 			// Determine whether the search engine supports hierarchy filtering.
@@ -170,7 +175,7 @@ class ExtensibleSearchPage extends Page {
 
 				$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create(
 					'SearchTrees',
-					'Search Trees',
+					_t('EXTENSIBLE_SEARCH.SearchTrees','Search Trees'),
 					'SiteTree'
 				), 'Content');
 
@@ -184,7 +189,7 @@ class ExtensibleSearchPage extends Page {
 
 						return ($page->ParentID != 0);
 					});
-					$tree->setRightTitle('This <strong>search engine</strong> only supports limited hierarchy');
+					$tree->setRightTitle(_t('EXTENSIBLE_SEARCH.SearchEngineLimited','This <strong>search engine</strong> only supports limited hierarchy'));
 				}
 			}
 
@@ -192,15 +197,15 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'SortBy',
-				'Sort By',
+				_t('EXTENSIBLE_SEARCH.SortBy','Sort By'),
 				$this->getSelectableFields()
 			), 'Content');
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'SortDirection',
-				'Sort Direction',
+				_t('EXTENSIBLE_SEARCH.SortDirection','Sort Direction'),
 				array(
-					'DESC' => 'Descending',
-					'ASC' => 'Ascending'
+					'DESC' => _t('EXTENSIBLE_SEARCH.Descending','Descending'),
+					'ASC' => _t('EXTENSIBLE_SEARCH.Ascending','Ascending')
 				)
 			), 'Content');
 
@@ -208,13 +213,13 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.Main', CheckboxField::create(
 				'StartWithListing',
-				'Start With Listing?'
+				_t('EXTENSIBLE_SEARCH.StartWithListing','Start With Listing?')
 			)->addExtraClass('start-with-listing'), 'Content');
 
 			// Display the results per page selection.
 
 			$fields->addFieldToTab('Root.Main', NumericField::create(
-				'ResultsPerPage'
+				(_t('EXTENSIBLE_SEARCH.ResultsPerPage','ResultsPerPage'))
 			), 'Content');
 		}
 		else {
@@ -235,7 +240,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchAnalytics.Current', $summary = GridField::create(
 				'HistorySummary',
-				'Summary',
+				_t('EXTENSIBLE_SEARCH.Summary','Summary'),
 				$this->getHistorySummary()
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
@@ -243,11 +248,11 @@ class ExtensibleSearchPage extends Page {
 			// Update the display columns.
 
 			$summaryDisplay = array(
-				'Term' => 'Search Term',
-				'Frequency' => 'Frequency',
-				'FrequencyPercentage' => 'Frequency %',
-				'AverageTimeTaken' => 'Average Time Taken (s)',
-				'Results' => 'Has Results?'
+				'Term' => _t('EXTENSIBLE_SEARCH.SearchTerm','Search Term'),
+				'Frequency' => _t('EXTENSIBLE_SEARCH.Frequency','Frequency'),
+				'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.FrequencyP','Frequency %'),
+				'AverageTimeTaken' => _t('EXTENSIBLE_SEARCH.AverageTimeTaken','Average Time Taken (s)'),
+				'Results' => _t('EXTENSIBLE_SEARCH.HasResults','Has Results?')
 			);
 			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
 
@@ -267,7 +272,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchAnalytics.Current', $history = GridField::create(
 				'History',
-				'History',
+				_t('EXTENSIBLE_SEARCH.History','History'),
 				$this->History()
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
@@ -275,9 +280,9 @@ class ExtensibleSearchPage extends Page {
 			// Update the custom summary fields to be sortable.
 
 			$historyConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
-				'TimeSummary' => 'Created',
-				'TimeTakenSummary' => 'Time',
-				'SearchEngineSummary' => 'SearchEngine'
+				'TimeSummary' => _t('EXTENSIBLE_SEARCH.Created','Created'),
+				'TimeTakenSummary' => _t('EXTENSIBLE_SEARCH.Time','Time'),
+				'SearchEngineSummary' => _t('EXTENSIBLE_SEARCH.SearchEngine','SearchEngine')
 			));
 			$historyConfiguration->removeComponentsByType('GridFieldFilterHeader');
 
@@ -287,7 +292,7 @@ class ExtensibleSearchPage extends Page {
 			if($archives->exists()) {
 				$fields->addFieldToTab('Root.SearchAnalytics.Archives', GridField::create(
 					'Archives',
-					'Archives',
+					_t('EXTENSIBLE_SEARCH.Archives','Archives'),
 					$archives,
 					$archivesConfiguration = GridFieldConfig_RecordEditor::create()
 				)->setModelClass('ExtensibleSearchArchive'));
@@ -316,7 +321,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
-				'Suggestions',
+				_t('EXTENSIBLE_SEARCH.Suggestions','Suggestions'),
 				$this->Suggestions(),
 				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
 			)->setModelClass('ExtensibleSearchSuggestion'));
@@ -324,9 +329,9 @@ class ExtensibleSearchPage extends Page {
 			// Update the custom summary fields to be sortable.
 
 			$suggestionsConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
-				'FrequencySummary' => 'Frequency',
-				'FrequencyPercentage' => 'Frequency',
-				'ApprovedField' => 'Approved'
+				'FrequencySummary' => _t('EXTENSIBLE_SEARCH.Frequency','Frequency'),
+				'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.Frequency','Frequency'),
+				'ApprovedField' => _t('EXTENSIBLE_SEARCH.Approved','Approved')
 			));
 			$suggestionsConfiguration->removeComponentsByType('GridFieldFilterHeader');
 		}
@@ -379,9 +384,9 @@ class ExtensibleSearchPage extends Page {
 		// Instantiate some default selectable fields, just in case the search engine does not provide any.
 
 		$selectable = array(
-			'LastEdited' => 'Last Edited',
-			'ID' => 'Created',
-			'ClassName' => 'Type'
+			'LastEdited' => _t('EXTENSIBLE_SEARCH.LastEdited','Last Edited'),
+			'ID' => _t('EXTENSIBLE_SEARCH.Created','Created'),
+			'ClassName' => _t('EXTENSIBLE_SEARCH.Type','Type')
 		);
 
 		// Determine the search engine that has been selected.
@@ -403,7 +408,7 @@ class ExtensibleSearchPage extends Page {
 			// Determine the full-text specific selectable fields.
 
 			$selectable = array(
-				'Relevance' => 'Relevance'
+				'Relevance' => _t('EXTENSIBLE_SEARCH.Relevance','Relevance')
 			) + $selectable;
 			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
@@ -411,19 +416,19 @@ class ExtensibleSearchPage extends Page {
 				// Determine the most appropriate fields, primarily for sorting.
 
 				if(isset($fields['Title'])) {
-					$selectable['Title'] = 'Title';
+					$selectable['Title'] = (_t('EXTENSIBLE_SEARCH.Title','Title'));
 				}
 				if(isset($fields['MenuTitle'])) {
-					$selectable['MenuTitle'] = 'Navigation Title';
+					$selectable['MenuTitle'] = (_t('EXTENSIBLE_SEARCH.MenuTitle','Navigation Title'));
 				}
 				if(isset($fields['Sort'])) {
-					$selectable['Sort'] = 'Display Order';
+					$selectable['Sort'] = (_t('EXTENSIBLE_SEARCH.DisplayOrder','Display Order'));
 				}
 
 				// This is specific to file searching.
 
 				if(isset($fields['Name'])) {
-					$selectable['Name'] = 'File Name';
+					$selectable['Name'] = (_t('EXTENSIBLE_SEARCH.FileName','File Name'));
 				}
 			}
 		}
@@ -613,7 +618,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$fields = FieldList::create(
 			TextField::create(
 				'Search',
-				'Search',
+				_t('EXTENSIBLE_SEARCH.Search','Search'),
 				$request->getVar('Search')
 			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
