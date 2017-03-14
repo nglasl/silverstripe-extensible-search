@@ -199,8 +199,8 @@ class ExtensibleSearchPage extends Page {
 				'SortDirection',
 				'Sort Direction',
 				array(
-					'DESC' => 'Descending',
-					'ASC' => 'Ascending'
+					'DESC' => _t('EXTENSIBLE_SEARCH.DESCENDING', 'Descending'),
+					'ASC' => _t('EXTENSIBLE_SEARCH.ASCENDING', 'Ascending')
 				)
 			), 'Content');
 
@@ -379,9 +379,9 @@ class ExtensibleSearchPage extends Page {
 		// Instantiate some default selectable fields, just in case the search engine does not provide any.
 
 		$selectable = array(
-			'LastEdited' => 'Last Edited',
-			'ID' => 'Created',
-			'ClassName' => 'Type'
+			'LastEdited' => _t('EXTENSIBLE_SEARCH.LAST_EDITED', 'Last Edited'),
+			'ID' => _t('EXTENSIBLE_SEARCH.CREATED', 'Created'),
+			'ClassName' => _t('EXTENSIBLE_SEARCH.TYPE', 'Type')
 		);
 
 		// Determine the search engine that has been selected.
@@ -403,7 +403,7 @@ class ExtensibleSearchPage extends Page {
 			// Determine the full-text specific selectable fields.
 
 			$selectable = array(
-				'Relevance' => 'Relevance'
+				'Relevance' => _t('EXTENSIBLE_SEARCH.RELEVANCE', 'Relevance')
 			) + $selectable;
 			foreach($classes as $class) {
 				$fields = DataObject::database_fields($class);
@@ -411,19 +411,19 @@ class ExtensibleSearchPage extends Page {
 				// Determine the most appropriate fields, primarily for sorting.
 
 				if(isset($fields['Title'])) {
-					$selectable['Title'] = 'Title';
+					$selectable['Title'] = _t('EXTENSIBLE_SEARCH.TITLE', 'Title');
 				}
 				if(isset($fields['MenuTitle'])) {
-					$selectable['MenuTitle'] = 'Navigation Title';
+					$selectable['MenuTitle'] = _t('EXTENSIBLE_SEARCH.NAVIGATION_TITLE', 'Navigation Title');
 				}
 				if(isset($fields['Sort'])) {
-					$selectable['Sort'] = 'Display Order';
+					$selectable['Sort'] = _t('EXTENSIBLE_SEARCH.DISPLAY_ORDER', 'Display Order');
 				}
 
 				// This is specific to file searching.
 
 				if(isset($fields['Name'])) {
-					$selectable['Name'] = 'File Name';
+					$selectable['Name'] = _t('EXTENSIBLE_SEARCH.FILE_NAME', 'File Name');
 				}
 			}
 		}
@@ -613,7 +613,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		$fields = FieldList::create(
 			TextField::create(
 				'Search',
-				'Search',
+				_t('EXTENSIBLE_SEARCH.SEARCH', 'Search'),
 				$request->getVar('Search')
 			)->addExtraClass('extensible-search')->setAttribute('data-suggestions-enabled', $configuration->get('ExtensibleSearchSuggestion', 'enable_suggestions') ? 'true' : 'false')->setAttribute('data-extensible-search-page', $this->data()->ID)
 		);
@@ -632,16 +632,16 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 			$fields->push(DropdownField::create(
 				'SortBy',
-				'Sort By',
+				_t('EXTENSIBLE_SEARCH.SORT_BY', 'Sort By'),
 				$this->data()->getSelectableFields(),
 				$request->getVar('SortBy') ? $request->getVar('SortBy') : $this->data()->SortBy
 			)->setHasEmptyDefault(true));
 			$fields->push(DropdownField::create(
 				'SortDirection',
-				'Sort Direction',
+				_t('EXTENSIBLE_SEARCH.SORT_DIRECTION', 'Sort Direction'),
 				array(
-					'DESC' => 'Descending',
-					'ASC' => 'Ascending'
+					'DESC' => _t('EXTENSIBLE_SEARCH.DESCENDING', 'Descending'),
+					'ASC' => _t('EXTENSIBLE_SEARCH.ASCENDING', 'Ascending')
 				),
 				$request->getVar('SortDirection') ? $request->getVar('SortDirection') : $this->data()->SortDirection
 			)->setHasEmptyDefault(true));
@@ -656,7 +656,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			FieldList::create(
 				FormAction::create(
 					'getSearchResults',
-					'Go'
+					_t('EXTENSIBLE_SEARCH.GO', 'Go')
 				)
 			)
 		);
@@ -846,7 +846,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// The paginated list needs to be instantiated again.
 
 			$results = array(
-				'Title' => 'Search Results',
+				'Title' => _t('EXTENSIBLE_SEARCH.SEARCH_RESULTS', 'Search Results'),
 				'Query' => $form->getSearchQuery($data),
 				'Results' => PaginatedList::create(
 					$list
