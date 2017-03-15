@@ -245,13 +245,8 @@ class ExtensibleSearchPage extends Page {
 
 			// Update the display columns.
 
-			$summaryDisplay = array(
-				'Term' => 'Search Term',
-				'Frequency' => 'Frequency',
-				'FrequencyPercentage' => 'Frequency %',
-				'AverageTimeTaken' => 'Average Time Taken (s)',
-				'Results' => 'Has Results?'
-			);
+			$summaryDisplay = singleton('ExtensibleSearchArchived')->fieldLabels();
+			unset($summaryDisplay['Archive']);
 			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
 
 			// Instantiate an export button.
