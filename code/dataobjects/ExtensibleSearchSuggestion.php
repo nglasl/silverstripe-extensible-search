@@ -129,7 +129,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		$fields->removeByName('Approved');
 		$fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
-			'Approved?'
+			_t('EXTENSIBLE_SEARCH.APPROVED?', 'Approved?')
 		)->addExtraClass('approved wrapper'));
 		$approved->push($this->getApprovedField());
 

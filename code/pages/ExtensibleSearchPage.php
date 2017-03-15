@@ -131,7 +131,7 @@ class ExtensibleSearchPage extends Page {
 
 		$fields->addFieldToTab('Root.Main', DropdownField::create(
 			'SearchEngine',
-			'Search Engine',
+			_t('EXTENSIBLE_SEARCH.SEARCH_ENGINE', 'Search Engine'),
 			$engines
 		)->setHasEmptyDefault(true)->setRightTitle('This needs to be saved before further customisation is available'), 'Title');
 
@@ -170,7 +170,7 @@ class ExtensibleSearchPage extends Page {
 
 				$fields->addFieldToTab('Root.Main', $tree = TreeMultiselectField::create(
 					'SearchTrees',
-					'Search Trees',
+					_t('EXTENSIBLE_SEARCH.SEARCH_TREES', 'Search Trees'),
 					'SiteTree'
 				), 'Content');
 
@@ -192,12 +192,12 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'SortBy',
-				'Sort By',
+				_t('EXTENSIBLE_SEARCH.SORT_BY', 'Sort By'),
 				$this->getSelectableFields()
 			), 'Content');
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'SortDirection',
-				'Sort Direction',
+				_t('EXTENSIBLE_SEARCH.SORT_DIRECTION', 'Sort Direction'),
 				array(
 					'DESC' => _t('EXTENSIBLE_SEARCH.DESCENDING', 'Descending'),
 					'ASC' => _t('EXTENSIBLE_SEARCH.ASCENDING', 'Ascending')
@@ -208,13 +208,14 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.Main', CheckboxField::create(
 				'StartWithListing',
-				'Start With Listing?'
+				_t('EXTENSIBLE_SEARCH.START_WITH_LISTING?', 'Start With Listing?')
 			)->addExtraClass('start-with-listing'), 'Content');
 
 			// Display the results per page selection.
 
 			$fields->addFieldToTab('Root.Main', NumericField::create(
-				'ResultsPerPage'
+				'ResultsPerPage',
+				_t('EXTENSIBLE_SEARCH.RESULTS_PER_PAGE', 'Results Per Page')
 			), 'Content');
 		}
 		else {
@@ -235,7 +236,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchAnalytics.Current', $summary = GridField::create(
 				'HistorySummary',
-				'Summary',
+				_t('EXTENSIBLE_SEARCH.SUMMARY', 'Summary'),
 				$this->getHistorySummary()
 			)->setModelClass('ExtensibleSearch'));
 			$summaryConfiguration = $summary->getConfig();
@@ -267,7 +268,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchAnalytics.Current', $history = GridField::create(
 				'History',
-				'History',
+				_t('EXTENSIBLE_SEARCH.HISTORY', 'History'),
 				$this->History()
 			)->setModelClass('ExtensibleSearch'));
 			$historyConfiguration = $history->getConfig();
@@ -287,7 +288,7 @@ class ExtensibleSearchPage extends Page {
 			if($archives->exists()) {
 				$fields->addFieldToTab('Root.SearchAnalytics.Archives', GridField::create(
 					'Archives',
-					'Archives',
+					_t('EXTENSIBLE_SEARCH.ARCHIVES', 'Archives'),
 					$archives,
 					$archivesConfiguration = GridFieldConfig_RecordEditor::create()
 				)->setModelClass('ExtensibleSearchArchive'));
@@ -316,7 +317,7 @@ class ExtensibleSearchPage extends Page {
 
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
-				'Suggestions',
+				_t('EXTENSIBLE_SEARCH.SUGGESTIONS', 'Suggestions'),
 				$this->Suggestions(),
 				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
 			)->setModelClass('ExtensibleSearchSuggestion'));
