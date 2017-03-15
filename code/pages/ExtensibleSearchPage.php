@@ -234,6 +234,8 @@ class ExtensibleSearchPage extends Page {
 
 			// Instantiate the analytic summary.
 
+			$fields->findOrMakeTab('Root.SearchAnalytics.Current', _t('EXTENSIBLE_SEARCH.CURRENT', 'Current'));
+			$fields->findOrMakeTab('Root.SearchAnalytics')->setTitle(_t('EXTENSIBLE_SEARCH.SEARCH_ANALYTICS', 'Search Analytics'));
 			$fields->addFieldToTab('Root.SearchAnalytics.Current', $summary = GridField::create(
 				'HistorySummary',
 				_t('EXTENSIBLE_SEARCH.SUMMARY', 'Summary'),
@@ -286,6 +288,7 @@ class ExtensibleSearchPage extends Page {
 
 			$archives = $this->Archives();
 			if($archives->exists()) {
+				$fields->findOrMakeTab('Root.SearchAnalytics.Archives', _t('EXTENSIBLE_SEARCH.ARCHIVES', 'Archives'));
 				$fields->addFieldToTab('Root.SearchAnalytics.Archives', GridField::create(
 					'Archives',
 					_t('EXTENSIBLE_SEARCH.ARCHIVES', 'Archives'),
@@ -315,6 +318,7 @@ class ExtensibleSearchPage extends Page {
 
 			// Determine the search page specific suggestions.
 
+			$fields->findOrMakeTab('Root.SearchSuggestions', _t('EXTENSIBLE_SEARCH.SEARCH_SUGGESTIONS', 'Search Suggestions'));
 			$fields->addFieldToTab('Root.SearchSuggestions', GridField::create(
 				'Suggestions',
 				_t('EXTENSIBLE_SEARCH.SUGGESTIONS', 'Suggestions'),
