@@ -26,10 +26,6 @@ class ExtensibleSearchArchive extends DataObject {
 		'TitleSummary'
 	);
 
-	private static $field_labels = array(
-		'TitleSummary' => 'Date Range'
-	);
-
 	public function canCreate($member = null) {
 
 		return false;
@@ -88,6 +84,13 @@ class ExtensibleSearchArchive extends DataObject {
 
 		$this->extend('updateExtensibleSearchArchiveCMSFields', $fields);
 		return $fields;
+	}
+
+	public function fieldLabels($includerelations = true) {
+
+		return array(
+			'TitleSummary' => _t('EXTENSIBLE_SEARCH.DATE_RANGE', 'Date Range')
+		);
 	}
 
 	/**

@@ -27,14 +27,6 @@ class ExtensibleSearchArchived extends DataObject {
 		'Results'
 	);
 
-	private static $field_labels = array(
-		'Term' => 'Search Term',
-		'Frequency' => 'Frequency',
-		'FrequencyPercentage' => 'Frequency %',
-		'AverageTimeTaken' => 'Average Time Taken (s)',
-		'Results' => 'Has Results?'
-	);
-
 	public function canEdit($member = null) {
 
 		return false;
@@ -48,6 +40,17 @@ class ExtensibleSearchArchived extends DataObject {
 	public function canDelete($member = null) {
 
 		return false;
+	}
+
+	public function fieldLabels($includerelations = true) {
+
+		return array(
+			'Term' => _t('EXTENSIBLE_SEARCH.SEARCH_TERM', 'Search Term'),
+			'Frequency' => _t('EXTENSIBLE_SEARCH.FREQUENCY', 'Frequency'),
+			'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.FREQUENCY_%', 'Frequency %'),
+			'AverageTimeTaken' => _t('EXTENSIBLE_SEARCH.AVERAGE_TIME_TAKEN', 'Average Time Taken (s)'),
+			'Results' => _t('EXTENSIBLE_SEARCH.HAS_RESULTS?', 'Has Results?')
+		);
 	}
 
 }

@@ -31,13 +31,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'ApprovedField'
 	);
 
-	private static $field_labels = array(
-		'Term' => 'Search Term',
-		'FrequencySummary' => 'Analytic Frequency',
-		'FrequencyPercentage' => 'Analytic Frequency %',
-		'ApprovedField' => 'Approved?'
-	);
-
 	/**
 	 *	Allow the ability to disable search suggestions.
 	 */
@@ -164,6 +157,16 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		$this->extend('validateExtensibleSearchSuggestion', $result);
 		return $result;
+	}
+
+	public function fieldLabels($includerelations = true) {
+
+		return array(
+			'Term' => _t('EXTENSIBLE_SEARCH.SEARCH_TERM', 'Search Term'),
+			'FrequencySummary' => _t('EXTENSIBLE_SEARCH.ANALYTIC_FREQUENCY', 'Analytic Frequency'),
+			'FrequencyPercentage' => _t('EXTENSIBLE_SEARCH.ANALYTIC_FREQUENCY_%', 'Analytic Frequency %'),
+			'ApprovedField' => _t('EXTENSIBLE_SEARCH.APPROVED?', 'Approved?')
+		);
 	}
 
 	/**

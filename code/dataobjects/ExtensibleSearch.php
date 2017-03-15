@@ -22,11 +22,11 @@ class ExtensibleSearch extends DataObject {
 	private static $default_sort = 'ID DESC';
 
 	private static $summary_fields = array(
-		'TimeSummary' => 'Time',
-		'Term' => 'Search Term',
-		'TimeTakenSummary' => 'Time Taken (s)',
-		'Results' => 'Results',
-		'SearchEngineSummary' => 'Search Engine'
+		'TimeSummary',
+		'Term',
+		'TimeTakenSummary',
+		'Results',
+		'SearchEngineSummary'
 	);
 
 	/**
@@ -34,6 +34,17 @@ class ExtensibleSearch extends DataObject {
 	 */
 
 	private static $enable_analytics = true;
+
+	public function fieldLabels($includerelations = true) {
+
+		return array(
+			'TimeSummary' => _t('EXTENSIBLE_SEARCH.TIME', 'Time'),
+			'Term' => _t('EXTENSIBLE_SEARCH.SEARCH_TERM', 'Search Term'),
+			'TimeTakenSummary' => _t('EXTENSIBLE_SEARCH.TIME_TAKEN', 'Time Taken (s)'),
+			'Results' => _t('EXTENSIBLE_SEARCH.RESULTS', 'Results'),
+			'SearchEngineSummary' => _t('EXTENSIBLE_SEARCH.SEARCH_ENGINE', 'Search Engine')
+		);
+	}
 
 	/**
 	 *	Retrieve the log time for display purposes.

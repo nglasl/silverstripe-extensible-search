@@ -246,7 +246,6 @@ class ExtensibleSearchPage extends Page {
 			// Update the display columns.
 
 			$summaryDisplay = singleton('ExtensibleSearchArchived')->fieldLabels();
-			unset($summaryDisplay['Archive']);
 			$summaryConfiguration->getComponentByType('GridFieldDataColumns')->setDisplayFields($summaryDisplay);
 
 			// Instantiate an export button.
