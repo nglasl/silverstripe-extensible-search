@@ -465,7 +465,7 @@ class ExtensibleSearchPage extends Page {
 			);
 			$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
 			$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
-			$result->Results = $result->Results ? 'true' : 'false';
+			$result->Results = $result->Results ? _t('EXTENSIBLE_SEARCH.TRUE', 'true') : _t('EXTENSIBLE_SEARCH.FALSE', 'false');
 			$analytics->push($result);
 		}
 		return $analytics;
