@@ -450,7 +450,10 @@ class ExtensibleSearchPage extends Page {
 				'Frequency' => 'DESC',
 				'Term' => 'ASC'
 			),
-			array('Term', 'Results')
+			array(
+				'Term',
+				'Results'
+			)
 		);
 
 		// These will require display formatting.

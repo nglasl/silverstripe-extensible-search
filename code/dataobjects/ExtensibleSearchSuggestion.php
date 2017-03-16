@@ -52,8 +52,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 		return array(
 			'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
-				'category' => 'Extensible search',
-				'name' => 'Manage search suggestions',
+				'category' => _t('EXTENSIBLE_SEARCH.EXTENSIBLE_SEARCH', 'Extensible search'),
+				'name' => _t('EXTENSIBLE_SEARCH.MANAGE_SEARCH_SUGGESTIONS', 'Manage search suggestions'),
 				'help' => 'Allow management of user search generated suggestions.'
 			)
 		);
