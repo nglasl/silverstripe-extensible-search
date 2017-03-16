@@ -46,7 +46,7 @@ class ExtensibleSearchArchive extends DataObject {
 
 		$starting = date('F Y', strtotime($this->StartingDate));
 		$ending = date('F Y', strtotime($this->EndingDate));
-		return "{$starting} to {$ending}";
+		return "{$starting} → {$ending}";
 	}
 
 	public function getCMSFields() {
@@ -107,7 +107,7 @@ class ExtensibleSearchArchive extends DataObject {
 		// The following is required so HTML isn't automatically escaped.
 
 		$output = HTMLText::create();
-		$output->setValue("<strong>{$starting}</strong> to <strong>{$ending}</strong>");
+		$output->setValue("<strong>{$starting}</strong> → <strong>{$ending}</strong>");
 		return $output;
 	}
 
