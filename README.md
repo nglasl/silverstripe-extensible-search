@@ -1,6 +1,6 @@
 # [extensible-search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **3.1.7**_
+_The current release is **3.1.8**_
 
 > A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
@@ -10,7 +10,7 @@ _The current release is **3.1.7**_
 
 ## Getting Started
 
-* Place the module under your root project directory.
+* [Place the module under your root project directory.](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 * Configure the search engine and search form YAML.
 * `/dev/build`
 * Configure the extensible search page.
