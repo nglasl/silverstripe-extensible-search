@@ -3,7 +3,7 @@
 /**
  *	This creates an archived collection of analytics for each search page.
  *	NOTE: The search analytics will be purged after this has taken place.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchArchiveTask extends BuildTask {

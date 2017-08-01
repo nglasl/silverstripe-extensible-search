@@ -2,7 +2,7 @@
 
 /**
  *	The page used to display search results, analytics and suggestions, allowing user customisation and developer extension.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchPage extends Page {

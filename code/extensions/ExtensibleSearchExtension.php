@@ -2,7 +2,7 @@
 
 /**
  *	This extension is used to implement a search form, primarily outside the search page.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchExtension extends Extension {

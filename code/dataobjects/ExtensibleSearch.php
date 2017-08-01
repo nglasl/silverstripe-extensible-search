@@ -2,8 +2,8 @@
 
 /**
  *	Details of a user search that are retrieved for analytics.
- *	@author Marcus Nyeholt <marcus@silverstripe.com.au>
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Marcus Nyeholt <marcus@symbiote.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearch extends DataObject {

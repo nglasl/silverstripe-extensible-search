@@ -132,4 +132,4 @@ Custom search engine specific templates may be defined for your search results. 
 
 ## Maintainer Contact
 
-	Nathan Glasl, nathan@silverstripe.com.au
+	Nathan Glasl, nathan@symbiote.com.au

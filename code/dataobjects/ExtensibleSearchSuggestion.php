@@ -2,8 +2,8 @@
 
 /**
  *	Details of a user search generated suggestion.
- *	@author Marcus Nyeholt <marcus@silverstripe.com.au>
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Marcus Nyeholt <marcus@symbiote.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {

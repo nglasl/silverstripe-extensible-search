@@ -11,7 +11,7 @@
 	"license": "BSD-3-Clause",
 	"authors": [{
 		"name": "Nathan Glasl",
-		"email": "nathan@silverstripe.com.au"
+		"email": "nathan@symbiote.com.au"
 	}],
 	"require": {
 		"silverstripe/cms": "~3.2",

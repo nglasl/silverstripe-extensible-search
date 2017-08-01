@@ -2,7 +2,7 @@
 
 /**
  *	The extensible search specific configuration settings.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 if(!defined('EXTENSIBLE_SEARCH_PATH')) {

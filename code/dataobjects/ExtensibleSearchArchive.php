@@ -2,7 +2,7 @@
 
 /**
  *	This represents an archived collection of search analytics.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchArchive extends DataObject {
