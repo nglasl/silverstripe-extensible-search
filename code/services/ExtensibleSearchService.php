@@ -101,7 +101,11 @@ class ExtensibleSearchService {
 
 			// This indicates a possible race condition.
 
-			$suggestion = ExtensibleSearchSuggestion::get()->filter($filter)->first();
+			$suggestions = ExtensibleSearchSuggestion::get()->filter($filter);
+			while($suggestions->count() > 1) {
+				$suggestions->last()->delete();
+			}
+			$suggestion = $suggestions->first();
 			$frequency = ExtensibleSearch::get()->filter($filter)->count();
 			$suggestion->Frequency = $frequency;
 			$suggestion->write();
