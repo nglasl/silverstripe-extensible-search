@@ -841,6 +841,10 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 				$list = $list->filter($hierarchy ? 'ParentID' : 'SiteID', $filter);
 			}
 
+			// Apply custom filtering.
+
+			$this->extend('updateFiltering', $list);
+
 			// Apply the sorting.
 
 			$list = $list->sort("{$data['SortBy']} {$data['SortDirection']}");
