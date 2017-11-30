@@ -761,7 +761,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 		}
 		$request = $this->getRequest();
 		if(!isset($form)) {
-			$this->getForm($request);
+			$form = $this->getForm($request);
 		}
 
 		// Instantiate some default templates.
@@ -872,6 +872,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		$this->extend('updateTemplates', $templates);
 		$output = $this->customise($results)->renderWith($templates);
+		$output->Count = $count;
 
 		// Determine whether analytics are to be suppressed.
 
