@@ -1,12 +1,12 @@
 # [extensible search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **3.1.12**_
+_The current release is **4.0.0**_
 
 > A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
 
 ## Requirement
 
-* SilverStripe 3.1 → **3.5**
+* SilverStripe 3.1 → **4.0**
 
 ## Getting Started
 
@@ -44,27 +44,12 @@ When considering the search engine to use, full-text has some important limitati
 
 #### Custom Search Engine
 
-The following is an example configuration:
+The following is an example configuration, where `ElasticSearch` extends the abstract `CustomSearchEngine` class:
 
 ```yaml
 ExtensibleSearchPage:
-  search_engine_extensions:
-    SolrSearch: 'Solr'
-  extensions:
-    - 'SolrSearch'
-ExtensibleSearchPage_Controller:
-  extensions:
-    - 'SolrSearch_Controller'
-```
-
-When implementing a custom search engine, these are required:
-
-`getSelectableFields` and `getSearchResults` (this one under the controller).
-
-Depending on whether the search engine supports hierarchy filtering based on parent ID, this may also be configured.
-
-```php
-public static $supports_hierarchy = true;
+  custom_search_engines:
+    ElasticSearch: 'Solr'
 ```
 
 ### Search Form
@@ -128,7 +113,11 @@ Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
 
 Custom search engine specific templates may be defined for your search results. These are just two examples:
 
-`SolrSearch_results.ss` or `Page_results.ss`
+`ElasticSearch_results.ss` or `Page_results.ss`
+
+## SS4 Change Log
+
+- The custom search engine support and configuration has changed (see above).
 
 ## Maintainer Contact
 

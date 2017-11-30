@@ -76,7 +76,7 @@ class ExtensibleSearch extends DataObject {
 
 	public function getSearchEngineSummary() {
 
-		$configuration = Config::inst()->get('ExtensibleSearchPage', 'search_engine_extensions');
+		$configuration = Config::inst()->get('ExtensibleSearchPage', 'custom_search_engines');
 		return isset($configuration[$this->SearchEngine]) ? $configuration[$this->SearchEngine] : $this->SearchEngine;
 	}
 

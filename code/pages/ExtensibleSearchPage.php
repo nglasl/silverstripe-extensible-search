@@ -35,13 +35,13 @@ class ExtensibleSearchPage extends Page {
 	 *	The search engine extensions that are available.
 	 */
 
-	private static $search_engine_extensions = array();
+	private static $custom_search_engines = array();
 
 	/**
 	 *	The full-text search engine does not support hierarchy filtering.
 	 */
 
-	public static $supports_hierarchy = false;
+	public $supports_hierarchy = false;
 
 	/**
 	 *	Instantiate a search page, should one not exist.
@@ -104,18 +104,18 @@ class ExtensibleSearchPage extends Page {
 		// Determine the search engine extensions that are available.
 
 		$engines = array();
-		foreach(self::config()->search_engine_extensions as $extension => $display) {
+		foreach(self::config()->custom_search_engines as $engine => $display) {
 
 			// The search engine extensions may define an optional display title.
 
-			if(is_numeric($extension)) {
-				$extension = $display;
+			if(is_numeric($engine)) {
+				$engine = $display;
 			}
 
 			// Determine whether the search engine extensions have been applied correctly.
 
-			if(ClassInfo::exists($extension) && ClassInfo::exists("{$extension}_Controller") && $this->hasExtension($extension) && ModelAsController::controller_for($this)->hasExtension("{$extension}_Controller")) {
-				$engines[$extension] = $display;
+			if(ClassInfo::exists($engine)) {
+				$engines[$engine] = $display;
 			}
 		}
 
@@ -148,18 +148,9 @@ class ExtensibleSearchPage extends Page {
 
 			// Determine whether the search engine supports hierarchy filtering.
 
-			$hierarchy = self::$supports_hierarchy;
+			$hierarchy = $this->supports_hierarchy;
 			if($this->SearchEngine !== 'Full-Text') {
-				foreach($this->extension_instances as $instance) {
-					if(get_class($instance) === $this->SearchEngine) {
-						$instance->setOwner($this);
-						if(isset($instance::$supports_hierarchy)) {
-							$hierarchy = $instance::$supports_hierarchy;
-						}
-						$instance->clearOwner();
-						break;
-					}
-				}
+				$hierarchy = singleton($this->SearchEngine)->supports_hierarchy;
 			}
 
 			// The search engine may only support limited hierarchy filtering for multiple sites.
@@ -389,13 +380,8 @@ class ExtensibleSearchPage extends Page {
 
 			// Determine the search engine specific selectable fields.
 
-			foreach($this->extension_instances as $instance) {
-				if(get_class($instance) === $this->SearchEngine) {
-					$instance->setOwner($this);
-					$fields = method_exists($instance, 'getSelectableFields') ? $instance->getSelectableFields() : array();
-					return $fields + $selectable;
-				}
-			}
+			$fields = singleton($this->SearchEngine)->getSelectableFields();
+			return $fields + $selectable;
 		}
 		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get('FulltextSearchable', 'searchable_classes')) && (count($classes) > 0)) {
 
@@ -776,32 +762,20 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 
 		if($engine !== 'Full-Text') {
 
+			// The analytics require the time taken.
+
+			$time = microtime(true);
+
 			// Determine the search engine specific search results.
 
-			$results = array(
-				'Results' => null
-			);
-			foreach($this->extension_instances as $instance) {
-				if(get_class($instance) === "{$engine}_Controller") {
-					$instance->setOwner($this);
-					if(method_exists($instance, 'getSearchResults')) {
+			$results = singleton($engine)->getSearchResults($data, $form);
 
-						// The analytics require the time taken.
+			// The search results format needs to be correct.
 
-						$time = microtime(true);
-						$results = $instance->getSearchResults($data, $form);
-
-						// The search results format needs to be correct.
-
-						if(!isset($results['Results'])) {
-							$results = array(
-								'Results' => $results
-							);
-						}
-					}
-					$instance->clearOwner();
-					break;
-				}
+			if(!isset($results['Results'])) {
+				$results = array(
+					'Results' => $results
+				);
 			}
 
 			// Determine the number of search results.
@@ -834,7 +808,7 @@ class ExtensibleSearchPage_Controller extends Page_Controller {
 			// The search engine may only support limited hierarchy filtering for multiple sites.
 
 			$filter = $page->SearchTrees()->column();
-			if(count($filter) && (($hierarchy = $page::$supports_hierarchy) || ClassInfo::exists('Multisites'))) {
+			if(count($filter) && (($hierarchy = $page->supports_hierarchy) || ClassInfo::exists('Multisites'))) {
 
 				// Apply the search trees filtering.
 
