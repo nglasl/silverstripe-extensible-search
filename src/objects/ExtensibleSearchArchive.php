@@ -1,5 +1,15 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_Base;
+use SilverStripe\Forms\GridField\GridFieldExportButton;
+use SilverStripe\Forms\GridField\GridFieldFilterHeader;
+use SilverStripe\Forms\GridField\GridFieldSortableHeader;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+
 /**
  *	This represents an archived collection of search analytics.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -7,17 +17,19 @@
 
 class ExtensibleSearchArchive extends DataObject {
 
+	private static $table_name = 'ExtensibleSearchArchive';
+
 	private static $db = array(
 		'StartingDate' => 'Date',
 		'EndingDate' => 'Date'
 	);
 
 	private static $has_one = array(
-		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+		'ExtensibleSearchPage' => ExtensibleSearchPage::class
 	);
 
 	private static $has_many = array(
-		'HistorySummary' => 'ExtensibleSearchArchived'
+		'HistorySummary' => ExtensibleSearchArchived::class
 	);
 
 	private static $default_sort = 'ID DESC';
@@ -26,7 +38,7 @@ class ExtensibleSearchArchive extends DataObject {
 		'TitleSummary'
 	);
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return false;
 	}
@@ -67,7 +79,7 @@ class ExtensibleSearchArchive extends DataObject {
 			_t('EXTENSIBLE_SEARCH.SUMMARY', 'Summary'),
 			$this->HistorySummary(),
 			$summaryConfiguration = GridFieldConfig_Base::create()
-		)->setModelClass('ExtensibleSearchArchived'));
+		)->setModelClass(ExtensibleSearchArchived::class));
 
 		// Instantiate an export button.
 
@@ -75,10 +87,10 @@ class ExtensibleSearchArchive extends DataObject {
 
 		// Update the custom summary fields to be sortable.
 
-		$summaryConfiguration->getComponentByType('GridFieldSortableHeader')->setFieldSorting(array(
+		$summaryConfiguration->getComponentByType(GridFieldSortableHeader::class)->setFieldSorting(array(
 			'FrequencyPercentage' => 'Frequency'
 		));
-		$summaryConfiguration->removeComponentsByType('GridFieldFilterHeader');
+		$summaryConfiguration->removeComponentsByType(GridFieldFilterHeader::class);
 
 		// Allow extension customisation.
 
@@ -106,7 +118,7 @@ class ExtensibleSearchArchive extends DataObject {
 
 		// The following is required so HTML isn't automatically escaped.
 
-		$output = HTMLText::create();
+		$output = DBHTMLText::create();
 		$output->setValue("<strong>{$starting}</strong> → <strong>{$ending}</strong>");
 		return $output;
 	}

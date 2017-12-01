@@ -2,7 +2,7 @@
 
 _The current release is **4.0.0**_
 
-> A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.
+> This module allows user customisation and developer extension of a search page instance, including analytics and suggestions.
 
 ## Requirement
 
@@ -21,7 +21,7 @@ _The current release is **4.0.0**_
 
 This is automatically created, and allows configuration for search based on a search engine (more below).
 
-![page](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-page.png)
+![page](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/client/images/extensible-search-page.png)
 
 ### Search Engine
 
@@ -30,14 +30,14 @@ The extensible search page is designed to use full-text search out of the box, w
 #### Full-Text
 
 ```yaml
-FulltextSearchable:
+SilverStripe\ORM\Search\FulltextSearchable:
   searchable_classes:
-    - 'SiteTree'
-SiteTree:
+    - 'SilverStripe\CMS\Model\SiteTree'
+SilverStripe\CMS\Model\SiteTree:
   create_table_options:
     MySQLDatabase: 'ENGINE=MyISAM'
   extensions:
-    - "FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
+    - "SilverStripe\\ORM\\Search\\FulltextSearchable('Title', 'MenuTitle', 'Content', 'MetaDescription')"
 ```
 
 When considering the search engine to use, full-text has some important limitations. This configuration can also be applied to `File`, however, unfortunately it does not support further customisation.
@@ -47,7 +47,7 @@ When considering the search engine to use, full-text has some important limitati
 The following is an example configuration, where `ElasticSearch` extends the abstract `CustomSearchEngine` class:
 
 ```yaml
-ExtensibleSearchPage:
+nglasl\extensible\ExtensibleSearchPage:
   custom_search_engines:
     ElasticSearch: 'Elastic'
 ```
@@ -55,9 +55,9 @@ ExtensibleSearchPage:
 ### Search Form
 
 ```yaml
-Page_Controller:
+PageController:
   extensions:
-    - 'ExtensibleSearchExtension'
+    - 'nglasl\extensible\ExtensibleSearchExtension'
 ```
 
 Using this, to display the search form that users interact with (from your template):
@@ -71,11 +71,11 @@ $SearchForm
 These are important to help determine either popular content on your site, or whether content is difficult for users to locate. They're automatically enabled out of the box, however, can be disabled using the following:
 
 ```yaml
-ExtensibleSearch:
+nglasl\extensible\ExtensibleSearch:
   enable_analytics: false
 ```
 
-![analytics](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-analytics.png)
+![analytics](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/client/images/extensible-search-analytics.png)
 
 When triggering a search, appending `?analytics=false` to the URL will bypass the search analytics. This is fantastic for debugging.
 
@@ -83,30 +83,30 @@ When triggering a search, appending `?analytics=false` to the URL will bypass th
 
 Depending on your search traffic, `/dev/tasks/ExtensibleSearchArchiveTask` may be used to archive past search analytics, for each search page. It would be recommended to trigger this on a schedule where possible.
 
-![archives](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-archives.png)
+![archives](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/client/images/extensible-search-archives.png)
 
-![archive](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-archive.png)
+![archive](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/client/images/extensible-search-archive.png)
 
 ### Search Suggestions
 
 These are most effective alongside the search analytics (in which case they're automatically populated), and can be used to display either popular searches on your site, or search form autocomplete options. They're automatically enabled out of the box, however, can be disabled using the following:
 
 ```yaml
-ExtensibleSearchSuggestion:
+nglasl\extensible\ExtensibleSearchSuggestion:
   enable_suggestions: false
 ```
 
-![suggestions](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-suggestions.png)
+![suggestions](https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/client/images/extensible-search-suggestions.png)
 
 To enable autocomplete using the **approved** search suggestions..
 
 ```php
-Requirements::javascript(EXTENSIBLE_SEARCH_PATH . '/javascript/extensible-search-suggestions.js');
+Requirements::javascript('nglasl/silverstripe-extensible-search: client/javascript/extensible-search-suggestions.js');
 
 // OPTIONAL.
 
-Requirements::css('framework/thirdparty/jquery-ui-themes/smoothness/jquery-ui.min.css');
-Requirements::javascript('framework/thirdparty/jquery-ui/jquery-ui.min.js');
+Requirements::css('jquery-ui.min.css');
+Requirements::javascript('jquery-ui.min.js');
 ```
 
 ### Smart Templating

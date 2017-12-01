@@ -1,5 +1,10 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\ValidationException;
+
 /**
  *	Handles the search analytics and suggestions, while providing any additional functionality required by the module.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -22,7 +27,7 @@ class ExtensibleSearchService {
 
 		// Make sure the search analytics are enabled.
 
-		if(!Config::inst()->get('ExtensibleSearch', 'enable_analytics')) {
+		if(!Config::inst()->get(ExtensibleSearch::class, 'enable_analytics')) {
 			return null;
 		}
 
@@ -86,7 +91,7 @@ class ExtensibleSearchService {
 				array(
 					'Term' => $term,
 					'Frequency' => $frequency,
-					'Approved' => (int)Config::inst()->get('ExtensibleSearchSuggestion', 'automatic_approval'),
+					'Approved' => (int)Config::inst()->get(ExtensibleSearchSuggestion::class, 'automatic_approval'),
 					'ExtensibleSearchPageID' => $pageID
 				)
 			);
@@ -159,7 +164,7 @@ class ExtensibleSearchService {
 			// Make sure the current user has appropriate permission.
 
 			$pageID = (int)$pageID;
-			if(($page = ExtensibleSearchPage::get_by_id('ExtensibleSearchPage', $pageID)) && $page->canView()) {
+			if(($page = ExtensibleSearchPage::get_by_id(ExtensibleSearchPage::class, $pageID)) && $page->canView()) {
 
 				// Retrieve the search suggestions.
 

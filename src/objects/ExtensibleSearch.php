@@ -1,12 +1,18 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\DataObject;
+
 /**
  *	Details of a user search that are retrieved for analytics.
- *	@author Marcus Nyeholt <marcus@symbiote.com.au>
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearch extends DataObject {
+
+	private static $table_name = 'ExtensibleSearch';
 
 	private static $db = array(
 		'Term' => 'Varchar(255)',
@@ -16,7 +22,7 @@ class ExtensibleSearch extends DataObject {
 	);
 
 	private static $has_one = array(
-		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+		'ExtensibleSearchPage' => ExtensibleSearchPage::class
 	);
 
 	private static $default_sort = 'ID DESC';
@@ -76,7 +82,7 @@ class ExtensibleSearch extends DataObject {
 
 	public function getSearchEngineSummary() {
 
-		$configuration = Config::inst()->get('ExtensibleSearchPage', 'custom_search_engines');
+		$configuration = Config::inst()->get(ExtensibleSearchPage::class, 'custom_search_engines');
 		return isset($configuration[$this->SearchEngine]) ? $configuration[$this->SearchEngine] : $this->SearchEngine;
 	}
 

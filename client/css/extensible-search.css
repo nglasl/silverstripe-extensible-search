@@ -1,0 +1,27 @@
+
+/**
+ *	The extensible search specific styling.
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
+ */
+
+p.extensible-search.notice,
+p.extensible-search.notification {
+	padding: 10px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+p.extensible-search.notice {
+	background: #F0F8FC;
+	border: 1px solid #93CDE8;
+}
+
+p.extensible-search.notification {
+	background: #FFA84C;
+	border: 1px solid #FF7400;
+}
+
+#Form_EditForm_Suggestions input.approved {
+	cursor: pointer;
+}

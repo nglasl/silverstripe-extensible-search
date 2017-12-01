@@ -1,5 +1,19 @@
 <?php
 
+namespace nglasl\extensible\tests;
+
+use nglasl\extensible\ExtensibleSearch;
+use nglasl\extensible\ExtensibleSearchArchive;
+use nglasl\extensible\ExtensibleSearchArchived;
+use nglasl\extensible\ExtensibleSearchArchiveTask;
+use nglasl\extensible\ExtensibleSearchPage;
+use nglasl\extensible\ExtensibleSearchSuggestion;
+use SilverStripe\CMS\Controllers\ModelAsController;
+use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\SapphireTest;
+use SilverStripe\ORM\Search\FulltextSearchable;
+
 /**
  *	The extensible search specific unit testing.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -10,25 +24,25 @@ class UnitTests extends SapphireTest {
 	protected $usesDatabase = true;
 
 	protected $requireDefaultRecordsFrom = array(
-		'ExtensibleSearchPage'
+		ExtensibleSearchPage::class
 	);
 
-	public function setUpOnce() {
+	public static function setUpBeforeClass() {
 
-		parent::setUpOnce();
+		parent::setUpBeforeClass();
 
 		// The full-text search needs to be enabled.
 
-		$config = Config::inst();
-		$config->update('FulltextSearchable', 'searchable_classes', array(
-			'SiteTree'
+		$config = Config::modify();
+		$config->merge(FulltextSearchable::class, 'searchable_classes', array(
+			SiteTree::class
 		));
-		$config->update('SiteTree', 'create_table_options', array(
+		$config->merge(SiteTree::class, 'create_table_options', array(
 			'MySQLDatabase' => 'ENGINE=MyISAM'
 		));
-		$config->update('SiteTree', 'extensions', array(
-			"FulltextSearchable('Title, MenuTitle, Content, MetaDescription')"
-		));
+		if(!SiteTree::has_extension(FulltextSearchable::class)) {
+			SiteTree::add_extension(FulltextSearchable::class . "('Title', 'MenuTitle', 'Content', 'MetaDescription')");
+		}
 	}
 
 	public function testSearchResults() {
@@ -109,7 +123,7 @@ class UnitTests extends SapphireTest {
 
 		// Trigger the task to archive past search analytics.
 
-		singleton('ExtensibleSearchArchiveTask')->run(null);
+		singleton(ExtensibleSearchArchiveTask::class)->run(null);
 		$this->assertEquals(ExtensibleSearch::get()->filter($filter)->count(), 0);
 		$this->assertEquals(ExtensibleSearchSuggestion::get()->filter($filter)->count(), 1);
 

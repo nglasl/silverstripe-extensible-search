@@ -1,7 +1,7 @@
 {
 	"name": "nglasl/silverstripe-extensible-search",
-	"description": "A module for SilverStripe which will allow user customisation and developer extension of a search page instance, including analytics and suggestions.",
-	"type": "silverstripe-module",
+	"description": "This module allows user customisation and developer extension of a search page instance, including analytics and suggestions.",
+	"type": "silverstripe-vendormodule",
 	"keywords": [
 		"silverstripe",
 		"search",
@@ -14,16 +14,28 @@
 		"email": "nathan@symbiote.com.au"
 	}],
 	"require": {
-		"silverstripe/cms": "~3.2",
-		"silverstripe/framework": "~3.2"
+		"silverstripe/cms": "~4.0",
+		"silverstripe/framework": "~4.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"nglasl\\extensible\\": [
+				"src/controllers/",
+				"src/extensions/",
+				"src/objects/",
+				"src/pages/",
+				"src/services/",
+				"src/tasks/"
+			],
+			"nglasl\\extensible\\tests\\": "tests/"
+		}
 	},
 	"extra": {
-		"installer-name": "extensible-search",
 		"branch-alias": {
 			"dev-master": "4.0.x-dev"
 		},
-		"screenshots": [
-			"https://raw.githubusercontent.com/nglasl/silverstripe-extensible-search/master/images/extensible-search-analytics.png"
+		"expose": [
+			"client"
 		]
 	}
 }

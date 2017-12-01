@@ -1,0 +1,10 @@
+---
+name: extensible-search-upgrade
+---
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    ExtensibleSearch: 'nglasl\extensible\ExtensibleSearch'
+    ExtensibleSearchArchive: 'nglasl\extensible\ExtensibleSearchArchive'
+    ExtensibleSearchArchived: 'nglasl\extensible\ExtensibleSearchArchived'
+    ExtensibleSearchSuggestion: 'nglasl\extensible\ExtensibleSearchSuggestion'
+    ExtensibleSearchPage: 'nglasl\extensible\ExtensibleSearchPage'

@@ -1,6 +1,6 @@
 ---
 name: extensible-search-routes
 ---
-Director:
+SilverStripe\Control\Director:
   rules:
-    extensible-search-api: 'ExtensibleSearchAPI'
+    extensible-search-api: 'nglasl\extensible\ExtensibleSearchAPI'

@@ -1,0 +1,13 @@
+mappings:
+  ExtensibleSearchAPI: 'nglasl\extensible\ExtensibleSearchAPI'
+  ExtensibleSearchPageController: 'nglasl\extensible\ExtensibleSearchPageController'
+  ExtensibleSearchExtension: 'nglasl\extensible\ExtensibleSearchExtension'
+  ExtensibleSearch: 'nglasl\extensible\ExtensibleSearch'
+  ExtensibleSearchArchive: 'nglasl\extensible\ExtensibleSearchArchive'
+  ExtensibleSearchArchived: 'nglasl\extensible\ExtensibleSearchArchived'
+  ExtensibleSearchSuggestion: 'nglasl\extensible\ExtensibleSearchSuggestion'
+  ExtensibleSearchPage: 'nglasl\extensible\ExtensibleSearchPage'
+  CustomSearchEngine: 'nglasl\extensible\CustomSearchEngine'
+  ExtensibleSearchService: 'nglasl\extensible\ExtensibleSearchService'
+  ExtensibleSearchArchiveTask: 'nglasl\extensible\ExtensibleSearchArchiveTask'
+  UnitTests: 'nglasl\extensible\tests\UnitTests'

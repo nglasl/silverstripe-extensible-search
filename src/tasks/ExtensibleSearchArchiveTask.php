@@ -1,5 +1,12 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\Queries\SQLDelete;
+use SilverStripe\ORM\Queries\SQLUpdate;
+
 /**
  *	This creates an archived collection of analytics for each search page.
  *	NOTE: The search analytics will be purged after this has taken place.
@@ -7,6 +14,8 @@
  */
 
 class ExtensibleSearchArchiveTask extends BuildTask {
+
+	private static $segment = 'ExtensibleSearchArchiveTask';
 
 	protected $title = 'Extensible Search Archiving';
 
@@ -20,7 +29,7 @@ class ExtensibleSearchArchiveTask extends BuildTask {
 
 	public function run($request) {
 
-		increase_time_limit_to();
+		set_time_limit(0);
 
 		// Determine whether a search page has analytics.
 

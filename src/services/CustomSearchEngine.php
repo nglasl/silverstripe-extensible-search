@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\extensible;
+
 /**
  *	This is the foundation for a custom search engine implementation.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -17,8 +19,8 @@ abstract class CustomSearchEngine {
 	 *	Determine the search engine specific selectable fields, primarily for sorting.
 	 */
 
-	abstract public function getSelectableFields();
+	abstract public function getSelectableFields($page = null);
 
-	abstract public function getSearchResults($data = null, $form = null);
+	abstract public function getSearchResults($data = null, $form = null, $page = null);
 
 }

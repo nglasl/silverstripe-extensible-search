@@ -1,5 +1,12 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\CMS\Controllers\ModelAsController;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Extension;
+use Symbiote\Multisites\Multisites;
+
 /**
  *	This extension is used to implement a search form, primarily outside the search page.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -14,7 +21,7 @@ class ExtensibleSearchExtension extends Extension {
 	/**
 	 *	Instantiate the search form, primarily outside the search page.
 	 *
-	 *	@parameter <{REQUEST}> ss http request
+	 *	@parameter <{REQUEST}> http request
 	 *	@parameter <{DISPLAY_SORTING}> boolean
 	 *	@return search form
 	 */
@@ -38,7 +45,7 @@ class ExtensibleSearchExtension extends Extension {
 
 		// This is required to support multiple sites.
 
-		if(ClassInfo::exists('Multisites')) {
+		if(ClassInfo::exists(Multisites::class)) {
 			$pages = $pages->filter('SiteID', $this->owner->SiteID);
 		}
 		return $pages->first();

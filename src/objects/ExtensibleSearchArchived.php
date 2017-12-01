@@ -1,11 +1,17 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\ORM\DataObject;
+
 /**
  *	This represents an archived search analytic.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchArchived extends DataObject {
+
+	private static $table_name = 'ExtensibleSearchArchived';
 
 	private static $db = array(
 		'Term' => 'Varchar(255)',
@@ -16,7 +22,7 @@ class ExtensibleSearchArchived extends DataObject {
 	);
 
 	private static $has_one = array(
-		'Archive' => 'ExtensibleSearchArchive'
+		'Archive' => ExtensibleSearchArchive::class
 	);
 
 	private static $summary_fields = array(
@@ -32,7 +38,7 @@ class ExtensibleSearchArchived extends DataObject {
 		return false;
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return false;
 	}

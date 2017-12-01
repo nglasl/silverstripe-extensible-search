@@ -1,12 +1,23 @@
 <?php
 
+namespace nglasl\extensible;
+
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
+use SilverStripe\View\Requirements;
+
 /**
  *	Details of a user search generated suggestion.
- *	@author Marcus Nyeholt <marcus@symbiote.com.au>
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {
+
+	private static $table_name = 'ExtensibleSearchSuggestion';
 
 	/**
 	 *	Store the frequency to make search suggestion relevance more efficient.
@@ -19,7 +30,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	);
 
 	private static $has_one = array(
-		'ExtensibleSearchPage' => 'ExtensibleSearchPage'
+		'ExtensibleSearchPage' => ExtensibleSearchPage::class
 	);
 
 	private static $default_sort = 'Frequency DESC, Term ASC';
@@ -49,7 +60,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 	public function providePermissions() {
 
-		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 		return array(
 			'EXTENSIBLE_SEARCH_SUGGESTIONS' => array(
 				'category' => _t('EXTENSIBLE_SEARCH.EXTENSIBLE_SEARCH', 'Extensible search'),
@@ -59,32 +69,20 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		);
 	}
 
-	/**
-	 *	Allow access for CMS users viewing search suggestions.
-	 */
-
 	public function canView($member = null) {
 
 		return true;
 	}
-
-	/**
-	 *	Determine access for the current CMS user creating search suggestions.
-	 */
 
 	public function canEdit($member = null) {
 
 		return $this->canCreate($member);
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
 	}
-
-	/**
-	 *	Determine access for the current CMS user deleting search suggestions.
-	 */
 
 	public function canDelete($member = null) {
 
@@ -101,10 +99,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		return $this->Term;
 	}
-
-	/**
-	 *	Restrict access for CMS users editing search suggestions.
-	 */
 
 	public function getCMSFields() {
 
@@ -142,15 +136,15 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		// Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
 
-		if($result->valid() && (strlen($this->Term) < 3)) {
-			$result->error('Minimum autocomplete length required!');
+		if($result->isValid() && (strlen($this->Term) < 3)) {
+			$result->addError('Minimum autocomplete length required!');
 		}
-		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', array(
+		else if($result->isValid() && ExtensibleSearchSuggestion::get_one(ExtensibleSearchSuggestion::class, array(
 			'ID != ?' => (int)$this->ID,
 			'Term = ?' => $this->Term,
 			'ExtensibleSearchPageID = ?' => $this->ExtensibleSearchPageID
 		))) {
-			$result->error('Suggestion already exists!');
+			$result->addError('Suggestion already exists!');
 		}
 
 		// Allow extension customisation.
