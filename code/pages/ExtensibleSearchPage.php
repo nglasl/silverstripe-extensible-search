@@ -32,7 +32,7 @@ class ExtensibleSearchPage extends Page {
 	);
 
 	/**
-	 *	The search engine extensions that are available.
+	 *	The search engines that are available.
 	 */
 
 	private static $custom_search_engines = array();
@@ -101,18 +101,18 @@ class ExtensibleSearchPage extends Page {
 		$fields = parent::getCMSFields();
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 
-		// Determine the search engine extensions that are available.
+		// Determine the search engines that are available.
 
 		$engines = array();
 		foreach(self::config()->custom_search_engines as $engine => $display) {
 
-			// The search engine extensions may define an optional display title.
+			// The search engines may define an optional display title.
 
 			if(is_numeric($engine)) {
 				$engine = $display;
 			}
 
-			// Determine whether the search engine extensions have been applied correctly.
+			// Determine whether the search engines exist.
 
 			if(ClassInfo::exists($engine)) {
 				$engines[$engine] = $display;

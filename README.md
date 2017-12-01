@@ -49,7 +49,7 @@ The following is an example configuration, where `ElasticSearch` extends the abs
 ```yaml
 ExtensibleSearchPage:
   custom_search_engines:
-    ElasticSearch: 'Solr'
+    ElasticSearch: 'Elastic'
 ```
 
 ### Search Form
@@ -115,9 +115,9 @@ Custom search engine specific templates may be defined for your search results. 
 
 `ElasticSearch_results.ss` or `Page_results.ss`
 
-## SS4 Change Log
+## SS4 Changes
 
-- The custom search engine support and configuration has changed (see above).
+- The custom search engine implementation has changed, and no longer uses extensions (see above).
 
 ## Maintainer Contact
 
