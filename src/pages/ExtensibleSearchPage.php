@@ -2,12 +2,15 @@
 
 namespace nglasl\extensible;
 
+use SilverStripe\CMS\Controllers\CMSPageHistoryController;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Control\Controller;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldExportButton;
@@ -88,27 +91,13 @@ class ExtensibleSearchPage extends \Page {
 
 		// Determine whether pages should be created.
 
-		if(self::config()->create_default_pages) {
-
-			// The problem is that class name mapping happens after this, but we need it right now to query pages.
-
-			if(!SiteTree::get()->filter('ClassName', array(
-				ExtensibleSearchPage::class,
-				'ExtensibleSearchPage'
-			))->first()) {
-
-				// Instantiate an extensible search page.
-
-				$page = ExtensibleSearchPage::create();
-				$page->Title = 'Search Page';
-				$page->write();
-				DB::alteration_message('"Default" Extensible Search Page', 'created');
-			}
+		if(!self::config()->create_default_pages) {
+			return;
 		}
 
 		// This is required to support multiple sites.
 
-		else if(ClassInfo::exists(Multisites::class)) {
+		if(ClassInfo::exists(Multisites::class)) {
 			foreach(Site::get() as $site) {
 
 				// The problem is that class name mapping happens after this, but we need it right now to query pages.
@@ -129,6 +118,23 @@ class ExtensibleSearchPage extends \Page {
 					$page->write();
 					DB::alteration_message("\"{$site->Title}\" Extensible Search Page", 'created');
 				}
+			}
+		}
+		else {
+
+			// The problem is that class name mapping happens after this, but we need it right now to query pages.
+
+			if(!SiteTree::get()->filter('ClassName', array(
+				ExtensibleSearchPage::class,
+				'ExtensibleSearchPage'
+			))->first()) {
+
+				// Instantiate an extensible search page.
+
+				$page = ExtensibleSearchPage::create();
+				$page->Title = 'Search Page';
+				$page->write();
+				DB::alteration_message('"Default" Extensible Search Page', 'created');
 			}
 		}
 		Versioned::set_stage($stage);
@@ -261,9 +267,13 @@ class ExtensibleSearchPage extends \Page {
 			), 'Title');
 		}
 
+		// The history view shouldn't show the following, as they're not versioned.
+
+		$pageHistory = Controller::has_curr() && (Controller::curr() instanceof CMSPageHistoryController);
+
 		// Determine whether analytics have been enabled.
 
-		if($configuration->get(ExtensibleSearch::class, 'enable_analytics')) {
+		if($configuration->get(ExtensibleSearch::class, 'enable_analytics') && !$pageHistory) {
 
 			// Instantiate the analytic summary.
 
@@ -283,8 +293,10 @@ class ExtensibleSearchPage extends \Page {
 
 			// Instantiate an export button.
 
-			$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
-			$summaryExport->setExportColumns($summaryDisplay);
+			if($this->getHistorySummary()->exists()) {
+				$summaryConfiguration->addComponent($summaryExport = new GridFieldExportButton());
+				$summaryExport->setExportColumns($summaryDisplay);
+			}
 
 			// Update the custom summary fields to be sortable.
 
@@ -305,7 +317,7 @@ class ExtensibleSearchPage extends \Page {
 			// Update the custom summary fields to be sortable.
 
 			$historyConfiguration->getComponentByType(GridFieldSortableHeader::class)->setFieldSorting(array(
-				'TimeSummary' => 'Created',
+				'Created.Nice' => 'Created',
 				'TimeTakenSummary' => 'Time',
 				'SearchEngineSummary' => 'SearchEngine'
 			));
@@ -314,7 +326,7 @@ class ExtensibleSearchPage extends \Page {
 			// Instantiate the archived collection of search analytics.
 
 			$archives = $this->Archives();
-			if($archives->exists()) {
+			if($archives->exists() && $archives->first()->canView()) {
 				$fields->findOrMakeTab('Root.SearchAnalytics.Archives', _t('EXTENSIBLE_SEARCH.ARCHIVES', 'Archives'));
 				$fields->addFieldToTab('Root.SearchAnalytics.Archives', GridField::create(
 					'Archives',
@@ -334,7 +346,7 @@ class ExtensibleSearchPage extends \Page {
 
 		// Determine whether suggestions have been enabled.
 
-		if($configuration->get(ExtensibleSearchSuggestion::class, 'enable_suggestions')) {
+		if($configuration->get(ExtensibleSearchSuggestion::class, 'enable_suggestions') && !$pageHistory) {
 
 			// Appropriately restrict the approval functionality.
 
@@ -350,7 +362,8 @@ class ExtensibleSearchPage extends \Page {
 				'Suggestions',
 				_t('EXTENSIBLE_SEARCH.SUGGESTIONS', 'Suggestions'),
 				$this->Suggestions(),
-				$suggestionsConfiguration = GridFieldConfig_RecordEditor::create()
+				$suggestionsConfiguration =
+					singleton(ExtensibleSearchSuggestion::class)->canEdit() ? GridFieldConfig_RecordEditor::create() : GridFieldConfig_Base::create()
 			)->setModelClass(ExtensibleSearchSuggestion::class));
 
 			// Update the custom summary fields to be sortable.

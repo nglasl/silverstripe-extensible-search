@@ -40,6 +40,9 @@ class UnitTests extends SapphireTest {
 		$config->merge(SiteTree::class, 'create_table_options', array(
 			'MySQLDatabase' => 'ENGINE=MyISAM'
 		));
+
+		// This extension throws errors when it has already been applied.
+
 		if(!SiteTree::has_extension(FulltextSearchable::class)) {
 			SiteTree::add_extension(FulltextSearchable::class . "('Title', 'MenuTitle', 'Content', 'MetaDescription')");
 		}

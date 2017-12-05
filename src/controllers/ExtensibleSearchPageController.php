@@ -74,9 +74,11 @@ class ExtensibleSearchPageController extends \PageController {
 			// Instantiate the search engine specific templates.
 
 			if($engine !== 'Full-Text') {
+				$explode = explode('\\', $engine);
+				$explode = end($explode);
 				$templates = array_merge(array(
-					$engine,
-					"{$engine}Page"
+					$explode,
+					"{$explode}Page"
 				), $templates);
 			}
 
@@ -258,8 +260,9 @@ class ExtensibleSearchPageController extends \PageController {
 		if(!isset($data['Search'])) {
 			$data['Search'] = '';
 		}
+		$search = $data['Search'];
 		$request = $this->getRequest();
-		$request->offsetSet('Search', $data['Search']);
+		$request->offsetSet('Search', $search);
 
 		// Determine whether the remaining search parameters have been passed through.
 
@@ -307,14 +310,16 @@ class ExtensibleSearchPageController extends \PageController {
 
 			// Instantiate the search engine specific templates.
 
+			$explode = explode('\\', $engine);
+			$explode = end($explode);
 			$templates = array_merge(array(
-				"{$engine}_results",
-				"{$engine}Page_results",
+				"{$explode}_results",
+				"{$explode}Page_results",
 				'ExtensibleSearch_results',
 				'ExtensibleSearchPage_results',
 				'Page_results',
-				$engine,
-				"{$engine}Page"
+				$explode,
+				"{$explode}Page"
 			), $templates);
 		}
 
@@ -377,11 +382,11 @@ class ExtensibleSearchPageController extends \PageController {
 
 		// Determine whether analytics are to be suppressed.
 
-		if($request->getVar('analytics') !== 'false') {
+		if($search && ($request->getVar('analytics') !== 'false')) {
 
 			// Update the search page specific analytics.
 
-			$this->service->logSearch($data['Search'], $count, microtime(true) - $time, $engine, $page->ID);
+			$this->service->logSearch($search, $count, microtime(true) - $time, $engine, $page->ID);
 		}
 
 		// Display the search form results.

@@ -49,7 +49,7 @@ The following is an example configuration, where `ElasticSearch` extends the abs
 ```yaml
 nglasl\extensible\ExtensibleSearchPage:
   custom_search_engines:
-    ElasticSearch: 'Elastic'
+    nglasl\extensible\ElasticSearch: 'Elastic'
 ```
 
 ### Search Form

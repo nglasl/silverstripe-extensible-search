@@ -47,7 +47,9 @@ class ExtensibleSearchAPI extends Controller {
 
 			// Display an appropriate CMS notification.
 
-			$this->getResponse()->setStatusDescription($status);
+			$response = $this->getResponse();
+			$response->setStatusCode(204);
+			$response->setStatusDescription($status);
 			return $status;
 		}
 		else {
@@ -64,7 +66,8 @@ class ExtensibleSearchAPI extends Controller {
 
 	public function getSuggestions($request) {
 
-		if(Config::inst()->get(ExtensibleSearchSuggestion::class, 'enable_suggestions') && ($suggestions = $this->service->getSuggestions($request->getVar('term'), $request->getVar('page')))) {
+		if(Config::inst()->get(ExtensibleSearchSuggestion::class, 'enable_suggestions')) {
+			$suggestions = $this->service->getSuggestions($request->getVar('term'), $request->getVar('page'));
 
 			// Return the search suggestions as JSON.
 

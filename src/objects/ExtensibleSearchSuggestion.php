@@ -104,6 +104,7 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 
 		$fields = parent::getCMSFields();
 		$fields->removeByName('ExtensibleSearchPageID');
+		$fields->dataFieldByName('Approved')->setTitle(_t('EXTENSIBLE_SEARCH.APPROVED?', 'Approved?'));
 
 		// Make sure the search suggestions and frequency are read only.
 
@@ -111,14 +112,6 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 			$fields->makeFieldReadonly('Term');
 		}
 		$fields->removeByName('Frequency');
-
-		// Update the approved flag positioning.
-
-		$fields->removeByName('Approved');
-		$fields->addFieldToTab('Root.Main', $approved = FieldGroup::create(
-			_t('EXTENSIBLE_SEARCH.APPROVED?', 'Approved?')
-		)->addExtraClass('approved wrapper'));
-		$approved->push($this->getApprovedField());
 
 		// Allow extension customisation.
 

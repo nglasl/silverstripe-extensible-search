@@ -179,7 +179,7 @@ class ExtensibleSearchService {
 				return array_unique($suggestions->column('Term'));
 			}
 		}
-		return null;
+		return array();
 	}
 
 }

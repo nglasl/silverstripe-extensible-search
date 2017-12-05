@@ -40,11 +40,16 @@
 	page.on('click', '#Form_EditForm_Suggestions input.approved', function(event) {
 
 		event.stopPropagation();
-
-		// Make sure the edit form doesn't detect changes.
-
-		$('#Form_EditForm').removeClass('changed');
 		update($(this));
+
+		// This is required to ensure the events are triggered in the correct order.
+
+		setTimeout(function() {
+
+			// Make sure the edit form doesn't detect changes.
+
+			$('form#Form_EditForm').removeClass('changed');
+		}, 0);
 	});
 
 })(jQuery);
