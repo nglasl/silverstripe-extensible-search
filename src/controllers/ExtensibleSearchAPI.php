@@ -22,7 +22,8 @@ class ExtensibleSearchAPI extends Controller {
 
 	private static $allowed_actions = array(
 		'toggleSuggestionApproved',
-		'getSuggestions'
+		'getSuggestions',
+		'getPageSuggestions'
 	);
 
 	/**
@@ -61,6 +62,7 @@ class ExtensibleSearchAPI extends Controller {
 	 *	Retrieve the most relevant search suggestions that have been approved.
 	 *
 	 *	@URLparameter term <{SEARCH_TERM}> string
+	 *	@URLparameter page <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
 	 *	@return JSON
 	 */
 
@@ -68,6 +70,31 @@ class ExtensibleSearchAPI extends Controller {
 
 		if(Config::inst()->get(ExtensibleSearchSuggestion::class, 'enable_suggestions')) {
 			$suggestions = $this->service->getSuggestions($request->getVar('term'), $request->getVar('page'));
+
+			// Return the search suggestions as JSON.
+
+			$this->getResponse()->addHeader('Content-Type', 'application/json');
+
+			// JSON_PRETTY_PRINT.
+
+			return json_encode($suggestions, 128);
+		}
+		else {
+			return $this->httpError(404);
+		}
+	}
+
+	/**
+	 *	Retrieve the search suggestions for a page that have been approved (great for client side filtering).
+	 *
+	 *	@URLparameter page <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
+	 *	@return JSON
+	 */
+
+	public function getPageSuggestions($request) {
+
+		if(Config::inst()->get(ExtensibleSearchSuggestion::class, 'enable_suggestions')) {
+			$suggestions = $this->service->getPageSuggestions($request->getVar('page'));
 
 			// Return the search suggestions as JSON.
 

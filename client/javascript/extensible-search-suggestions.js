@@ -23,7 +23,7 @@
 						term: request.term,
 						page: search.data('extensible-search-page')
 					})
-					.success(function(data) {
+					.done(function(data) {
 
 						response(data);
 					});

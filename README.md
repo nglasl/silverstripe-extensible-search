@@ -1,6 +1,6 @@
 # [extensible search](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
 
-_The current release is **4.0.0**_
+_The current release is **4.0.1**_
 
 > This module allows user customisation and developer extension of a search page instance, including analytics and suggestions.
 
