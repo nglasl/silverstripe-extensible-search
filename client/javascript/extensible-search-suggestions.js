@@ -1,10 +1,24 @@
 ;(function($) {
 	$(function() {
 
-		// Bind autocomplete to the search form.
+		// Bind autocomplete to the primary search form.
 
-		var search = $('input.extensible-search');
+		var search = $('input.extensible-search:first');
 		if(search.length) {
+
+			// Retrieve the search suggestions that have been approved.
+
+			var suggestions = [];
+			$.get('extensible-search-api/getPageSuggestions', {
+				page: search.data('extensible-search-page')
+			})
+			.done(function(data) {
+
+				suggestions = data;
+			});
+
+			// Initialise the autocomplete.
+
 			search.autocomplete({
 
 				// Determine whether to disable search suggestions, based on configuration.
@@ -15,20 +29,33 @@
 
 				minLength: 3,
 
-				// Retrieve the most relevant search suggestions that have been approved.
+				// Determine the most relevant search suggestions that have been approved.
 
 				source: function(request, response) {
 
-					$.get('extensible-search-api/getSuggestions', {
-						term: request.term,
-						page: search.data('extensible-search-page')
-					})
-					.done(function(data) {
+					// Perform client side filtering, which provides a massive performance increase!
 
-						response(data);
+					var term = search.val();
+					var options = [];
+					$.each(suggestions, function() {
+
+						if(term === this.substr(0, term.length)) {
+							options.push({
+								'label': term + '<strong>' + this.substr(term.length) + '</strong>',
+								'value': this
+							});
+						}
 					});
+					response(options);
 				}
-			});
+			})
+
+			// This needs to render HTML.
+
+			.data('ui-autocomplete')._renderItem = function(ul, item) {
+
+				return $('<li>').append($('<div>').html(item.label)).appendTo(ul);
+			}
 		}
 
 	});

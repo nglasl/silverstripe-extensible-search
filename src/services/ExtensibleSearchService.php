@@ -146,6 +146,39 @@ class ExtensibleSearchService {
 	}
 
 	/**
+	 *	Retrieve the search suggestions for a page.
+	 *
+	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
+	 *	@parameter <{LIMIT}> integer
+	 *	@parameter <{APPROVED_ONLY}> boolean
+	 *	@return array
+	 */
+
+	public function getPageSuggestions($pageID, $limit = 0, $approved = true) {
+
+		// Make sure the current user has appropriate permission.
+
+		$pageID = (int)$pageID;
+		if(($page = ExtensibleSearchPage::get_by_id(ExtensibleSearchPage::class, $pageID)) && $page->canView()) {
+
+			// Retrieve the search suggestions.
+
+			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
+				'Approved' => (int)$approved,
+				'ExtensibleSearchPageID' => $pageID
+			))->sort('Frequency', 'DESC');
+			if($limit) {
+				$suggestions = $suggestions->limit($limit);
+			}
+
+			// Make sure the search suggestions are unique.
+
+			return array_unique($suggestions->column('Term'));
+		}
+		return array();
+	}
+
+	/**
 	 *	Retrieve the most relevant search suggestions.
 	 *
 	 *	@parameter <{SEARCH_TERM}> string
@@ -178,39 +211,6 @@ class ExtensibleSearchService {
 
 				return array_unique($suggestions->column('Term'));
 			}
-		}
-		return array();
-	}
-
-	/**
-	 *	Retrieve the search suggestions for a page.
-	 *
-	 *	@parameter <{EXTENSIBLE_SEARCH_PAGE_ID}> integer
-	 *	@parameter <{LIMIT}> integer
-	 *	@parameter <{APPROVED_ONLY}> boolean
-	 *	@return array
-	 */
-
-	public function getPageSuggestions($pageID, $limit = 0, $approved = true) {
-
-		// Make sure the current user has appropriate permission.
-
-		$pageID = (int)$pageID;
-		if(($page = ExtensibleSearchPage::get_by_id(ExtensibleSearchPage::class, $pageID)) && $page->canView()) {
-
-			// Retrieve the search suggestions.
-
-			$suggestions = ExtensibleSearchSuggestion::get()->filter(array(
-				'Approved' => (int)$approved,
-				'ExtensibleSearchPageID' => $pageID
-			))->sort('Frequency', 'DESC');
-			if($limit) {
-				$suggestions = $suggestions->limit($limit);
-			}
-
-			// Make sure the search suggestions are unique.
-
-			return array_unique($suggestions->column('Term'));
 		}
 		return array();
 	}
