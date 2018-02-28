@@ -44,6 +44,12 @@
 								'label': term + '<strong>' + this.substr(term.length) + '</strong>',
 								'value': this
 							});
+
+							// Enforce a limit.
+
+							if(options.length === 5) {
+								return false;
+							}
 						}
 					});
 					response(options);
@@ -55,7 +61,7 @@
 			.data('ui-autocomplete')._renderItem = function(ul, item) {
 
 				return $('<li>').append($('<div>').html(item.label)).appendTo(ul);
-			}
+			};
 		}
 
 	});

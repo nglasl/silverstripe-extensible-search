@@ -173,7 +173,7 @@ class ExtensibleSearchService {
 
 			// Make sure the search suggestions are unique.
 
-			return array_unique($suggestions->column('Term'));
+			return $suggestions->column('Term');
 		}
 		return array();
 	}
@@ -209,7 +209,7 @@ class ExtensibleSearchService {
 
 				// Make sure the search suggestions are unique.
 
-				return array_unique($suggestions->column('Term'));
+				return $suggestions->column('Term');
 			}
 		}
 		return array();
