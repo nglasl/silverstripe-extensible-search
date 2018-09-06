@@ -431,11 +431,7 @@ class ExtensibleSearchPage extends \Page {
 
 			// Determine the search engine specific selectable fields.
 
-			$fields = singleton($this->SearchEngine)->getSelectableFields($this);
-			if (!$fields) {
-				// If null or falsey type, change to array
-				$fields = [];
-			}
+			$fields = singleton($this->SearchEngine)->getSelectableFields($this) ?: array();
 			return $fields + $selectable;
 		}
 		else if(($this->SearchEngine === 'Full-Text') && is_array($classes = Config::inst()->get(FulltextSearchable::class, 'searchable_classes')) && (count($classes) > 0)) {
