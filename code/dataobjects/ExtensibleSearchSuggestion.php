@@ -6,7 +6,8 @@
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider {
+class ExtensibleSearchSuggestion extends DataObject implements PermissionProvider
+{
 
 	/**
 	 *	Store the frequency to make search suggestion relevance more efficient.
@@ -31,11 +32,10 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'ApprovedField'
 	);
 
-	/**
-	 *	Allow the ability to disable search suggestions.
-	 */
+	private static $indexes = array(
+		'Approved' => true
+	);
 
-	private static $enable_suggestions = true;
 
 	/**
 	 *	Allow the ability to automatically approve user search generated suggestions.
@@ -47,7 +47,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Create a unique permission for management of search suggestions.
 	 */
 
-	public function providePermissions() {
+	public function providePermissions()
+	{
 
 		Requirements::css(EXTENSIBLE_SEARCH_PATH . '/css/extensible-search.css');
 		return array(
@@ -63,7 +64,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Allow access for CMS users viewing search suggestions.
 	 */
 
-	public function canView($member = null) {
+	public function canView($member = null)
+	{
 
 		return true;
 	}
@@ -72,12 +74,14 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Determine access for the current CMS user creating search suggestions.
 	 */
 
-	public function canEdit($member = null) {
+	public function canEdit($member = null)
+	{
 
 		return $this->canCreate($member);
 	}
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null)
+	{
 
 		return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
 	}
@@ -86,7 +90,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Determine access for the current CMS user deleting search suggestions.
 	 */
 
-	public function canDelete($member = null) {
+	public function canDelete($member = null)
+	{
 
 		return Permission::checkMember($member, 'EXTENSIBLE_SEARCH_SUGGESTIONS');
 	}
@@ -97,7 +102,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	@return string
 	 */
 
-	public function getTitle() {
+	public function getTitle()
+	{
 
 		return $this->Term;
 	}
@@ -106,14 +112,15 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Restrict access for CMS users editing search suggestions.
 	 */
 
-	public function getCMSFields() {
+	public function getCMSFields()
+	{
 
 		$fields = parent::getCMSFields();
 		$fields->removeByName('ExtensibleSearchPageID');
 
 		// Make sure the search suggestions and frequency are read only.
 
-		if($this->Term) {
+		if ($this->Term) {
 			$fields->makeFieldReadonly('Term');
 		}
 		$fields->removeByName('Frequency');
@@ -136,17 +143,17 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	Confirm that the current search suggestion is valid.
 	 */
 
-	public function validate() {
+	public function validate()
+	{
 
 		$result = parent::validate();
 
 		// Confirm that the current search suggestion matches the minimum autocomplete length and doesn't already exist.
 
-		if($result->valid() && (strlen($this->Term) < 3)) {
+		if ($result->valid() && (strlen($this->Term) < 3)) {
 			$result->error('Minimum autocomplete length required!');
-		}
-		else if($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', array(
-			'ID != ?' => (int)$this->ID,
+		} else if ($result->valid() && ExtensibleSearchSuggestion::get_one('ExtensibleSearchSuggestion', array(
+			'ID != ?' => (int) $this->ID,
 			'Term = ?' => $this->Term,
 			'ExtensibleSearchPageID = ?' => $this->ExtensibleSearchPageID
 		))) {
@@ -159,7 +166,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		return $result;
 	}
 
-	public function fieldLabels($includerelations = true) {
+	public function fieldLabels($includerelations = true)
+	{
 
 		return array(
 			'Term' => _t('EXTENSIBLE_SEARCH.SEARCH_TERM', 'Search Term'),
@@ -175,7 +183,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	@return string
 	 */
 
-	public function getFrequencySummary() {
+	public function getFrequencySummary()
+	{
 
 		return $this->Frequency ? $this->Frequency : '-';
 	}
@@ -186,7 +195,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	@return string
 	 */
 
-	public function getFrequencyPercentage() {
+	public function getFrequencyPercentage()
+	{
 
 		$history = ExtensibleSearch::get()->filter('ExtensibleSearchPageID', $this->ExtensibleSearchPageID);
 		return $this->Frequency ? sprintf('%.2f %%', ($this->Frequency / $history->count()) * 100) : '-';
@@ -198,7 +208,8 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 	 *	@return string
 	 */
 
-	public function getApprovedField() {
+	public function getApprovedField()
+	{
 
 		$approved = CheckboxField::create(
 			'Approved',
@@ -209,10 +220,9 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		// Restrict this field appropriately.
 
 		$user = Member::currentUserID();
-		if(!Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
+		if (!Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
 			$approved->setAttribute('disabled', 'true');
 		}
 		return $approved;
 	}
-
 }

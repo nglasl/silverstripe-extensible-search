@@ -1,0 +1,7 @@
+---
+Name: extensible_search_config
+---
+ExtensibleSearchSuggestion:
+  enable_suggestions: true
+ExtensibleSearch:
+  enable_analytics: true

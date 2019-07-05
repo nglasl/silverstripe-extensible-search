@@ -6,7 +6,8 @@
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class ExtensibleSearch extends DataObject {
+class ExtensibleSearch extends DataObject
+{
 
 	private static $db = array(
 		'Term' => 'Varchar(255)',
@@ -29,13 +30,9 @@ class ExtensibleSearch extends DataObject {
 		'SearchEngineSummary'
 	);
 
-	/**
-	 *	Allow the ability to disable search analytics.
-	 */
 
-	private static $enable_analytics = true;
-
-	public function fieldLabels($includerelations = true) {
+	public function fieldLabels($includerelations = true)
+	{
 
 		return array(
 			'TimeSummary' => _t('EXTENSIBLE_SEARCH.TIME', 'Time'),
@@ -52,7 +49,8 @@ class ExtensibleSearch extends DataObject {
 	 *	@return string
 	 */
 
-	public function getTimeSummary() {
+	public function getTimeSummary()
+	{
 
 		return $this->dbObject('Created')->Format('jS F Y, g:i:sa');
 	}
@@ -63,7 +61,8 @@ class ExtensibleSearch extends DataObject {
 	 *	@return float
 	 */
 
-	public function getTimeTakenSummary() {
+	public function getTimeTakenSummary()
+	{
 
 		return round($this->Time, 5);
 	}
@@ -74,10 +73,10 @@ class ExtensibleSearch extends DataObject {
 	 *	@return string
 	 */
 
-	public function getSearchEngineSummary() {
+	public function getSearchEngineSummary()
+	{
 
 		$configuration = Config::inst()->get('ExtensibleSearchPage', 'search_engine_extensions');
 		return isset($configuration[$this->SearchEngine]) ? $configuration[$this->SearchEngine] : $this->SearchEngine;
 	}
-
 }
