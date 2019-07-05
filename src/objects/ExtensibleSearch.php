@@ -35,11 +35,6 @@ class ExtensibleSearch extends DataObject {
 		'SearchEngineSummary'
 	);
 
-	/**
-	 *	Allow the ability to disable search analytics.
-	 */
-
-	private static $enable_analytics = true;
 
 	public function canView($member = null) {
 

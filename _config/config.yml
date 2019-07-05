@@ -1,0 +1,7 @@
+---
+Name: extensible_search_config
+---
+nglasl\extensible\ExtensibleSearchSuggestion:
+  enable_suggestions: true
+nglasl\extensible\ExtensibleSearch:
+  enable_analytics: true
