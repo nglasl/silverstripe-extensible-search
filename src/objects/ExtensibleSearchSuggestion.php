@@ -42,6 +42,10 @@ class ExtensibleSearchSuggestion extends DataObject implements PermissionProvide
 		'ApprovedField'
 	);
 
+	private static $indexes = array(
+		'Approved' => true
+	);
+
 	/**
 	 *	Allow the ability to disable search suggestions.
 	 */
