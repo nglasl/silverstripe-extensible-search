@@ -79,21 +79,8 @@ class UnitTests extends SapphireTest {
 
 	public function testAnalytics() {
 
-		// The full-text search needs to be selected.
-
 		$page = ExtensibleSearchPage::get()->first();
-		$page->SearchEngine = 'Full-Text';
-		$page->write();
 		$controller = ModelAsController::controller_for($page);
-
-		// Instantiate a searchable page.
-
-		$searchable = SiteTree::create(
-			array(
-				'Title' => 'Test'
-			)
-		);
-		$searchable->write();
 
 		// This shouldn't find anything, since the query doesn't match the page.
 

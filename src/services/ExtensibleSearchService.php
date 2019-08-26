@@ -64,7 +64,7 @@ class ExtensibleSearchService {
 
 		// Make sure the search suggestions are enabled, and the search matches the minimum autocomplete length.
 
-		if(!Config::inst()->get('ExtensibleSearchSuggestion', 'enable_suggestions') || (strlen($term) < 3)) {
+		if(!Config::inst()->get(ExtensibleSearchSuggestion::class, 'enable_suggestions') || (strlen($term) < 3)) {
 			return null;
 		}
 
