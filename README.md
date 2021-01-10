@@ -8,6 +8,8 @@ _The current release is **4.1.4**_
 
 * SilverStripe 3.1 → **4.0**
 
+**This repository is no longer supported, however this module is still supported [here](https://github.com/symbiote/silverstripe-extensible-search).**
+
 ## Getting Started
 
 * [Place the module under your root project directory.](https://packagist.org/packages/nglasl/silverstripe-extensible-search)
